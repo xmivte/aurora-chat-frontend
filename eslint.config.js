@@ -25,27 +25,27 @@ export default tseslint.config(
         parserOptions: {
           project: ['./tsconfig.app.json', "./tsconfig.node.json"],
             tsconfigRootDir: import.meta.dirname,
-            EXPERIMENTAL_useProjectService: { // Remove the warning about performance
-              allowDefaultProjectForFiles: ['./*.ts', './*.tsx'], // Root files
-                defaultProject: './tsconfig.app.json', // Default project
+            EXPERIMENTAL_useProjectService: {
+              allowDefaultProjectForFiles: ['./*.ts', './*.tsx'],
+                defaultProject: './tsconfig.app.json',
             },
         }
     },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'react': eslintReact, // React plugin
-      'import': importPlugin, // Import plugin
+      'react': eslintReact,
+      'import': importPlugin,
     },
 
       settings: {
         react: {
-            version: 'detect', // Detect React version
-            runtime: 'automatic', // New JSX transform
+            version: 'detect',
+            runtime: 'automatic',
         },
         'import/resolver': {
               typescript: {
-                  project: ['./tsconfig.app.json', "./tsconfig.node.json"], // tsconfig paths
+                  project: ['./tsconfig.app.json', "./tsconfig.node.json"],
               }
           },
       },
@@ -54,8 +54,8 @@ export default tseslint.config(
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true }],
-          'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
-            'react/jsx-uses-react': 'off', // Not needed with new JSX transform
+          'react/react-in-jsx-scope': 'off',
+            'react/jsx-uses-react': 'off',
 
             // Import rules
             'import/no-unresolved': 'error',
