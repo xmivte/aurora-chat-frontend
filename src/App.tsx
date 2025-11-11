@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import LogoutButton from '../components/LogoutButton'
-import '../App.css'
+import { LogoutButton } from './auth';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -16,7 +16,7 @@ function App() {
       </div>
       <LogoutButton />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

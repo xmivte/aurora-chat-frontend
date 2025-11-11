@@ -1,26 +1,27 @@
-import { getAuth, GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from 'firebase/auth'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import '../App.css'
+import { GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from 'firebase/auth';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const auth = getAuth()
-  const navigate = useNavigate()
+import { auth } from '@/firebase';
+import '../styles/style.css';
 
-  const [authing, setAuthing] = useState(false)
-  const [error, setError] = useState('')
+const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const [authing, setAuthing] = useState(false);
+  const [error, setError] = useState('');
 
   const signInWithProvider = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
     try {
-      setAuthing(true)
-      await signInWithPopup(auth, provider)
-      void navigate('/')
+      setAuthing(true);
+      await signInWithPopup(auth, provider);
+      void navigate('/');
     } catch (err) {
-      console.error(err)
-      setError(err instanceof Error ? err.message : 'Authentication failed')
-      setAuthing(false)
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Authentication failed');
+      setAuthing(false);
     }
-  }
+  };
 
   return (
     <>
@@ -45,7 +46,7 @@ const Login = () => {
       {authing && <span className="loader"></span>}
       {error && <div>{error}</div>}
     </>
-  )
-}
+  );
+};
 
-export default Login
+export default LoginPage;
