@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+import { LogoutButton } from './auth';
+import './App.css';
+
 import SideBar, { type Server } from './components/SideBar';
 import './index.css';
 
@@ -16,13 +19,23 @@ export default function App() {
   const [activeId, setActiveId] = useState<string>('me');
 
   return (
-    <SideBar
-      servers={mockServers}
-      activeId={activeId}
-      onServerChange={id => {
-        setActiveId(id);
-      }}
-      onAddServer={() => {}}
-    />
+    <div className="app-layout">
+      <div className="sidebar">
+        <SideBar
+          servers={mockServers}
+          activeId={activeId}
+          onServerChange={id => setActiveId(id)}
+          onAddServer={() => {}}
+        />
+      </div>
+
+      <main className="main">
+        <div>
+          <h1>You are logged in</h1>
+        </div>
+
+        <LogoutButton />
+      </main>
+    </div>
   );
 }
