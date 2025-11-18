@@ -21,11 +21,8 @@ export default function App() {
       activeId={activeId}
       onServerChange={id => {
         setActiveId(id);
-        console.log('switch to', id);
       }}
-      onAddServer={() => {
-        console.log('add server clicked');
-      }}
+      onAddServer={() => {}}
     />
   );
 }
