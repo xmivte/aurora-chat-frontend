@@ -1,21 +1,13 @@
-import { useState } from 'react';
+import { Container } from '@mui/material';
 
 import { LogoutButton } from './auth';
-import './App.css';
+import { backgroundContainer } from './auth/styles/styles';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <h1>You are logged in</h1>
-      </div>
-      <div className="card">
-        <button onClick={() => setCount(count => count + 1)}>count is {count}</button>
-      </div>
+    <Container sx={backgroundContainer}>
       <LogoutButton />
-    </>
+    </Container>
   );
 }
 

@@ -1,34 +1,44 @@
+import { Container, Box, Typography, Stack, Paper, CircularProgress, Alert } from '@mui/material';
 import { GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 
 import githubIcon from '../assets/github-icon.svg';
 import googleIcon from '../assets/google-icon.svg';
 import ProviderSignInButton from '../components/ProviderSignInButton';
 import { useAuthState } from '../hooks/useAuthState';
+import { backgroundContainer, title, paper, alert } from '../styles/styles';
 
 const LoginPage = () => {
   const { authing, error, buttonProps } = useAuthState();
 
   return (
-    <div className="wrapper">
-      <h1>AURORA</h1>
-      <div className="login-card">
-        <ProviderSignInButton
-          text="Continue with Google"
-          image={googleIcon}
-          authProvider={new GoogleAuthProvider()}
-          {...buttonProps}
-        />
-        <ProviderSignInButton
-          text="Continue with GitHub"
-          image={githubIcon}
-          authProvider={new GithubAuthProvider()}
-          {...buttonProps}
-        />
-      </div>
+    <Container sx={backgroundContainer}>
+      <Box>
+        <Typography sx={title}>AURORA</Typography>
+        <Paper sx={paper}>
+          <Stack spacing={2}>
+            <ProviderSignInButton
+              text="Continue with Google"
+              image={googleIcon}
+              authProvider={new GoogleAuthProvider()}
+              {...buttonProps}
+            />
+            <ProviderSignInButton
+              text="Continue with GitHub"
+              image={githubIcon}
+              authProvider={new GithubAuthProvider()}
+              {...buttonProps}
+            />
+          </Stack>
+        </Paper>
 
-      {authing && <span className="loader"></span>}
-      {error && <div>{error}</div>}
-    </div>
+        {authing && <CircularProgress size={20} thickness={4} />}
+        {error && (
+          <Alert severity="error" sx={alert}>
+            {error}
+          </Alert>
+        )}
+      </Box>
+    </Container>
   );
 };
 

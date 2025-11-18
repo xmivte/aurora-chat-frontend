@@ -1,8 +1,10 @@
+import Button from '@mui/material/Button';
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 import { auth } from '@/firebase';
-import '../styles/style.css';
+
+import { providerSignInButton } from '../styles/styles';
 
 interface ProviderSignInButtonProps {
   text: string;
@@ -34,14 +36,14 @@ const ProviderSignInButton = ({
   };
 
   return (
-    <button
-      className="provider-signin-btn"
+    <Button
+      sx={providerSignInButton}
+      startIcon={<img src={image} alt={text} />}
       onClick={() => void signInWithProvider()}
       disabled={disabled}
     >
-      <img src={image} alt={text} />
       {text}
-    </button>
+    </Button>
   );
 };
 
