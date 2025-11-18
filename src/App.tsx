@@ -1,4 +1,6 @@
 import { useState } from 'react';
+
+import { LogoutButton } from './auth';
 import './App.css';
 
 function App() {
@@ -7,15 +9,12 @@ function App() {
   return (
     <>
       <div>
-        <h1>Vite + React</h1>
+        <h1>You are logged in</h1>
       </div>
       <div className="card">
         <button onClick={() => setCount(count => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">Frontend is working! Backend at http://localhost:8080</p>
+      <LogoutButton />
     </>
   );
 }

@@ -72,6 +72,7 @@ export default tseslint.config(
         alphabetize: { order: 'asc', caseInsensitive: true },
         }
       ],
+      'semi': ['error', 'always'],
     },
   },
 )
