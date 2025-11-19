@@ -4,6 +4,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import { JSX } from 'react';
 
 import PersonalChatsIcon from '../assets/icons/personal-chats-icon.svg';
 import { createSideBarSx } from '../themes/sidebar_style.ts';
@@ -21,13 +22,8 @@ export type SideBarProps = {
   themeColors?: ThemeColors;
 };
 
-export default function SideBar({
-  servers,
-  activeId,
-  onServerChange,
-  onAddServer,
-  themeColors = DEFAULT_THEME,
-}: SideBarProps) {
+const Static_side_bar_sx = createSideBarSx(DEFAULT_THEME);
+const SideBar = ({ servers, activeId, onServerChange, onAddServer }: SideBarProps): JSX.Element => {
   const {
     containerSx,
     buttonSx,
@@ -39,7 +35,7 @@ export default function SideBar({
     dividerSx,
     addServerSectionStackSx,
     addServerAvatarSx,
-  } = createSideBarSx(themeColors);
+  } = Static_side_bar_sx;
 
   return (
     <Box sx={containerSx}>
@@ -87,4 +83,6 @@ export default function SideBar({
       )}
     </Box>
   );
-}
+};
+
+export default SideBar;
