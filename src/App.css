@@ -1,14 +1,114 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height:100%;
+  width:100%;
+  margin:0;
+  padding:0;
 }
 
-.card {
-  padding: 2em;
+.page {
+  height: 100vh;
+  width: 100%;
+  background-color: #0d0b1a; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.read-the-docs {
-  color: #888;
+.container {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
+  background-color: #131426; 
+  border-radius: 16px;        
+  overflow: hidden;           /* keeps children inside rounded edges */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* Left panel: Chat list */
+.chat-list-panel {
+  width: 30%;
+  background-color: #131426;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.app-header {
+  text-align: left;
+  padding-left:20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #6a5acd; /* lavender accent */
+  margin-bottom: 16px;
+}
+
+/* Middle panel: Chat window */
+.chat-window-panel {
+  width: 70%;
+  background-color: #131426;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+
+.chat-list {
+  width: 100%;
+  color: #ffffff;
+}
+
+
+.chat-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: transparent;
+}
+
+.chat-item:hover {
+  background-color: #1a1a2b;
+}
+
+.chat-item.selected {
+  background-color: #2a2a3f;
+}
+
+.chat-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #6a5acd;
+  margin-right: 12px;
+  overflow: hidden;          /* ensures image stays inside circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-avatar img {
+  width: 100%;               /* scale image to avatar size */
+  height: 100%;              /* fill the circle */
+  object-fit: cover;         /* crop instead of squish */
+  border-radius: 50%;        /* keeps it circular */
+}
+
+.chat-name {
+  font-size: 16px;
+  font-weight: normal;
+  color: #e0e0f0;
+}
+
+.chat-name.unread {
+  font-weight: bold;
+  color: #ffffff;
 }
