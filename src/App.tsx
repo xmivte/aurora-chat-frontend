@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
 import chatsData from "./mock/data.json";
-import ChatList from "./components/ChatList";
+import ChatList from "./components/LeftPanel/ChatList";
 import ChatWindow from "./components/ChatWindow";
 
 function App() {
@@ -14,25 +14,23 @@ function App() {
   return (
     <>
       <div>
-        <h1>You are logged in</h1>
-    <div className="page">
-      <div className="container">
-        <aside className="chat-list-panel">
-          <div className="app-header">AURORA</div>
-            <ChatList
-              chats={chatsData}
-              onSelectChat={setSelectedChatId}
-              selectedChatId={selectedChatId}
-            /> 
-        </aside>
-        <main className="chat-window-panel">
-          <ChatWindow chat={selectedChat} />
-        </main>
+        <div className="page">
+          <div className="container"> 
+            <aside className="chat-list-panel">
+              <div className="app-header">AURORA</div>
+              <ChatList
+                chats={chatsData}
+                onSelectChat={setSelectedChatId}
+                selectedChatId={selectedChatId}
+              />
+            </aside>
+            <main className="chat-window-panel">
+              <div className="app-header-button"><LogoutButton /></div>
+              <ChatWindow chat={selectedChat} />
+            </main>
+          </div>
+        </div>
       </div>
-    </div>
-</div>
-
-
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React from "react";
-import '../App.css';
+import './style.css';
+import avatar from '../../img/avatar.png';
 
 interface ChatListProps {
   chats: { id: number; name: string; image: string, unread?: boolean }[];
@@ -17,9 +18,8 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
             onClick={() => onSelectChat(chat.id)}
             className={`chat-item ${chat.id === selectedChatId ? "selected" : ""}`}
           >
-            {/*<div className="chat-avatar"></div>*/}
             {chat.image?
-            (<div className="chat-avatar"><img src = {chat.image} /></div>):(<div className="chat-avatar"></div>)  
+            (<div className="chat-avatar"><img src = {chat.image} alt = {chat.name}/></div>):(<div className="chat-avatar"><img src={avatar} alt = "avatar"/></div>)  
             }
 
              <span className={`chat-name ${chat.unread ? "unread" : ""}`}>{chat.name}</span>
