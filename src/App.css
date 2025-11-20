@@ -1,14 +1,59 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height:100%;
+  width:100%;
+  margin:0;
+  padding:0;
 }
 
-.card {
-  padding: 2em;
+.page {
+  height: 100vh;
+  width: 100%;
+  background-color: #0d0b1a; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.read-the-docs {
-  color: #888;
+.container {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
+  background-color: #131426; 
+  border-radius: 16px;        
+  overflow: hidden;           /* keeps children inside rounded edges */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* Left panel: Chat list */
+.chat-list-panel {
+  width: 30%;
+  background-color: #131426;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.app-header {
+  text-align: left;
+  padding-left:20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #6a5acd;
+  margin-bottom: 16px;
+}
+
+.app-header-button {
+  display: flex;
+  justify-content: flex-end; /* push button to the right */
+  margin-bottom: 10px;
+}
+
+/* Middle panel: Chat window*/
+.chat-window-panel {
+  width: 70%;
+  background-color: #131426;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
