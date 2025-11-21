@@ -1,0 +1,59 @@
+.chat-list {
+  width: 100%;
+  color: #ffffff;
+}
+
+
+.chat-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: transparent;
+}
+
+.chat-item:hover {
+  background-color: #1a1a2b;
+}
+
+.chat-item.selected {
+  background-color: #2a2a3f;
+}
+
+.chat-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #6a5acd;
+  margin-right: 12px;
+  overflow: hidden;          /* ensures image stays inside circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-avatar img {
+  width: 100%;               /* scale image to avatar size */
+  height: 100%;              /* fill the circle */
+  object-fit: cover;         /* crop instead of squish */
+  border-radius: 50%;        /* keeps it circular */
+}
+
+.chat-name {
+  font-size: 16px;
+  font-weight: normal;
+  color: #e0e0f0;
+}
+
+.chat-name.unread {
+  font-weight: bold;
+  color: #ffffff;
+}
