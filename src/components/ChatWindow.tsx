@@ -25,8 +25,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             component="img"
             src={
               chatRoom.users.length === 2
-                ? chatRoom.users.find(user => user.id != curretUserId)?.pictureUrl
-                : chatRoom.pictureUrl
+                ? (chatRoom.users.find(user => user.id != curretUserId)?.image ?? undefined)
+                : (chatRoom.image ?? undefined)
             }
             alt="chat-room"
             sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#FFFFFF' }}
@@ -59,10 +59,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   alignItems: curretUserId === message.user.id ? 'flex-end' : 'flex-start',
                 }}
               >
-                {message.user.pictureUrl ? (
+                {message.user.image ? (
                   <Box
                     component="img"
-                    src={message.user.pictureUrl}
+                    src={message.user.image}
                     alt="user"
                     sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#FFFFFF' }}
                   />

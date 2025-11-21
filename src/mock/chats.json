@@ -1,0 +1,41 @@
+[{
+  "id": 1,
+  "name": "Group chat",
+  "image": "https://i.imgur.com/szV5sdGs.jpg",
+  "unread": true,
+  "users": [
+    {
+      "name": "Alice",
+      "id": 1,
+      "image": null
+    },
+    {
+      "name": "Bob",
+      "id": 2,
+      "image": null
+    },
+    {
+      "name": "Charlie",
+      "id": 3,
+      "image": null
+    }
+  ]
+},
+{
+  "id": 2,
+  "name": "Mickey",
+  "image": "https://i.imgur.com/szV5sdGs.jpg",
+  "unread": true,
+  "users": [
+    {
+      "name": "Tom",
+      "id": 1,
+      "image": null
+    },
+    {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    }
+  ]
+}]

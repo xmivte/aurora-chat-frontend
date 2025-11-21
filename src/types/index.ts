@@ -3,16 +3,19 @@ export type Message = {
   user: User;
   content: string;
   date: Date;
+  fk_chatId: number;
 };
 
 export type User = {
   id: number;
   name: string;
-  pictureUrl?: string;
+  image?: string | null;
 };
 
 export type Chat = {
-  name?: string;
-  pictureUrl: string;
+  id: number;
+  name?: string | null;
+  image?: string | null;
+  unread?: boolean;
   users: User[];
 };
