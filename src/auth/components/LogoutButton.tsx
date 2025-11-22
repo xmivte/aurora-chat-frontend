@@ -1,6 +1,9 @@
+import { Button } from '@mui/material';
 import { getAuth, signOut } from 'firebase/auth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { logoutButton } from '../styles/styles';
 
 const LogoutButton = () => {
   const [busy, setBusy] = useState(false);
@@ -19,9 +22,9 @@ const LogoutButton = () => {
   };
 
   return (
-    <button onClick={() => void handleLogout()} disabled={busy}>
+    <Button sx={logoutButton} onClick={() => void handleLogout()} disabled={busy}>
       Logout
-    </button>
+    </Button>
   );
 };
 
