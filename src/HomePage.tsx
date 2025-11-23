@@ -1,4 +1,4 @@
-import SideBarComponent, { type MembersInfo} from "./sidebar/SideBarComponent";
+import SideBarComponent, { type MembersInfo} from "./sidebar/ChatSideBar";
 import firstUser from './assets/firstUser.svg'
 import secondUser from './assets/secondUser.svg'
 import thirdUser from './assets/thirdUser.svg'

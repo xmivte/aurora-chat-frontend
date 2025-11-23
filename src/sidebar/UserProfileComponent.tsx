@@ -1,19 +1,33 @@
-import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar } from "@mui/material";
-import { MembersInfo } from "./SideBarComponent";
+import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar, BadgeProps } from "@mui/material";
+import { MembersInfo } from "./ChatSideBar";
 
-function UserProfileComponent({username, online, url} : MembersInfo) {
+const ListItemStyling = {
+    color: 'white',
+    mb: 1,
+}
+
+const OnlineIndicatorPositionStyling: BadgeProps['anchorOrigin'] = { 
+    vertical: 'bottom', 
+    horizontal: 'right'
+}
+
+const OnlineIndicatorFormStyling = {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+}
+
+const ChatUsersProfile = ({username, online, url} : MembersInfo) => {
     return (
-        <ListItem sx={{ color: 'white', mb: 1 }}>
+        <ListItem sx={ListItemStyling}>
             <Badge
                 overlap="circular"
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={OnlineIndicatorPositionStyling}
                 variant="dot"
                 sx={{
                     '& .MuiBadge-badge': {
+                        ...OnlineIndicatorFormStyling,
                         backgroundColor: online ? 'green' : 'red',
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
                     },
                 }}
             >
@@ -26,4 +40,4 @@ function UserProfileComponent({username, online, url} : MembersInfo) {
     )
 }
 
-export default UserProfileComponent;
+export default ChatUsersProfile;
