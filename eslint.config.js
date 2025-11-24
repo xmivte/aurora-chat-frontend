@@ -3,26 +3,76 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import eslintReact from 'eslint-plugin-react'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import importPlugin from 'eslint-plugin-import'
+import prettierConfig from 'eslint-config-prettier'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'node_modules', 'build', 'coverage', '.vite', '*.config.js'] },
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    extends: [
+        js.configs.recommended,
+        ...tseslint.configs.recommendedTypeChecked, // Type-checked rules, (Could be strict if needed)
+        eslintReact.configs.flat.recommended, // React rules
+        jsxA11y.flatConfigs.recommended, // Accessibility rules for the sake of it
+        prettierConfig // Prettier integration
+    ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+        parserOptions: {
+          project: ['./tsconfig.app.json', "./tsconfig.node.json"],
+            tsconfigRootDir: import.meta.dirname,
+            EXPERIMENTAL_useProjectService: {
+              allowDefaultProjectForFiles: ['./*.ts', './*.tsx'],
+                defaultProject: './tsconfig.app.json',
+            },
+        }
     },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'react': eslintReact,
+      'import': importPlugin,
     },
+
+      settings: {
+        react: {
+            version: 'detect',
+            runtime: 'automatic',
+        },
+        'import/resolver': {
+              typescript: {
+                  project: ['./tsconfig.app.json', "./tsconfig.node.json"],
+              }
+          },
+      },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true },
+        { allowConstantExport: true }],
+          'react/react-in-jsx-scope': 'off',
+            'react/jsx-uses-react': 'off',
+
+            // Import rules
+            'import/no-unresolved': 'error',
+            'import/order': [ 'warn', {
+          groups: [
+              'builtin',
+                'external',
+                'internal',
+                'parent',
+                'sibling',
+                'index',
+          ],
+            'newlines-between': 'always',
+        alphabetize: { order: 'asc', caseInsensitive: true },
+        }
       ],
+      'semi': ['error', 'always'],
     },
   },
 )

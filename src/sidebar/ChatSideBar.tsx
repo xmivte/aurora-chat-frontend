@@ -19,27 +19,27 @@ const PaperStyling = {
     padding: '2px',
     width: '300px',
     color: 'white',
-}
+};
 
 const ListTextStyling = {
     padding: '20px',
-}
+};
 
 const ChatSideBar = ({ members }: SideBarProps) =>  {
-    const tabs = ['Info', 'Media']
+    const tabs = ['Info', 'Media'];
 
     return (
         <Paper sx={PaperStyling}>
             <TabsComponent items={tabs}/>
-            <ListItemText primary="Group Info" sx={ListTextStyling}/>
+            <ListItemText sx={ListTextStyling} primary="Group Info"/>
 
             <List>
                 {members.map((member, i) => {
-                    return <UserProfileComponent key={i} {...member}/>
+                    return <UserProfileComponent key={i} {...member}/>;
                 })}
             </List>
         </Paper>
     );
-}
+};
 
 export default ChatSideBar;
