@@ -42,5 +42,16 @@
     "content": "Yes!",
     "date": "2025-01-12T08:00:00.000Z",
     "fk_chatId": 2
+  },
+  {
+    "id": 3,
+    "user": {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    },
+    "content": "?",
+    "date": "2025-01-13T08:00:00.000Z",
+    "fk_chatId": 2
   }
 ]

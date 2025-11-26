@@ -1,0 +1,18 @@
+.chatWindow-outer-box {
+  background-color: #282741 !important;
+  border-radius: 15px !important;
+  padding: 16px !important;
+}
+
+.chatWindow-input {
+  background-color: #1b1a2f !important;
+  width: 98% !important;
+}
+
+.chatWindow-input .MuiInputBase-input {
+  color: #e2e1e2;
+}
+
+.chatWindow-input-send:focus {
+  outline: none;
+}

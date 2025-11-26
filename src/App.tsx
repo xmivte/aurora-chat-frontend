@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
-import ChatWindow from './components/ChatWindow';
+import ChatWindow from './components/ChatWindow/ChatWindow';
 import ChatList from './components/LeftPanel/ChatList';
 import SideBar, { type Server } from './components/SideBar';
 import chatMock from './mock/chats.json';

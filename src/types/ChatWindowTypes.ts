@@ -6,3 +6,13 @@ export type ChatWindowProps = {
   chatRoom: Chat;
   messages: Message[];
 };
+
+export type HeaderProps = {
+  curretUserId: number;
+  chatRoom: Chat;
+};
+
+export type MessageProps = {
+  curretUserId: number;
+  messages: Message[];
+};
