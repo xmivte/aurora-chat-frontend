@@ -1,51 +1,44 @@
-import { GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from 'firebase/auth';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Container, Box, Typography, Stack, Paper, CircularProgress, Alert } from '@mui/material';
+import { GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 
-import { auth } from '@/firebase';
-import '../styles/style.css';
+import githubIcon from '../assets/github-icon.svg';
+import googleIcon from '../assets/google-icon.svg';
+import ProviderSignInButton from '../components/ProviderSignInButton';
+import { useAuthState } from '../hooks/useAuthState';
+import { backgroundContainer, title, paper, alert } from '../styles/styles';
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-
-  const [authing, setAuthing] = useState(false);
-  const [error, setError] = useState('');
-
-  const signInWithProvider = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
-    try {
-      setAuthing(true);
-      await signInWithPopup(auth, provider);
-      void navigate('/');
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Authentication failed');
-      setAuthing(false);
-    }
-  };
+  const { authing, error, buttonProps } = useAuthState();
 
   return (
-    <>
-      <div>
-        <h1>You are logged out</h1>
-      </div>
-      <div className="card">
-        <button
-          onClick={() => void signInWithProvider(new GoogleAuthProvider())}
-          disabled={authing}
-        >
-          Continue with Google
-        </button>
-        <button
-          onClick={() => void signInWithProvider(new GithubAuthProvider())}
-          disabled={authing}
-        >
-          Continue with Github
-        </button>
-      </div>
+    <Container sx={backgroundContainer}>
+      <Box>
+        <Typography sx={title}>AURORA</Typography>
+        <Paper sx={paper}>
+          <Stack spacing={2}>
+            <ProviderSignInButton
+              text="Continue with Google"
+              image={googleIcon}
+              authProvider={new GoogleAuthProvider()}
+              {...buttonProps}
+            />
+            <ProviderSignInButton
+              text="Continue with GitHub"
+              image={githubIcon}
+              authProvider={new GithubAuthProvider()}
+              {...buttonProps}
+            />
+          </Stack>
+        </Paper>
 
-      {authing && <span className="loader"></span>}
-      {error && <div>{error}</div>}
-    </>
+        {authing && <CircularProgress size={20} thickness={4} />}
+        {error && (
+          <Alert severity="error" sx={alert}>
+            {error}
+          </Alert>
+        )}
+      </Box>
+    </Container>
   );
 };
 

@@ -2,14 +2,25 @@ import { useState } from 'react';
 
 import { LogoutButton } from './auth';
 import './App.css';
+import './index.css';
 import ChatWindow from './components/ChatWindow';
 import ChatList from './components/LeftPanel/ChatList';
+import SideBar, { type Server } from './components/SideBar';
 import chatMock from './mock/chats.json';
 import messages from './mock/messages.json';
 import { Message } from './types/index';
 
-function App() {
-  //const [count, setCount] = useState(0);
+const mockServers: Server[] = [
+  { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
+  { id: 'b', label: 'Server B', glyph: 'B', bg: '#f5b400' },
+  { id: 'c', label: 'DB Primary', glyph: 'DB', bg: '#0f766e' },
+  { id: 'd', label: 'DB Replica', glyph: 'R', bg: '#1e293b' },
+  { id: 'e', label: 'Cache', glyph: 'C', bg: '#2563eb' },
+  { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
+];
+
+export default function App() {
+  const [activeId, setActiveId] = useState<string>('me');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const selectedChat = chatMock.find(chat => chat.id === selectedChatId) || null;
 
@@ -21,8 +32,17 @@ function App() {
   }));
 
   return (
-    <>
-      <div>
+    <div className="app-layout">
+      <div className="sidebar">
+        <SideBar
+          servers={mockServers}
+          activeId={activeId}
+          onServerChange={id => setActiveId(id)}
+          onAddServer={() => {}}
+        />
+      </div>
+
+      <main className="main">
         <div className="page">
           <div className="container">
             <aside className="chat-list-panel">
@@ -33,7 +53,8 @@ function App() {
                 selectedChatId={selectedChatId}
               />
             </aside>
-            <main className="chat-window-panel">
+
+            <section className="chat-window-panel">
               <div className="app-header-button">
                 <LogoutButton />
               </div>
@@ -44,12 +65,10 @@ function App() {
                   messages={selectedChatMessagesParsed}
                 />
               )}
-            </main>
+            </section>
           </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
-
-export default App;
