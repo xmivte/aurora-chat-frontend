@@ -3,7 +3,6 @@
   color: #ffffff;
 }
 
-
 .chat-list ul {
   list-style: none;
   padding: 0;
@@ -34,17 +33,17 @@
   border-radius: 50%;
   background-color: #6a5acd;
   margin-right: 12px;
-  overflow: hidden;          /* ensures image stays inside circle */
+  overflow: hidden; /* ensures image stays inside circle */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .chat-avatar img {
-  width: 100%;               /* scale image to avatar size */
-  height: 100%;              /* fill the circle */
-  object-fit: cover;         /* crop instead of squish */
-  border-radius: 50%;        /* keeps it circular */
+  width: 100%; /* scale image to avatar size */
+  height: 100%; /* fill the circle */
+  object-fit: cover; /* crop instead of squish */
+  border-radius: 50%; /* keeps it circular */
 }
 
 .chat-name {
@@ -56,4 +55,15 @@
 .chat-name.unread {
   font-weight: bold;
   color: #ffffff;
+}
+
+.chat-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
 }

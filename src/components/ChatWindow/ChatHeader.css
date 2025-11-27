@@ -1,0 +1,16 @@
+.chat-header-outer-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.chat-header-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff;
+}
+
+.chat-header-name {
+  margin: 16px !important;
+}
