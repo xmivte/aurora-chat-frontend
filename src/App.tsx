@@ -91,7 +91,7 @@ export default function App() {
   );
 }
 {
-  /*<<<<<<< HEAD
+  /* <<<<<<< HEAD
 import chatMock from './mock/chats.json';
 import messages from './mock/messages.json';
 import { Message } from './types/index';
@@ -146,5 +146,5 @@ import Button from '@mui/material/Button';
                 />
               )}
             </section>
-======= */
+=======*/
 }
