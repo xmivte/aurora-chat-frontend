@@ -5,6 +5,12 @@ import TabsComponent from './ChatSideBarTabs';
 import UserProfileComponent from './ChatUsersProfile';
 import { type SideBarProps } from './types';
 
+export interface MembersInfo {
+  url: string;
+  online: boolean;
+  username: string;
+}
+
 const PaperStyling: SxProps<Theme> = {
   backgroundColor: 'rgb(38, 33, 61)',
   padding: '2px',

@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
-import ChatWindow from './components/ChatWindow/ChatWindow';
+import ChatWindow from './components/ChatWindow'; // './components/ChatWindow/ChatWindow';
 import ChatList from './components/LeftPanel/ChatList';
 import SideBar, { type Server } from './components/SideBar';
-import chatMock from './mock/chats.json';
-import messages from './mock/messages.json';
-import { Message } from './types/index';
+
+import Button from '@mui/material/Button';
+
+import chatsData from './mock/chats.json';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -20,6 +21,85 @@ const mockServers: Server[] = [
 ];
 
 export default function App() {
+  const [activeId, setActiveId] = useState<string>('personal');
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
+  const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
+
+  return (
+    <div className="app-layout">
+      <div className="sidebar">
+        <SideBar
+          servers={mockServers}
+          activeId={activeId}
+          onServerChange={id => setActiveId(id)}
+          onAddServer={() => {}}
+        />
+      </div>
+      <main className="main">
+        <div className="page">
+          <div className="container" style={{ padding: 50, background: '#2a2a3f' }}>
+            <div
+              style={{
+                borderRadius: '20px',
+                background: '#8282afff',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div className="app-header-bar">
+                <div className="app-header">AURORA</div>
+                <div className="app-header-button">
+                  <LogoutButton />
+                </div>
+              </div>
+              <div className="panels">
+                {activeId === 'personal' && (
+                  <>
+                    <aside className="chat-list-panel">
+                      <div className="chat-list-header">
+                        <div className="chat-title">Chat</div>
+                        <div className="new-chat-button-container">
+                          <Button
+                            className="new-chat-button"
+                            variant="contained"
+                            color="primary"
+                            disableRipple
+                            onClick={() => setSelectedChatId(-1)} // new chat
+                          >
+                            New Chat
+                          </Button>
+                        </div>
+                      </div>
+                      <ChatList
+                        chats={chatsData}
+                        onSelectChat={setSelectedChatId}
+                        selectedChatId={selectedChatId}
+                      />
+                    </aside>
+                    <section className="chat-window-panel">
+                      <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />
+                    </section>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+{
+  /*<<<<<<< HEAD
+import chatMock from './mock/chats.json';
+import messages from './mock/messages.json';
+import { Message } from './types/index';
+=======
+import Button from '@mui/material/Button';
+>>>>>>> 0a3dc21 (fixed layout and added new chat btn)
+
+<<<<<<< HEAD
   const [activeId, setActiveId] = useState<string>('me');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const selectedChat = chatMock.find(chat => chat.id === selectedChatId) || null;
@@ -66,9 +146,5 @@ export default function App() {
                 />
               )}
             </section>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+======= */
 }
