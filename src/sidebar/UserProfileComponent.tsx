@@ -1,4 +1,4 @@
-import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar, BadgeProps } from "@mui/material";
+import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar, BadgeProps, SxProps, Theme } from "@mui/material";
 
 import { MembersInfo } from "./ChatSideBar";
 
@@ -12,7 +12,7 @@ const OnlineIndicatorPositionStyling: BadgeProps['anchorOrigin'] = {
     horizontal: 'right'
 };
 
-const OnlineIndicatorFormStyling = {
+const OnlineIndicatorFormStyling: SxProps<Theme> = {
     width: 10,
     height: 10,
     borderRadius: '50%',

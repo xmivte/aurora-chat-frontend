@@ -1,4 +1,4 @@
-import { Paper, List } from '@mui/material';
+import { Paper, List, SxProps, Theme } from '@mui/material';
 import ListItemText from '@mui/material/ListItemText';
 
 import TabsComponent from './TabComponent';
@@ -14,14 +14,14 @@ export type SideBarProps = {
     members: MembersInfo[]
 }
 
-const PaperStyling = {
-    'backgroundColor': 'rgb(38, 33, 61)',
+const PaperStyling: SxProps<Theme>  = {
+    backgroundColor: 'rgb(38, 33, 61)',
     padding: '2px',
     width: '300px',
     color: 'white',
 };
 
-const ListTextStyling = {
+const ListTextStyling: SxProps<Theme> = {
     padding: '20px',
 };
 

@@ -14,7 +14,14 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
       <ul>
         {chats.map((chat) => (
           <li
+            tabIndex={0}
             key={chat.id}
+            role = 'button'
+            onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                    onSelectChat(chat.id);
+                }
+            }}
             onClick={() => onSelectChat(chat.id)}
             className={`chat-item ${chat.id === selectedChatId ? "selected" : ""}`}
           >

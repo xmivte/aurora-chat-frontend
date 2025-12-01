@@ -1,4 +1,4 @@
-import { Tabs, Tab, Box } from "@mui/material";
+import { Tabs, Tab, Box, SxProps, Theme } from "@mui/material";
 import { useState } from "react";
 
 type TabProps = {
@@ -10,13 +10,13 @@ export type TabsComponentProps = {
     items: string[]
 };
 
-const BoxStyling = { 
+const BoxStyling: SxProps<Theme> = { 
     width: '100%', 
     bgcolor: 'rgb(38, 33, 61)', 
     borderRadius: 2 
 };
 
-const TabStyling = {
+const TabStyling: SxProps<Theme> = {
     flexGrow: 1, 
     textTransform: 'none',
     minHeight: 0,
@@ -27,7 +27,7 @@ const TabStyling = {
     outline: 'none !important'
 };
 
-const ActiveTabStyling = {
+const ActiveTabStyling: SxProps<Theme> = {
     color: 'white',
     bgcolor: 'rgb(51, 45, 80)',
     outline: 'none',
