@@ -1,5 +1,3 @@
-import React from "react";
-
 import firstUser from '@/assets/firstUser.svg';
 import secondUser from '@/assets/secondUser.svg';
 import thirdUser from '@/assets/thirdUser.svg';

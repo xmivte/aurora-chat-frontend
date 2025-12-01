@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "user": {
+      "name": "Alice",
+      "id": 1,
+      "image": null
+    },
+    "content": "Hello, how are you?",
+    "date": "2025-01-10T12:00:00.000Z",
+    "fk_chatId": 1
+  },
+  {
+    "id": 2,
+    "user": {
+      "name": "Bob",
+      "id": 2,
+      "image": null
+    },
+    "content": "Im good, thanks!",
+    "date": "2025-01-12T08:00:00.000Z",
+    "fk_chatId": 1
+  },
+  {
+    "id": 1,
+    "user": {
+      "name": "Tom",
+      "id": 1,
+      "image": null
+    },
+    "content": "Hello, do you want to go for an run?",
+    "date": "2025-01-10T12:00:00.000Z",
+    "fk_chatId": 2
+  },
+  {
+    "id": 2,
+    "user": {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    },
+    "content": "Yes!",
+    "date": "2025-01-12T08:00:00.000Z",
+    "fk_chatId": 2
+  },
+  {
+    "id": 3,
+    "user": {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    },
+    "content": "?",
+    "date": "2025-01-13T08:00:00.000Z",
+    "fk_chatId": 2
+  }
+]
