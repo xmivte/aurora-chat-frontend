@@ -1,18 +1,9 @@
 import { Paper, List, SxProps, Theme } from '@mui/material';
 import ListItemText from '@mui/material/ListItemText';
 
-import TabsComponent from './TabComponent';
-import UserProfileComponent from './UserProfileComponent';
-
-export type MembersInfo = {
-  url: string;
-  online: boolean;
-  username: string;
-};
-
-export type SideBarProps = {
-  members: MembersInfo[];
-};
+import TabsComponent from './ChatSideBarTabs';
+import UserProfileComponent from './ChatUsersProfile';
+import { type SideBarProps } from './types';
 
 const PaperStyling: SxProps<Theme> = {
   backgroundColor: 'rgb(38, 33, 61)',

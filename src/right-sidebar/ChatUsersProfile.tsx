@@ -9,7 +9,7 @@ import {
   Theme,
 } from '@mui/material';
 
-import { MembersInfo } from './ChatSideBar';
+import { type MembersInfo } from './types';
 
 const ListItemStyling = {
   color: 'white',
