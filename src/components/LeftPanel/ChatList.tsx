@@ -16,12 +16,6 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
           <li
             tabIndex={0}
             key={chat.id}
-            role = 'button'
-            onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                    onSelectChat(chat.id);
-                }
-            }}
             onClick={() => onSelectChat(chat.id)}
             className={`chat-item ${chat.id === selectedChatId ? "selected" : ""}`}
           >
