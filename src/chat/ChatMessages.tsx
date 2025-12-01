@@ -1,8 +1,9 @@
 import Avatar from '@mui/material/Avatar';
+import avatar from './avatar.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { MessageProps } from '../../types/ChatWindowTypes';
+import { MessageProps } from '../types/ChatWindowTypes';
 import './ChatMessages.css';
 
 const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: MessageProps) => {
@@ -34,7 +35,7 @@ const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: Messag
                   className="chat-message-content-avatar"
                 />
               ) : (
-                <Avatar className="chat-message-content-avatar" />
+                <Avatar className="chat-message-content-avatar" src={avatar} />
               )}
               <Typography className="chat-message-content-dateName">
                 {message.user.name}{' '}

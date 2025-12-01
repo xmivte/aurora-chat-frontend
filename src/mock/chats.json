@@ -1,7 +1,7 @@
 [{
   "id": 1,
   "name": "Group chat",
-  "image": "https://i.imgur.com/szV5sdGs.jpg",
+  "image": "",
   "unread": true,
   "users": [
     {

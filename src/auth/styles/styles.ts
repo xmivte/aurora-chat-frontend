@@ -28,13 +28,16 @@ export const providerSignInButton: SxProps<Theme> = {
 };
 
 export const logoutButton: SxProps<Theme> = {
-  p: '14px 0',
+  p: '10px 0',
   borderRadius: '12px',
-  background: '#141025',
+  background: '#121222',
   lineHeight: 1.4,
   fontSize: '16px',
   color: 'rgba(255, 255, 255, 0.87)',
   width: '100px',
+  '&:hover': {
+    background: '#2E2A4F',          
+  },
 };
 
 export const backgroundContainer: SxProps<Theme> = {

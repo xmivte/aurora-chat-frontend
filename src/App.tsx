@@ -3,9 +3,14 @@ import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
-import ChatWindow from './components/ChatWindow'; // './components/ChatWindow/ChatWindow';
-import ChatList from './components/LeftPanel/ChatList';
-import SideBar, { type Server } from './components/SideBar';
+//import ChatWindow from './components/ChatWindow'; 
+import ChatWindow from './chat/ChatWindow';
+import messages from './mock/messages.json';
+import { Message } from './types/index';
+
+
+import ChatList from './chat/ChatList';
+import SideBar, { type Server } from './server/SideBar';
 
 import Button from '@mui/material/Button';
 
@@ -25,6 +30,14 @@ export default function App() {
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
 
+  const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);
+
+  const selectedChatMessagesParsed: Message[] = selectedChatMessages.map(msg => ({
+    ...msg,
+    date: new Date(msg.date),
+  }));
+
+
   return (
     <div className="app-layout">
       <div className="sidebar">
@@ -37,16 +50,8 @@ export default function App() {
       </div>
       <main className="main">
         <div className="page">
-          <div className="container" style={{ padding: 50, background: '#2a2a3f' }}>
-            <div
-              style={{
-                borderRadius: '20px',
-                background: '#8282afff',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
+          <div className="container">
+            <div className="container-content">
               <div className="app-header-bar">
                 <div className="app-header">AURORA</div>
                 <div className="app-header-button">
@@ -78,7 +83,18 @@ export default function App() {
                       />
                     </aside>
                     <section className="chat-window-panel">
-                      <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />
+                     {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
+
+
+                    {selectedChat && (
+                        <ChatWindow
+                          curretUserId={1}
+                          chatRoom={selectedChat}
+                          messages={selectedChatMessagesParsed}
+                        />
+                      )}
+
+
                     </section>
                   </>
                 )}
@@ -90,6 +106,7 @@ export default function App() {
     </div>
   );
 }
+
 {
   /* <<<<<<< HEAD
 import chatMock from './mock/chats.json';
@@ -147,4 +164,11 @@ import Button from '@mui/material/Button';
               )}
             </section>
 =======*/
+
+
+
+ {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
+
+
+
 }

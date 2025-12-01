@@ -1,8 +1,10 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { HeaderProps } from '../../types/ChatWindowTypes';
+import { HeaderProps } from '../types/ChatWindowTypes';
 import './ChatHeader.css';
+
+import avatar from '../LeftPanel/avatar.png';
 
 const ChatHeader: React.FC<HeaderProps> = ({ curretUserId, chatRoom }: HeaderProps) => {
   const yesterday = new Date();
@@ -15,8 +17,8 @@ const ChatHeader: React.FC<HeaderProps> = ({ curretUserId, chatRoom }: HeaderPro
           component="img"
           src={
             chatRoom.users.length === 2
-              ? (chatRoom.users.find(user => user.id != curretUserId)?.image ?? undefined)
-              : (chatRoom.image ?? undefined)
+              ? (chatRoom.users.find(user => user.id != curretUserId)?.image || avatar)
+              : (chatRoom.image || avatar)
           }
           alt="chat-room"
           className="chat-header-avatar"
