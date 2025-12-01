@@ -4,13 +4,13 @@ import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
 //import ChatWindow from './components/ChatWindow'; 
-import ChatWindow from './chat/ChatWindow';
+import ChatWindow from './features/chat/ChatWindow';
 import messages from './mock/messages.json';
 import { Message } from './types/index';
 
 
-import ChatList from './chat/ChatList';
-import SideBar, { type Server } from './server/SideBar';
+import ChatList from './features/chat/ChatList';
+import SideBar, { type Server } from './features/server/SideBar';
 
 import Button from '@mui/material/Button';
 
@@ -27,7 +27,7 @@ const mockServers: Server[] = [
 
 export default function App() {
   const [activeId, setActiveId] = useState<string>('personal');
-  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
   const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
 
   const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);

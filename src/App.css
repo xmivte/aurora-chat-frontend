@@ -79,7 +79,7 @@
     border-radius: 20px;
     overflow: auto;
     /*height: 100%;*/
-    box-shadow: 0px 4px 8px rgb(202, 20, 20);
+    box-shadow: 0px 4px 8px rgb(19, 18, 28);
    
 }
 
@@ -123,4 +123,10 @@
 .new-chat-button:hover {
     /*transform: scale(1.05);*/
     background: linear-gradient(to right, rgb(128,81,194), rgb(227,91,153));
+}
+
+.new-chat-button:focus,
+.new-chat-button:active {
+  outline: none;
+  border: none;
 }

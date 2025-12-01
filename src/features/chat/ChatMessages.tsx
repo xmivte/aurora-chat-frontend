@@ -3,7 +3,7 @@ import avatar from './avatar.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { MessageProps } from '../types/ChatWindowTypes';
+import { MessageProps } from '../../types/ChatWindowTypes';
 import './ChatMessages.css';
 
 const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: MessageProps) => {

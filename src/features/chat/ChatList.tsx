@@ -1,5 +1,5 @@
 import './ChatList.css';
-import { Chat } from '../types/index';
+import { Chat } from '../../types/index';
 
 import avatar from './avatar.png';
 
