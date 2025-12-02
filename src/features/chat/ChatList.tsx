@@ -1,7 +1,7 @@
 import './ChatList.css';
 import { Chat } from '../../types/index';
 
-import avatar from './avatar.png';
+import avatar from './assets/avatar.png';
 
 interface ChatListProps {
   chats: Chat[];

@@ -5,9 +5,9 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { JSX } from 'react';
-import PersonalChatsIcon from './personal-chats-icon.svg';
-import { createSideBarSx } from '../../themes/sidebar_style.ts';
-import { DEFAULT_THEME, type ThemeColors } from '../../themes/sidebar_theme.ts';
+import PersonalChatsIcon from './assets/personal-chats-icon.svg';
+import { createSideBarSx } from './sidebar_style.ts';
+import { DEFAULT_THEME, type ThemeColors } from './sidebar_theme.ts';
 import { SideBarAddServerSection } from './SideBar_AddServer_Button.tsx';
 
 export type Server = { id: string; label: string; glyph?: string; bg?: string };

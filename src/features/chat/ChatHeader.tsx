@@ -2,9 +2,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { HeaderProps } from '../../types/ChatWindowTypes';
-import './ChatHeader.css';
 
-import avatar from './avatar.png';
+import {
+  outerBoxSx,
+  avatarSx,
+  nameSx,
+} from './ChatHeader';
+
+import avatar from './assets/avatar.png';
 
 const ChatHeader: React.FC<HeaderProps> = ({ curretUserId, chatRoom }: HeaderProps) => {
   const yesterday = new Date();
@@ -12,7 +17,7 @@ const ChatHeader: React.FC<HeaderProps> = ({ curretUserId, chatRoom }: HeaderPro
 
   return (
     <>
-      <Box className="chat-header-outer-box">
+      <Box  sx={outerBoxSx}>
         <Box
           component="img"
           src={
@@ -21,14 +26,14 @@ const ChatHeader: React.FC<HeaderProps> = ({ curretUserId, chatRoom }: HeaderPro
               : (chatRoom.image || avatar)
           }
           alt="chat-room"
-          className="chat-header-avatar"
+          sx={avatarSx}
         />
         {chatRoom.name === undefined && chatRoom.users.length === 2 ? (
-          <Typography variant="h6" className="chat-header-name">
+          <Typography variant="h6" sx={nameSx}>
             {chatRoom.users.find(user => user.id != curretUserId)?.name}
           </Typography>
         ) : (
-          <Typography variant="h6" className="chat-header-name">
+          <Typography variant="h6" sx={nameSx}>
             {chatRoom.name || 'Chat room'}
           </Typography>
         )}

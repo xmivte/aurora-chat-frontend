@@ -1,4 +1,4 @@
-import type { ThemeColors } from './sidebar_theme.ts';
+import type { ThemeColors } from './sidebar_theme';
 
 export const createSideBarSx = (colors: ThemeColors) => {
   const containerSx = {
