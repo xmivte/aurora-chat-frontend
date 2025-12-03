@@ -4,7 +4,7 @@ import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
 //import ChatWindow from './components/ChatWindow'; 
-import ChatWindow from './features/chat/ChatWindow';
+import ChatWindow from './features/chat/ChatWindow.tsx';
 import messages from './mock/messages.json';
 import { Message } from './types/index';
 
