@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './index.css';
 import App from './App.tsx';
 import { AuthRoute, LoginPage } from './auth';
+import WebSocketExample from './components/WebSocketExample.tsx';
 import theme from './theme';
 
 createRoot(document.getElementById('root')!).render(
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/websockets" element={<WebSocketExample />} />
         </Routes>
       </Router>
     </ThemeProvider>
