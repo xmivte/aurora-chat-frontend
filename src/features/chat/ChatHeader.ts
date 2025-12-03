@@ -17,3 +17,10 @@ export const nameSx = {
   fontWeight: 600,
   color: '#F8F9FB ',
 };
+
+export const chatInfoBtnSx = {
+  color: '#5832a2 ',
+  outline: 'none',
+  '&:focus': { outline: 'none' },
+  '&:focus-visible': { outline: 'none' },
+};

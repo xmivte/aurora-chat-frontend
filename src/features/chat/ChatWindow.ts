@@ -11,10 +11,24 @@ export const outerBoxSx = {
   overflow: 'hidden',
 };
 
+export const outerBoxFullSx = {
+  display: 'flex',
+  flexDirection: 'row',
+  width: '100%',
+  height: '100%'
+};
+
+export const outerBoxOnlyChatSx = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%'
+};
+
 export const messagesSx = {
-  flex: 1,              
-  minHeight: 0,        
-  overflowY: 'auto',    
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
   scrollbarWidth: 'thin',
   scrollbarColor: '#444 #121222',
   '&::-webkit-scrollbar': { width: '8px' },
@@ -23,8 +37,8 @@ export const messagesSx = {
 };
 
 export const inputSx = {
-  flexShrink: 0,  
-  marginTop: '15px',     
+  flexShrink: 0,
+  marginTop: '15px',
   backgroundColor: '#292641',
   borderRadius: '20px',
   width: '100%',

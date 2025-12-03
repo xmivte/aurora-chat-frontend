@@ -29,6 +29,7 @@ export default function App() {
   const [activeId, setActiveId] = useState<string>('personal');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
   const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);
 
@@ -45,7 +46,7 @@ export default function App() {
           servers={mockServers}
           activeId={activeId}
           onServerChange={id => setActiveId(id)}
-          onAddServer={() => {}}
+          onAddServer={() => { }}
         />
       </div>
       <main className="main">
@@ -78,19 +79,25 @@ export default function App() {
                       </div>
                       <ChatList
                         chats={chatsData}
-                        onSelectChat={setSelectedChatId}
+                        onSelectChat={(id) => {
+                          setSelectedChatId(id);
+                          setIsSidebarOpen(false);
+                        }}
                         selectedChatId={selectedChatId}
                       />
                     </aside>
                     <section className="chat-window-panel">
-                     {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
+                      {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
 
 
-                    {selectedChat && (
+                      {selectedChat && (
                         <ChatWindow
                           curretUserId={1}
                           chatRoom={selectedChat}
                           messages={selectedChatMessagesParsed}
+                          isSidebarOpen={isSidebarOpen}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          onCloseSidebar={() => setIsSidebarOpen(false)}
                         />
                       )}
 
@@ -167,7 +174,7 @@ import Button from '@mui/material/Button';
 
 
 
- {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
+  {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/ }
 
 
 
