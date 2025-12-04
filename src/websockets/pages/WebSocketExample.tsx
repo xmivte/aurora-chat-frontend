@@ -3,7 +3,16 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { useState, useEffect } from 'react';
 import SockJS from 'sockjs-client';
 
-import { providerSignInButton, backgroundContainer } from '../auth/styles/styles';
+import {
+  backgroundContainer,
+  containerBox,
+  sendMessageButton,
+  messagesBox,
+  messagesPaper,
+  messageText,
+} from '../styles/styles';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 
 interface ChatMessage {
   groupId: number;
@@ -17,7 +26,7 @@ export default function WebSocketExample() {
 
   useEffect(() => {
     const stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws`),
       onConnect: () => {
         stompClient.subscribe('/topic/chat.1', (message: IMessage) => {
           const received = JSON.parse(message.body) as ChatMessage;
@@ -50,31 +59,21 @@ export default function WebSocketExample() {
 
   return (
     <Container sx={backgroundContainer}>
-      <Box sx={{ p: 2.5 }}>
+      <Box sx={containerBox}>
         <Typography variant="h5" component="h3" gutterBottom>
           WebSocket Example
         </Typography>
-        <Button sx={providerSignInButton} onClick={sendMessage}>
+        <Button sx={sendMessageButton} onClick={sendMessage}>
           Send Message
         </Button>
 
-        <Box sx={{ mt: 2.5 }}>
+        <Box sx={messagesBox}>
           <Typography variant="h6" component="h4" gutterBottom>
             Messages:
           </Typography>
-          <Paper
-            sx={{
-              height: 200,
-              overflowY: 'auto',
-              bgcolor: '#000000',
-            }}
-          >
+          <Paper sx={messagesPaper}>
             {messages.map((msg, index) => (
-              <Typography
-                key={index}
-                variant="body2"
-                sx={{ mb: 0.4, fontSize: '12px', color: '#ffffff' }}
-              >
+              <Typography key={index} variant="body2" sx={messageText}>
                 {msg}
               </Typography>
             ))}
