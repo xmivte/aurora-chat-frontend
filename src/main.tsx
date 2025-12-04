@@ -7,6 +7,7 @@ import './index.css';
 import App from './App.tsx';
 import { AuthRoute, LoginPage } from './auth';
 import theme from './theme';
+import WebSocketExample from './websockets/pages/WebSocketExample.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/websockets" element={<WebSocketExample />} />
         </Routes>
       </Router>
     </ThemeProvider>
