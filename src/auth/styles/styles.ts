@@ -4,7 +4,7 @@ export const title: SxProps<Theme> = {
   fontSize: '2.5rem',
   letterSpacing: '4px',
   fontWeight: 600,
-  color: 'rgba(255, 255, 255, 0.87)',
+  color: '#F8F9FB',
 };
 
 export const paper: SxProps<Theme> = {
@@ -24,17 +24,23 @@ export const providerSignInButton: SxProps<Theme> = {
   background: 'linear-gradient(90deg, #5832a2, #d84380)',
   lineHeight: 1.4,
   fontSize: '16px',
-  color: 'rgba(255, 255, 255, 0.87)',
+  color: '#F8F9FB',
+    '&:hover': {
+    background: 'linear-gradient(90deg, #7a4bd1, #ff5c9d)'
+  },
 };
 
 export const logoutButton: SxProps<Theme> = {
-  p: '14px 0',
+  p: '10px 0',
   borderRadius: '12px',
-  background: '#141025',
+  background: '#2E2A4F',
   lineHeight: 1.4,
   fontSize: '16px',
-  color: 'rgba(255, 255, 255, 0.87)',
+  color: '#F8F9FB',
   width: '100px',
+  '&:hover': {
+    background: '#121222',          
+  },
 };
 
 export const backgroundContainer: SxProps<Theme> = {

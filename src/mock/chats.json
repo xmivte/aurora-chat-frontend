@@ -1,7 +1,7 @@
 [{
   "id": 1,
   "name": "Group chat",
-  "image": "https://i.imgur.com/szV5sdGs.jpg",
+  "image": "",
   "unread": true,
   "users": [
     {
@@ -25,7 +25,7 @@
   "id": 2,
   "name": "Mickey",
   "image": "https://i.imgur.com/szV5sdGs.jpg",
-  "unread": true,
+  "unread": false,
   "users": [
     {
       "name": "Tom",

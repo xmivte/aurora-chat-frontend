@@ -3,12 +3,18 @@ import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
-import ChatWindow from './components/ChatWindow/ChatWindow';
-import ChatList from './components/LeftPanel/ChatList';
-import SideBar, { type Server } from './components/SideBar';
-import chatMock from './mock/chats.json';
+//import ChatWindow from './components/ChatWindow'; 
+import ChatWindow from './features/chat/ChatWindow.tsx';
 import messages from './mock/messages.json';
 import { Message } from './types/index';
+
+
+import ChatList from './features/chat/ChatList';
+import SideBar, { type Server } from './features/server/SideBar';
+
+import Button from '@mui/material/Button';
+
+import chatsData from './mock/chats.json';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -20,9 +26,10 @@ const mockServers: Server[] = [
 ];
 
 export default function App() {
-  const [activeId, setActiveId] = useState<string>('me');
-  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
-  const selectedChat = chatMock.find(chat => chat.id === selectedChatId) || null;
+  const [activeId, setActiveId] = useState<string>('personal');
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
+  const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);
 
@@ -31,6 +38,7 @@ export default function App() {
     date: new Date(msg.date),
   }));
 
+
   return (
     <div className="app-layout">
       <div className="sidebar">
@@ -38,37 +46,72 @@ export default function App() {
           servers={mockServers}
           activeId={activeId}
           onServerChange={id => setActiveId(id)}
-          onAddServer={() => {}}
+          onAddServer={() => { }}
         />
       </div>
-
       <main className="main">
         <div className="page">
           <div className="container">
-            <aside className="chat-list-panel">
-              <div className="app-header">AURORA</div>
-              <ChatList
-                chats={chatMock}
-                onSelectChat={setSelectedChatId}
-                selectedChatId={selectedChatId}
-              />
-            </aside>
-
-            <section className="chat-window-panel">
-              <div className="app-header-button">
-                <LogoutButton />
+            <div className="container-content">
+              <div className="app-header-bar">
+                <div className="app-header">AURORA</div>
+                <div className="app-header-button">
+                  <LogoutButton />
+                </div>
               </div>
-              {selectedChat && (
-                <ChatWindow
-                  curretUserId={1}
-                  chatRoom={selectedChat}
-                  messages={selectedChatMessagesParsed}
-                />
-              )}
-            </section>
+              <div className="panels">
+                {activeId === 'personal' && (
+                  <>
+                    <aside className="chat-list-panel">
+                      <div className="chat-list-header">
+                        <div className="chat-title">Chat</div>
+                        <div className="new-chat-button-container">
+                          <Button
+                            className="new-chat-button"
+                            variant="contained"
+                            color="primary"
+                            disableRipple
+                            onClick={() => setSelectedChatId(-1)} // new chat
+                          >
+                            New Chat
+                          </Button>
+                        </div>
+                      </div>
+                      <ChatList
+                        chats={chatsData}
+                        onSelectChat={(id) => {
+                          setSelectedChatId(id);
+                          setIsSidebarOpen(false);
+                        }}
+                        selectedChatId={selectedChatId}
+                      />
+                    </aside>
+                    <section className="chat-window-panel">
+                      {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
+
+
+                      {selectedChat && (
+                        <ChatWindow
+                          curretUserId={1}
+                          chatRoom={selectedChat}
+                          messages={selectedChatMessagesParsed}
+                          isSidebarOpen={isSidebarOpen}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          onCloseSidebar={() => setIsSidebarOpen(false)}
+                        />
+                      )}
+
+
+                    </section>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>
     </div>
   );
 }
+
+

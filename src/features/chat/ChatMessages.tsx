@@ -1,9 +1,22 @@
 import Avatar from '@mui/material/Avatar';
+import avatar from './assets/avatar.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { MessageProps } from '../../types/ChatWindowTypes';
-import './ChatMessages.css';
+
+import {
+  outerBoxSx,
+  messageRowSx,
+  messageReverseSx,
+  contentStartSx,
+  contentEndSx,
+  avatarSx,
+  dateNameSx,
+  textBoxOtherSx,
+  textBoxMeSx,
+  textSx,
+} from './ChatMessages';
 
 const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: MessageProps) => {
   const yesterday = new Date();
@@ -11,39 +24,32 @@ const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: Messag
 
   return (
     <>
-      <Box className="chat-outer-box">
+      <Box sx={outerBoxSx}>
         {messages.map(message => (
           <Box
             key={message.id}
-            className={
-              curretUserId === message.user.id ? 'chat-message-reverse' : 'chat-message-row'
-            }
+            sx={curretUserId === message.user.id ? messageReverseSx : messageRowSx}
           >
-            <Box
-              className={
-                curretUserId === message.user.id
-                  ? 'chat-message-content-end'
-                  : 'chat-message-content-start'
-              }
+            <Box sx={curretUserId === message.user.id ? contentEndSx : contentStartSx}
             >
               {message.user.image ? (
                 <Box
                   component="img"
                   src={message.user.image}
                   alt="user"
-                  className="chat-message-content-avatar"
+                  sx={avatarSx}
                 />
               ) : (
-                <Avatar className="chat-message-content-avatar" />
+                <Avatar sx={avatarSx} src={avatar} />
               )}
-              <Typography className="chat-message-content-dateName">
+              <Typography sx={dateNameSx}>
                 {message.user.name}{' '}
                 {message.date < yesterday
                   ? message.date.toLocaleDateString()
                   : message.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Typography>
-              <Box className="chat-message-content-textbox">
-                <Typography gutterBottom className="chat-message-content-text">
+              <Box sx={curretUserId === message.user.id ? textBoxMeSx : textBoxOtherSx}>
+                <Typography gutterBottom sx={textSx}>
                   {message.content}
                 </Typography>
               </Box>
