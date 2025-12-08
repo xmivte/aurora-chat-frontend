@@ -18,7 +18,7 @@ import {
   textSx,
 } from './ChatMessages';
 
-const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: MessageProps) => {
+const ChatMessages = ({ curretUserId, messages }: MessageProps) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 

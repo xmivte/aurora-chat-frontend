@@ -24,14 +24,14 @@ export const mockMembersList: MembersInfo[] = [
 ];
 
 
-const ChatWindow: React.FC<ChatWindowProps> = ({
+const ChatWindow = ({
   curretUserId,
   chatRoom,
   messages,
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
-}) => {
+}:ChatWindowProps) => {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {

@@ -8,35 +8,24 @@ import {
   SxProps,
   Theme,
 } from '@mui/material';
-
 import { type MembersInfo } from './types';
+import {
+  listItemStyles,
+  onlineIndicatorPosition,
+  onlineIndicatorForm,
+} from './ChatUsersProfile.ts';
 
-const ListItemStyling = {
-  color: 'white',
-  mb: 1,
-};
-
-const OnlineIndicatorPositionStyling: BadgeProps['anchorOrigin'] = {
-  vertical: 'bottom',
-  horizontal: 'right',
-};
-
-const OnlineIndicatorFormStyling: SxProps<Theme> = {
-  width: 10,
-  height: 10,
-  borderRadius: '50%',
-};
 
 const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
   return (
-    <ListItem sx={ListItemStyling}>
+    <ListItem sx={listItemStyles}>
       <Badge
         overlap="circular"
-        anchorOrigin={OnlineIndicatorPositionStyling}
+        anchorOrigin={onlineIndicatorPosition}
         variant="dot"
         sx={{
           '& .MuiBadge-badge': {
-            ...OnlineIndicatorFormStyling,
+            ...onlineIndicatorForm,
             backgroundColor: online ? 'green' : 'red',
           },
         }}

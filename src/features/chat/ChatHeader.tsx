@@ -6,10 +6,10 @@ import { HeaderProps } from '../../types/ChatWindowTypes';
 import { outerBoxSx, avatarSx, nameSx, chatInfoBtnSx } from './ChatHeader';
 import avatar from './assets/avatar.png';
 
-const ChatHeader: React.FC<HeaderProps & { onOpenSidebar?: () => void }> = ({
+const ChatHeader = ({
   curretUserId,
   chatRoom,
-  onOpenSidebar,}) => {
+  onOpenSidebar,}: HeaderProps & { onOpenSidebar?: () => void }) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 

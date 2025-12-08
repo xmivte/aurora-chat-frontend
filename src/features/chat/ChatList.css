@@ -37,17 +37,17 @@
   border-radius: 50%;
   background-color: rgb(169,161,231);
   margin-right: 12px;
-  overflow: hidden; /* ensures image stays inside circle */
+  overflow: hidden; 
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .chat-avatar img {
-  width: 100%; /* scale image to avatar size */
-  height: 100%; /* fill the circle */
-  object-fit: cover; /* crop instead of squish */
-  border-radius: 50%; /* keeps it circular */
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  border-radius: 50%; 
 }
 
 .chat-name {

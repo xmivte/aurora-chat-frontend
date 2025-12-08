@@ -37,6 +37,9 @@ export const createSideBarSx = (colors: ThemeColors) => {
     flex: 1,
     overflowY: 'auto',
     overflowX: 'hidden',
+    '&::-webkit-scrollbar': {
+    display: 'none',
+  },
   };
   const footerStackSx = { p: 1, alignItems: 'center', flexShrink: 0 };
 

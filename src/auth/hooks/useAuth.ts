@@ -24,13 +24,13 @@ export const useAuth = (navigate: NavigateFunction) => {
         //checks if last sign in time is not older than the limit
         if (Date.now() - lastSignIn > LAST_SIGN_IN_LIMIT) {
           void signOut(auth);
-          void navigate('/login');
+          void navigate(''); //void navigate('');
         } else {
           setLoading(false);
         }
       } else {
         setLoading(false);
-        void navigate('/login');
+        void navigate(''); //void navigate('/login');
       }
     });
     return () => unsubscribe();
