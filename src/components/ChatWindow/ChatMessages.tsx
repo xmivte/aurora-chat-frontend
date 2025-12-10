@@ -12,7 +12,7 @@ const ChatMessages: React.FC<MessageProps> = ({ curretUserId, messages }: Messag
   return (
     <>
       <Box className="chat-outer-box">
-        {messages.map(message => (
+        {messages?.filter(Boolean).map(message => (
           <Box
             key={message.id}
             className={

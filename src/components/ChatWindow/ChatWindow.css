@@ -2,6 +2,7 @@
   background-color: #282741 !important;
   border-radius: 15px !important;
   padding: 16px !important;
+  overflow-y: auto;
 }
 
 .chatWindow-input {
