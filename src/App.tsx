@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
 import { LogoutButton } from './auth';
@@ -7,7 +8,6 @@ import ChatWindow from './components/ChatWindow/ChatWindow';
 import ChatList from './components/LeftPanel/ChatList';
 import SideBar, { type Server } from './components/SideBar';
 import { Chat, User } from './types/index';
-import { getAuth } from "firebase/auth";
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -18,84 +18,90 @@ const mockServers: Server[] = [
   { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
 ];
 
-function decodeJwt(token : string | null) {
+type JwtPayload = {
+  id: number;
+};
+
+function decodeJwt(token: string | null): JwtPayload | null {
   if (!token) return null;
   const payload = token.split('.')[1];
-  return JSON.parse(atob(payload));
+  try {
+    return JSON.parse(atob(payload)) as JwtPayload;
+  } catch (e) {
+    console.error('Invalid JWT:', e);
+    return null;
+  }
 }
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 
 export default function App() {
   const [activeId, setActiveId] = useState<string>('me');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
-  const [userId, setUserId] = useState<number>();
+  const [userId, setUserId] = useState<number | null>();
   const [chatRooms, setChatRooms] = useState<Chat[]>([]);
 
   const selectedChat = chatRooms.find(chat => chat.id === selectedChatId) || null;
 
   useEffect(() => {
-    let token = localStorage.getItem("accessToken"); 
+    let token = localStorage.getItem('accessToken');
     if (!token) {
-      token = localStorage.getItem("JWT"); 
-      if (!token){
-        console.warn("No token found");
+      token = localStorage.getItem('JWT');
+      if (!token) {
+        console.warn('No token found');
         return;
       }
     }
-    const decoded = decodeJwt(token);
-    const id = decoded?.id;
-    setUserId(id);
+    const decodedToken = decodeJwt(token);
+    setUserId(decodedToken?.id);
   }, []);
-  
 
   useEffect(() => {
-    if(!userId) return;
+    if (!userId) return;
 
     async function fetchChatRooms() {
       try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      const token = user ? await user.getIdToken() : null;
-      const res = await fetch(`${BACKEND_URL}/group/${userId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }}); 
-      const data : Chat[] = await res.json();
-      console.log('Fetched chat rooms:', data);
-      setChatRooms(data);
+        const auth = getAuth();
+        const user = auth.currentUser;
+        const token = user ? await user.getIdToken() : null;
+        const res = await fetch(`${BACKEND_URL}/group/${userId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = (await res.json()) as Chat[];
+        setChatRooms(data);
       } catch (error) {
         console.error('Error fetching chat rooms:', error);
       }
     }
-    fetchChatRooms();  
+    void fetchChatRooms();
   }, [userId]);
-  
+
   useEffect(() => {
     async function fetchUsers() {
       try {
-      if (selectedChatId === null) return;
-      const auth = getAuth();
-      const user = auth.currentUser;
-      const token = user ? await user.getIdToken() : null;
-      const res = await fetch(`${BACKEND_URL}/user/${selectedChatId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }}); 
-      const users : User[] = await res.json();
-      setChatRooms(prev => prev.map(chat =>
-        chat.id === selectedChatId ? { ...chat, users } : chat
-      ));
-
-      console.log('Fetched users for chat room:', users);
+        if (selectedChatId === null) return;
+        const auth = getAuth();
+        const user = auth.currentUser;
+        const token = user ? await user.getIdToken() : null;
+        const res = await fetch(`${BACKEND_URL}/user/${selectedChatId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const users = (await res.json()) as User[];
+        setChatRooms(prev =>
+          prev.map(chat => (chat.id === selectedChatId ? { ...chat, users } : chat))
+        );
       } catch (error) {
         console.error('Error fetching users for chat room:', error);
       }
     }
-    fetchUsers();  
+    void fetchUsers();
   }, [selectedChatId]);
 
   return (
@@ -126,10 +132,7 @@ export default function App() {
                 <LogoutButton />
               </div>
               {selectedChat && userId && selectedChat.users && (
-                <ChatWindow
-                  curretUserId={userId}
-                  chatRoom={selectedChat}
-                />
+                <ChatWindow curretUserId={userId} chatRoom={selectedChat} />
               )}
             </section>
           </div>

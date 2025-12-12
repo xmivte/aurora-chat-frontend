@@ -1,25 +1,25 @@
+import SockJS from 'sockjs-client';
+
+import { ChatWindowProps } from '../../types/ChatWindowTypes';
+
 import SendIcon from '@mui/icons-material/Send';
 import { Container } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { Client, IMessage } from '@stomp/stompjs';
-import { useState, useEffect } from 'react';
-import SockJS from 'sockjs-client';
-import { ChatWindowProps } from '../../types/ChatWindowTypes';
-import Header from './ChatHeader';
-import MessageField from './ChatMessages';
+
 import './ChatWindow.css';
-import { getAuth } from "firebase/auth";
+import { getAuth } from 'firebase/auth';
+import { useState, useEffect } from 'react';
 
 import { Message, ChatMessage } from '../../types/index.ts';
 
+import Header from './ChatHeader';
+import MessageField from './ChatMessages';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 
-const ChatWindow: React.FC<ChatWindowProps> = ({
-  curretUserId,
-  chatRoom
-}: ChatWindowProps) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatWindowProps) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -34,64 +34,62 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       setLimitWarning(true);
     } else {
       setLimitWarning(false);
-    }  
+    }
   }, [input]);
 
   useEffect(() => {
-  let isMounted = true;
-  const fetchMessages = async () => {
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      const token = user ? await user.getIdToken() : null;
+    let isMounted = true;
+    const fetchMessages = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        const token = user ? await user.getIdToken() : null;
 
-      const res = await fetch(`${BACKEND_URL}/messages/${chatRoom.id}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }});
-      console.log('Fetching messages for chat room:', chatRoom.id);
-      const data = await res.json();
-      console.log('Fetched messages:', data);
-      const convertedMessages: Message[] = data.map((received: ChatMessage ) => ({
-        id: received.id,
-        user: { id: received.senderId,
-                name: received.username, },
-        content: received.content,
-        date: (new Date(received.createdAt)),
-        fk_chatId: received.groupId }));
-      if (isMounted) setMessages(convertedMessages);
-    } catch (err) {
-      console.error("Failed to fetch messages:", err);
-    }
-  };
-  fetchMessages();
-  return () => {
-    isMounted = false;
-  };
-}, [chatRoom.id]);
+        const res = await fetch(`${BACKEND_URL}/messages/${chatRoom.id}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = (await res.json()) as ChatMessage[];
+        const convertedMessages: Message[] = data.map((received: ChatMessage) => ({
+          id: received.id,
+          user: { id: received.senderId, name: received.username },
+          content: received.content,
+          date: new Date(received.createdAt),
+          fk_chatId: received.groupId,
+        }));
+        if (isMounted) setMessages(convertedMessages);
+      } catch (err) {
+        console.error('Failed to fetch messages:', err);
+      }
+    };
+    void fetchMessages();
+    return () => {
+      isMounted = false;
+    };
+  }, [chatRoom.id]);
 
   useEffect(() => {
     const stopActivate = async () => {
       const token = await getAuth().currentUser?.getIdToken();
       const stompClient = new Client({
-        webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws`),
-        connectHeaders: {
-        Authorization: `Bearer ${token}`,   // ⬅️ TOKEN GOES HERE
-        },
+        webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws?token=${token}`),
         onConnect: () => {
           stompClient.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
             const received = JSON.parse(message.body) as ChatMessage;
-            console.log('Received message:', received);
-            const converted : Message = { 
-              id: received.id, 
-              user: { id: received.senderId, 
-                      name: received.username }, 
-              content: received.content, 
-              date: new Date(received.createdAt), 
-              fk_chatId: received.groupId };
-            setMessages(prev => [...prev, converted]);
+            const converted: Message = {
+              id: received.id,
+              user: { id: received.senderId, name: received.username },
+              content: received.content,
+              date: new Date(received.createdAt),
+              fk_chatId: received.groupId,
+            };
+            setMessages(prev => {
+              if (prev.some(m => m.id === converted.id)) return prev;
+              return [...prev, converted];
+            });
           });
         },
       });
@@ -101,8 +99,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         void stompClient.deactivate();
       };
     };
-    stopActivate();
-  }, []);
+    void stopActivate();
+  }, [chatRoom.id]);
 
   const sendMessage = () => {
     if (client && client.connected) {
@@ -133,8 +131,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           variant="outlined"
           value={input}
           error={limitWarning}
-          helperText={limitWarning ? "Reaching character limit" : ""}
-          onChange={(e) => setInput(e.target.value)}
+          helperText={limitWarning ? 'Reaching character limit' : ''}
+          onChange={e => setInput(e.target.value)}
           slotProps={{
             htmlInput: {
               maxLength: 2000,
