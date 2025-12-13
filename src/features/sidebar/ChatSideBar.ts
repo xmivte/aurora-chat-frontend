@@ -1,10 +1,12 @@
+import theme from "../../theme/theme";
+
 export const paperStyles = {
-  backgroundColor: '#1A192D',
+  backgroundColor: theme.palette.secondary.main,
   padding: '2px',
   width: '300px',
-  color: 'white',
+  color: theme.customColors.colorText,
   marginLeft: '15px',
-  borderRadius: '20px',
+  borderRadius: theme.customShape.roundedContainer,
 };
 
 export const listTextStyles = {
@@ -12,12 +14,12 @@ export const listTextStyles = {
 };
 
 export const closeButtonStyles = {
-  color: 'white',
+  color: theme.customColors.colorText,
   float: 'right',
- '&:focus': {
+  '&:focus': {
     outline: 'none',
   },
- '&:focus-visible': {
+  '&:focus-visible': {
     outline: 'none',
   },
 };

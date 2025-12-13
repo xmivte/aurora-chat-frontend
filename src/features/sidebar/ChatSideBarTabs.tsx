@@ -1,8 +1,8 @@
-import { Tabs, Box, SxProps, Theme } from '@mui/material';
+import { Tabs, Box } from '@mui/material';
 import { useState } from 'react';
 import ChatSideBarTab from './ChatSideBarTab';
 import { type TabsComponentProps } from './types';
-import { boxStyles  } from './ChatSideBarTabs.ts';
+import { boxStyles } from './ChatSideBarTabs.ts';
 
 
 const ChatSidebarTabs = ({ items }: TabsComponentProps) => {

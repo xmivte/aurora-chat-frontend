@@ -2,14 +2,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import InfoIcon from '@mui/icons-material/Info';
 import IconButton from '@mui/material/IconButton';
-import { HeaderProps } from '../../types/ChatWindowTypes';
+import { HeaderProps } from './ChatWindowTypes';
 import { outerBoxSx, avatarSx, nameSx, chatInfoBtnSx } from './ChatHeader';
 import avatar from './assets/avatar.png';
 
 const ChatHeader = ({
-  curretUserId,
+  currentUserId,
   chatRoom,
-  onOpenSidebar,}: HeaderProps & { onOpenSidebar?: () => void }) => {
+  onOpenSidebar, }: HeaderProps & { onOpenSidebar?: () => void }) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -33,7 +33,7 @@ const ChatHeader = ({
 
   const isDirectChat = chatRoom.users?.length === 2;
   const otherUser = isDirectChat
-    ? chatRoom.users?.find(user => String(user.id) !== String(curretUserId))
+    ? chatRoom.users?.find(user => String(user.id) !== String(currentUserId))
     : null;
 
   return (

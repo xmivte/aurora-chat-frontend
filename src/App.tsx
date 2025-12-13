@@ -1,19 +1,13 @@
 import { useState } from 'react';
-
 import { LogoutButton } from './auth';
 import './App.css';
-import './index.css';
-//import ChatWindow from './components/ChatWindow'; 
+//import './index.css';
 import ChatWindow from './features/chat/ChatWindow.tsx';
 import messages from './mock/messages.json';
-import { Message } from './types/index';
-
-
+import { Message } from './features/chat/index';
 import ChatList from './features/chat/ChatList';
 import SideBar, { type Server } from './features/server/SideBar';
-
 import Button from '@mui/material/Button';
-
 import chatsData from './mock/chats.json';
 
 const mockServers: Server[] = [
@@ -71,7 +65,7 @@ export default function App() {
                             variant="contained"
                             color="primary"
                             disableRipple
-                            onClick={() => setSelectedChatId(-1)} // new chat
+                            onClick={() => setSelectedChatId(-1)}
                           >
                             New Chat
                           </Button>
@@ -87,12 +81,9 @@ export default function App() {
                       />
                     </aside>
                     <section className="chat-window-panel">
-                      {/*  <ChatWindow chat={selectedChat} selectedChatId={selectedChatId} />*/}
-
-
                       {selectedChat && (
                         <ChatWindow
-                          curretUserId={1}
+                          currentUserId={1}
                           chatRoom={selectedChat}
                           messages={selectedChatMessagesParsed}
                           isSidebarOpen={isSidebarOpen}
@@ -100,8 +91,6 @@ export default function App() {
                           onCloseSidebar={() => setIsSidebarOpen(false)}
                         />
                       )}
-
-
                     </section>
                   </>
                 )}

@@ -3,10 +3,7 @@ import {
   Badge,
   ListItemAvatar,
   ListItemText,
-  Avatar,
-  BadgeProps,
-  SxProps,
-  Theme,
+  Avatar
 } from '@mui/material';
 import { type MembersInfo } from './types';
 import {
@@ -14,6 +11,7 @@ import {
   onlineIndicatorPosition,
   onlineIndicatorForm,
 } from './ChatUsersProfile.ts';
+import theme from "../../theme/theme";
 
 
 const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
@@ -24,9 +22,11 @@ const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
         anchorOrigin={onlineIndicatorPosition}
         variant="dot"
         sx={{
-          '& .MuiBadge-badge': {
+          "& .MuiBadge-badge": {
             ...onlineIndicatorForm,
-            backgroundColor: online ? 'green' : 'red',
+            backgroundColor: online
+              ? theme.customColors.colorOnline
+              : theme.customColors.colorBusy,
           },
         }}
       >

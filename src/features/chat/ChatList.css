@@ -1,6 +1,7 @@
 .chat-list {
   width: 100%;
-  color: #ffffff;
+  color: var(--color-text);
+  ;
 }
 
 .chat-list ul {
@@ -13,7 +14,7 @@
   display: flex;
   align-items: center;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--rounded-area);
   cursor: pointer;
   transition: background-color 0.2s ease;
   background-color: transparent;
@@ -21,44 +22,43 @@
 }
 
 .chat-item:hover {
- background: linear-gradient(to right, rgb(26,25,45), rgb(72,69,104));
- box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(to right, var(--color-blue-dark), var(--color-blue-light-hover));
+  box-shadow: 0px 6px 12px var(--color-main-shadow);
 }
 
 .chat-item.selected {
-  background: linear-gradient(to right, rgb(26,25,45), rgb(42,39,74));
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(to right, var(--color-blue-dark), var(--color-blue-light));
+  box-shadow: 0px 4px 8px var(--color-main-shadow);
 }
-
 
 .chat-avatar {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background-color: rgb(169,161,231);
+  border-radius: var(--rounded-avatar);
+  background-color: var(--color-purple-light);
   margin-right: 12px;
-  overflow: hidden; 
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .chat-avatar img {
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
-  border-radius: 50%; 
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .chat-name {
   font-size: 16px;
   font-weight: normal;
-  color: #e0e0f0;
+  color: var(--color-text);
 }
 
 .chat-name.unread {
   font-weight: bold;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .chat-button {

@@ -1,30 +1,29 @@
-import type { ThemeColors } from './sidebar_theme';
+import theme from "../../theme/theme";
 
-export const createSideBarSx = (colors: ThemeColors) => {
+export const createSideBarSx = () => {
   const containerSx = {
     width: 72,
     height: '100vh',
-    background: `linear-gradient(180deg, ${colors.gradientStart} 0%, ${
-      colors.gradientMiddle ?? colors.gradientStart
-    } 45%, ${colors.gradientEnd} 100%)`,
+    background: `linear-gradient(180deg, ${theme.customColors.colorGradientStart} 0%, ${
+      theme.customColors.colorGradientMiddle ?? theme.customColors.colorGradientStart
+    } 45%, ${theme.customColors.colorGradientEnd} 100%)`,
     display: 'flex',
     flexDirection: 'column' as const,
   };
 
   const buttonSx = {
     p: 0,
-    borderRadius: '14px',
     '&:hover .sb-avatar': { transform: 'scale(1.12)' },
     '&:focus': { outline: 'none' },
   };
 
   const avatarSx = (isActive: boolean, bg?: string) => ({
-    bgcolor: bg ?? colors.avatarBg,
+    bgcolor: bg ?? theme.palette.secondary.main,
     width: 48,
     height: 48,
-    borderRadius: '14px',
+    borderRadius: theme.customShape.roundedArea,
     fontWeight: 600,
-    border: isActive ? `2px solid ${colors.accent}` : '2px solid transparent',
+    border: isActive ? `2px solid ${theme.customColors.colorPink}` : '2px solid transparent',
     boxSizing: 'border-box',
     transition: 'transform 150ms cubic-bezier(.2,.8,.2,1)',
     '& img': { width: 32, height: 32, objectFit: 'contain' },
@@ -44,7 +43,7 @@ export const createSideBarSx = (colors: ThemeColors) => {
   const footerStackSx = { p: 1, alignItems: 'center', flexShrink: 0 };
 
   const emptyStateTextSx = {
-    color: colors.mutedText,
+    color: theme.customColors.colorMutedText,
     fontSize: 12,
     textAlign: 'center',
     px: 1,
@@ -53,7 +52,7 @@ export const createSideBarSx = (colors: ThemeColors) => {
 
   const dividerSx = {
     width: '60%',
-    bgcolor: colors.divider,
+    bgcolor: theme.customColors.colorGray,
   };
 
   const addServerSectionStackSx = {
@@ -64,7 +63,7 @@ export const createSideBarSx = (colors: ThemeColors) => {
 
   const addServerAvatarSx = {
     ...avatarSx(false),
-    color: colors.accent,
+    color: theme.customColors.colorPink,
     fontSize: 24,
     fontWeight: 300,
   };

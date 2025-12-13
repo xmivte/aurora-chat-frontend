@@ -1,13 +1,15 @@
+import theme from "../../theme/theme";
+
 export const outerBoxSx = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
   width: '100%',
-  backgroundColor: '#121222',
-  borderRadius: '12px',
+  backgroundColor: theme.palette.primary.main,
+  borderRadius: theme.customShape.roundedArea,
   padding: '16px',
-  boxShadow: '0px 4px 8px #13121C',
+  boxShadow: `0px 4px 8px ${theme.customColors.colorMainShadow}`,
   overflow: 'hidden',
 };
 
@@ -30,21 +32,21 @@ export const messagesSx = {
   minHeight: 0,
   overflowY: 'auto',
   scrollbarWidth: 'thin',
-  scrollbarColor: '#444 #121222',
+  scrollbarColor: `${theme.customColors.colorGray} ${theme.palette.primary.main}`,
   '&::-webkit-scrollbar': { width: '8px' },
-  '&::-webkit-scrollbar-track': { background: '#121222', borderRadius: '12px' },
-  '&::-webkit-scrollbar-thumb': { backgroundColor: '#444', borderRadius: '12px' },
+  '&::-webkit-scrollbar-track': { background: theme.palette.primary.main, borderRadius: theme.customShape.roundedArea },
+  '&::-webkit-scrollbar-thumb': { backgroundColor: theme.customColors.colorGray, borderRadius: theme.customShape.roundedArea },
 };
 
 export const inputSx = {
   flexShrink: 0,
   marginTop: '15px',
-  backgroundColor: '#292641',
-  borderRadius: '20px',
+  backgroundColor: theme.customColors.colorMyMessage,
+  borderRadius: theme.customShape.roundedContainer,
   width: '100%',
-  boxShadow: '0px 4px 8px #13121C',
+  boxShadow: `0px 4px 8px ${theme.customColors.colorMainShadow}`,
   '& .MuiInputBase-input': {
-    color: '#F8F9FB',
+    color: theme.customColors.colorText,
     fontSize: '14px',
   },
   '& .MuiOutlinedInput-notchedOutline': { border: 'none' },

@@ -3,7 +3,7 @@ import avatar from './assets/avatar.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { MessageProps } from '../../types/ChatWindowTypes';
+import { MessageProps } from './ChatWindowTypes';
 
 import {
   outerBoxSx,
@@ -18,7 +18,7 @@ import {
   textSx,
 } from './ChatMessages';
 
-const ChatMessages = ({ curretUserId, messages }: MessageProps) => {
+const ChatMessages = ({ currentUserId, messages }: MessageProps) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -28,9 +28,9 @@ const ChatMessages = ({ curretUserId, messages }: MessageProps) => {
         {messages.map(message => (
           <Box
             key={message.id}
-            sx={curretUserId === message.user.id ? messageReverseSx : messageRowSx}
+            sx={currentUserId === message.user.id ? messageReverseSx : messageRowSx}
           >
-            <Box sx={curretUserId === message.user.id ? contentEndSx : contentStartSx}
+            <Box sx={currentUserId === message.user.id ? contentEndSx : contentStartSx}
             >
               {message.user.image ? (
                 <Box
@@ -48,7 +48,7 @@ const ChatMessages = ({ curretUserId, messages }: MessageProps) => {
                   ? message.date.toLocaleDateString()
                   : message.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Typography>
-              <Box sx={curretUserId === message.user.id ? textBoxMeSx : textBoxOtherSx}>
+              <Box sx={currentUserId === message.user.id ? textBoxMeSx : textBoxOtherSx}>
                 <Typography gutterBottom sx={textSx}>
                   {message.content}
                 </Typography>

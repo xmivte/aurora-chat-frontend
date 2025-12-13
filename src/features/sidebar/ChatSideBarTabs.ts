@@ -1,11 +1,13 @@
+import theme from "../../theme/theme";
+
 export const tabStyles = {
   flexGrow: 1,
   textTransform: 'none',
   minHeight: 0,
-  bgcolor: 'rgb(26,25,45)',
-  borderRadius: '20px',
+  bgcolor: theme.customColors.colorBlueDark,
+  borderRadius: theme.customShape.roundedContainer,
   border: '0px',
-  color: '#F8F9FB',
+  color: theme.customColors.colorText,
   outline: 'none !important',
   '&:focus': {
     outline: 'none',
@@ -14,20 +16,19 @@ export const tabStyles = {
     outline: 'none',
   },
   '&:hover': {
-    bgcolor: 'rgb(72,69,104)',             
-    cursor: 'pointer',          
+    bgcolor: theme.customColors.colorBlueLightHover,
+    cursor: 'pointer',
   },
 };
 
 export const activeTabStyles = {
-  color: 'white',
-  bgcolor: 'rgb(42,39,74)',
+  color: theme.customColors.colorText,
+  bgcolor: theme.customColors.colorBlueLight,
   outline: 'none',
   boxShadow: 'none',
 };
 
 export const boxStyles = {
   width: '100%',
-  bgcolor: '#1A192D',
-  borderRadius: 2,
+  bgcolor: theme.palette.secondary.main,
 };

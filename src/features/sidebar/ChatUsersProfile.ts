@@ -1,7 +1,7 @@
+import theme from "../../theme/theme";
 import { BadgeProps } from '@mui/material';
 
 export const listItemStyles = {
-  color: 'white',
   mb: 1,
 };
 
@@ -13,5 +13,5 @@ export const onlineIndicatorPosition: BadgeProps['anchorOrigin'] = {
 export const onlineIndicatorForm = {
   width: 10,
   height: 10,
-  borderRadius: '50%',
+  borderRadius: theme.customShape.roundedAvatar,
 };

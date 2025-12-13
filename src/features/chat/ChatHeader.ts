@@ -1,3 +1,5 @@
+import theme from "../../theme/theme";
+
 export const outerBoxSx = {
   display: 'flex',
   alignItems: 'center',
@@ -8,18 +10,18 @@ export const outerBoxSx = {
 export const avatarSx = {
   width: '48px',
   height: '48px',
-  borderRadius: '50%',
+  borderRadius: theme.customShape.roundedAvatar,
   objectFit: 'cover',
 };
 
 export const nameSx = {
   fontSize: '1.25rem',
   fontWeight: 600,
-  color: '#F8F9FB ',
+  color: theme.customColors.colorText,
 };
 
 export const chatInfoBtnSx = {
-  color: '#5832a2 ',
+  color: theme.customColors.colorPurple,
   outline: 'none',
   '&:focus': { outline: 'none' },
   '&:focus-visible': { outline: 'none' },

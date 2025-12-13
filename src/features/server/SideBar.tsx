@@ -7,7 +7,6 @@ import Tooltip from '@mui/material/Tooltip';
 import { JSX } from 'react';
 import PersonalChatsIcon from './assets/personal-chats-icon.svg';
 import { createSideBarSx } from './sidebar_style.ts';
-import { DEFAULT_THEME, type ThemeColors } from './sidebar_theme.ts';
 import { SideBarAddServerSection } from './SideBar_AddServer_Button.tsx';
 
 export type Server = { id: string; label: string; glyph?: string; bg?: string };
@@ -17,10 +16,9 @@ export type SideBarProps = {
   activeId: string;
   onServerChange: (id: string) => void;
   onAddServer?: () => void;
-  themeColors?: ThemeColors;
 };
 
-const Static_side_bar_sx = createSideBarSx(DEFAULT_THEME);
+const Static_side_bar_sx = createSideBarSx();
 const SideBar = ({ servers, activeId, onServerChange, onAddServer }: SideBarProps): JSX.Element => {
   const {
     containerSx,
