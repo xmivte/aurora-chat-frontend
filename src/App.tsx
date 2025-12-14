@@ -9,6 +9,7 @@ import ChatList from './features/chat/ChatList';
 import SideBar, { type Server } from './features/server/SideBar';
 import Button from '@mui/material/Button';
 import chatsData from './mock/chats.json';
+import UserSearch from "./features/search/UserSearch";
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -17,6 +18,13 @@ const mockServers: Server[] = [
   { id: 'd', label: 'DB Replica', glyph: 'R', bg: '#1e293b' },
   { id: 'e', label: 'Cache', glyph: 'C', bg: '#2563eb' },
   { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
+];
+
+const mockUsers = [
+  { id: "1", name: "Alice Johnson", avatarUrl: "https://i.pravatar.cc/150?img=1" },
+  { id: "2", name: "Bob Smith", avatarUrl: "https://i.pravatar.cc/150?img=2" },
+  { id: "3", name: "Charlie Brown", avatarUrl: "https://i.pravatar.cc/150?img=3" },
+  { id: "4", name: "Diana Prince", avatarUrl: "" },
 ];
 
 export default function App() {
@@ -31,6 +39,12 @@ export default function App() {
     ...msg,
     date: new Date(msg.date),
   }));
+
+
+  const handleUserSelect = (user: { id: string; name: string }) => {
+    console.log("Selected user:", user);
+    // Later: start a new chat, navigate to chat screen, etc.
+  };
 
 
   return (
@@ -49,6 +63,9 @@ export default function App() {
             <div className="container-content">
               <div className="app-header-bar">
                 <div className="app-header">AURORA</div>
+                <div style={{ width: '100%', margin: "2rem auto", paddingLeft: '65px', paddingRight: '40px' }}>
+                  <UserSearch data={mockUsers} onUserSelect={handleUserSelect} />
+                </div>
                 <div className="app-header-button">
                   <LogoutButton />
                 </div>
