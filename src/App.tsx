@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { LogoutButton } from './auth';
 import './App.css';
-//import './index.css';
 import ChatWindow from './features/chat/ChatWindow.tsx';
 import messages from './mock/messages.json';
 import { Message } from './features/chat/index';
@@ -9,7 +8,7 @@ import ChatList from './features/chat/ChatList';
 import SideBar, { type Server } from './features/server/SideBar';
 import Button from '@mui/material/Button';
 import chatsData from './mock/chats.json';
-import UserSearch from "./features/search/UserSearch";
+import NewChatDialog from "./features/search/NewChatDIalog.tsx";
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -20,18 +19,14 @@ const mockServers: Server[] = [
   { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
 ];
 
-const mockUsers = [
-  { id: "1", name: "Alice Johnson", avatarUrl: "https://i.pravatar.cc/150?img=1" },
-  { id: "2", name: "Bob Smith", avatarUrl: "https://i.pravatar.cc/150?img=2" },
-  { id: "3", name: "Charlie Brown", avatarUrl: "https://i.pravatar.cc/150?img=3" },
-  { id: "4", name: "Diana Prince", avatarUrl: "" },
-];
-
 export default function App() {
   const [activeId, setActiveId] = useState<string>('personal');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
   const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
+  const [tempChat, setTempChat] = useState<any | null>(null);
 
   const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);
 
@@ -41,11 +36,17 @@ export default function App() {
   }));
 
 
-  const handleUserSelect = (user: { id: string; name: string }) => {
-    console.log("Selected user:", user);
-    // Later: start a new chat, navigate to chat screen, etc.
+  const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
+    const newChat = {
+      id: -999, // special id for temp chat
+      name: user.name,
+      image: user.avatarUrl || "",
+      unread: false,
+    };
+    setTempChat(newChat);
+    setSelectedChatId(newChat.id);
+    setOpenNewChatDialog(false);
   };
-
 
   return (
     <div className="app-layout">
@@ -53,7 +54,10 @@ export default function App() {
         <SideBar
           servers={mockServers}
           activeId={activeId}
-          onServerChange={id => setActiveId(id)}
+          onServerChange={id => {
+            setActiveId(id);
+            setTempChat(null);
+          }}
           onAddServer={() => { }}
         />
       </div>
@@ -63,9 +67,6 @@ export default function App() {
             <div className="container-content">
               <div className="app-header-bar">
                 <div className="app-header">AURORA</div>
-                <div style={{ width: '100%', margin: "2rem auto", paddingLeft: '65px', paddingRight: '40px' }}>
-                  <UserSearch data={mockUsers} onUserSelect={handleUserSelect} />
-                </div>
                 <div className="app-header-button">
                   <LogoutButton />
                 </div>
@@ -82,17 +83,20 @@ export default function App() {
                             variant="contained"
                             color="primary"
                             disableRipple
-                            onClick={() => setSelectedChatId(-1)}
+                            onClick={() => setOpenNewChatDialog(true)}
                           >
                             New Chat
                           </Button>
                         </div>
                       </div>
                       <ChatList
-                        chats={chatsData}
+                        chats={tempChat ? [...chatsData, tempChat] : chatsData}
                         onSelectChat={(id) => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
+                          if (id !== -999) {
+                            setTempChat(null);
+                          }
                         }}
                         selectedChatId={selectedChatId}
                       />
@@ -106,6 +110,17 @@ export default function App() {
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
+
+                        />
+                      )}
+                      {selectedChatId === -999 && tempChat && (
+                        <ChatWindow
+                          currentUserId={1}
+                          chatRoom={tempChat}
+                          messages={[]} // no messages yet
+                          isSidebarOpen={isSidebarOpen}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          onCloseSidebar={() => setIsSidebarOpen(false)}
                         />
                       )}
                     </section>
@@ -116,6 +131,12 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      <NewChatDialog
+        open={openNewChatDialog}
+        onClose={() => setOpenNewChatDialog(false)}
+        onUserSelect={handleUserSelect}
+      />
     </div>
   );
 }

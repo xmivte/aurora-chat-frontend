@@ -10,25 +10,52 @@ import {
 } from "@mui/material";
 import avatar from "../chat/assets/avatar.png";
 import SearchIcon from "@mui/icons-material/Search";
-
-interface User {
-    id: string;
-    name: string;
-    avatarUrl?: string;
-}
+import { User } from "./UserType";
+import { useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface UserSearchProps {
     data: User[];
     onUserSelect: (user: User) => void;
 }
 
-const UserSearch: React.FC<UserSearchProps> = ({ data, onUserSelect }) => {
+const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
+
+    const [inputValue, setInputValue] = useState("");
     return (
         <Autocomplete
             options={data}
             getOptionLabel={(option) => option.name}
+            inputValue={inputValue}
+            onInputChange={(_, value) => setInputValue(value)}
+            forcePopupIcon={false}
+            popupIcon={null}
+            clearIcon={null}
+            noOptionsText = "Hmm, can't find anyone by that name..."
+            slotProps={{
+                paper: {
+                    sx: {
+                        backgroundColor: "#1e1e2f", // dropdown background
+                        borderRadius: "12px",
+                        border: "1px solid grey",
+
+
+                        "& .MuiAutocomplete-option": {
+                            color: "#fff",
+                            "&:hover": {
+                                backgroundColor: "#333a55", // hover
+                            },
+
+                        },
+
+                        "& .MuiAutocomplete-noOptions": {
+                                color: "#fff",
+                            },
+                    },
+                },
+            }}
             sx={{
-                width: "100%",
+                width: "99%",
             }}
             renderOption={(props, option) => (
                 <li {...props} key={option.id}>
@@ -54,7 +81,10 @@ const UserSearch: React.FC<UserSearchProps> = ({ data, onUserSelect }) => {
                 </li>
             )}
             onChange={(_, value) => {
-                if (value) onUserSelect(value);
+                if (value) {
+                    onUserSelect(value);
+                    setInputValue("");
+                }
             }}
             renderInput={(params) => (
                 <TextField
@@ -69,7 +99,17 @@ const UserSearch: React.FC<UserSearchProps> = ({ data, onUserSelect }) => {
                                 <SearchIcon sx={{ color: "#aaa", mr: 1 }} />
                             </InputAdornment>
                         ),
-                        endAdornment: params.InputProps.endAdornment,
+                        endAdornment: (
+                            <>
+                                {inputValue.length > 0 && (
+                                    <CloseIcon
+                                        onClick={() => setInputValue("")}
+                                        style={{ cursor: "pointer", color: "#fff" }}
+                                    />
+                                )}
+                                {params.InputProps.endAdornment}
+                            </>
+                        ),
                     }}
                     sx={{
                         backgroundColor: "transparent",
@@ -93,6 +133,8 @@ const UserSearch: React.FC<UserSearchProps> = ({ data, onUserSelect }) => {
                         "& .MuiAutocomplete-clearIndicator svg": {
                             color: "#fff",
                         },
+
+
                     }}
                 />
             )}
