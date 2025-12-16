@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme } from '@mui/material/styles';
 import './type';
 
 
@@ -48,5 +48,23 @@ const theme = createTheme({
 
 });
 
+// helper for passing theme colors and other styling elements to css
+export const rootDivStyle = (theme: Theme): React.CSSProperties => ({
+  ['--color-primary' as any]: theme.palette.primary.main,
+  ['--color-secondary' as any]: theme.palette.secondary.main,
+  ['--color-text' as any]: theme.customColors.colorText,
+  ['--color-blue-dark' as any]: theme.customColors.colorBlueDark,
+  ['--color-blue-light' as any]: theme.customColors.colorBlueLight,
+  ['--color-blue-light-hover' as any]: theme.customColors.colorBlueLightHover,
+  ['--color-purple' as any]: theme.customColors.colorPurple,
+  ['--color-purple-light' as any]: theme.customColors.colorPurpleLight,
+  ['--color-pink' as any]: theme.customColors.colorPink,
+  ['--color-pink-light' as any]: theme.customColors.colorPinkLight,
+  ['--color-main-shadow' as any]: theme.customColors.colorMainShadow,
+  ['--rounded-container' as any]: theme.customShape.roundedContainer,
+  ['--rounded-area' as any]: theme.customShape.roundedArea,
+  ['--rounded-btn' as any]: theme.customShape.roundedBtn,
+  ['--rounded-avatar' as any]: theme.customShape.roundedAvatar,
+});
 
 export default theme;
