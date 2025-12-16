@@ -1,11 +1,8 @@
-import { Chat } from '../types/index';
-import { Message } from '../types/index';
+import { Chat } from './index';
+import { Message } from './index';
 
 export type ChatWindowProps = {
-  //curretUserId: number;
-  //chatRoom: Chat;
-  //messages: Message[];
-  curretUserId: number;
+  currentUserId: number;
   chatRoom: Chat;
   messages: Message[];
   isSidebarOpen: boolean;
@@ -14,11 +11,11 @@ export type ChatWindowProps = {
 };
 
 export type HeaderProps = {
-  curretUserId: number;
+  currentUserId: number;
   chatRoom: Chat;
 };
 
 export type MessageProps = {
-  curretUserId: number;
+  currentUserId: number;
   messages: Message[];
 };

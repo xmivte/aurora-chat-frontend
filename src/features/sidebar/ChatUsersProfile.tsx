@@ -3,41 +3,30 @@ import {
   Badge,
   ListItemAvatar,
   ListItemText,
-  Avatar,
-  BadgeProps,
-  SxProps,
-  Theme,
+  Avatar
 } from '@mui/material';
-
 import { type MembersInfo } from './types';
+import {
+  listItemStyles,
+  onlineIndicatorPosition,
+  onlineIndicatorForm,
+} from './ChatUsersProfile.ts';
+import theme from "../../theme/theme";
 
-const ListItemStyling = {
-  color: 'white',
-  mb: 1,
-};
-
-const OnlineIndicatorPositionStyling: BadgeProps['anchorOrigin'] = {
-  vertical: 'bottom',
-  horizontal: 'right',
-};
-
-const OnlineIndicatorFormStyling: SxProps<Theme> = {
-  width: 10,
-  height: 10,
-  borderRadius: '50%',
-};
 
 const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
   return (
-    <ListItem sx={ListItemStyling}>
+    <ListItem sx={listItemStyles}>
       <Badge
         overlap="circular"
-        anchorOrigin={OnlineIndicatorPositionStyling}
+        anchorOrigin={onlineIndicatorPosition}
         variant="dot"
         sx={{
-          '& .MuiBadge-badge': {
-            ...OnlineIndicatorFormStyling,
-            backgroundColor: online ? 'green' : 'red',
+          "& .MuiBadge-badge": {
+            ...onlineIndicatorForm,
+            backgroundColor: online
+              ? theme.customColors.colorOnline
+              : theme.customColors.colorBusy,
           },
         }}
       >

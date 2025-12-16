@@ -1,4 +1,10 @@
 * {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -9,7 +15,7 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  color: #F8F9FB;
+  color: var(--color-text);
 }
 
 .sidebar {
@@ -28,7 +34,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  background: #121222;
+  background: var(--color-primary);
   height: 100%;
   overflow: hidden;
   padding: 50px;
@@ -36,8 +42,8 @@
 }
 
 .container-content {
-  border-radius: 20px;
-  background: #1A192D;
+  border-radius: var(--rounded-container);
+  background: var(--color-secondary);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -61,7 +67,7 @@
 
 .chat-title {
   font-size: 1.7rem;
-  color: #F8F9FB;
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -78,7 +84,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
+  border-radius: var(--rounded-container);
   min-height: 0;
 }
 
@@ -93,7 +99,6 @@
   padding: 16px;
   font-weight: 700;
   font-size: 18px;
-  color: #F8F9FB;
   font-size: 2.5rem;
   letter-spacing: 4px;
   font-weight: 600;
@@ -113,12 +118,12 @@
 }
 
 .new-chat-button {
-  border-radius: 12px !important;
-  background: linear-gradient(90deg, #5832a2, #d84380);
+  border-radius: var(--rounded-btn) !important;
+  background: linear-gradient(90deg, var(--color-purple), var(--color-pink));
 }
 
 .new-chat-button:hover {
-  background: linear-gradient(90deg, #7a4bd1, #ff5c9d);
+  background: linear-gradient(90deg, var(--color-purple-light), var(--color-pink-light));
 }
 
 .new-chat-button:focus,

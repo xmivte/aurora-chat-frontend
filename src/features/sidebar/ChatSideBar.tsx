@@ -1,11 +1,11 @@
 import { Paper, List, SxProps, Theme } from '@mui/material';
 import ListItemText from '@mui/material/ListItemText';
- import CloseIcon from '@mui/icons-material/Close';
- import IconButton from '@mui/material/IconButton';
-
-import TabsComponent from './ChatSideBarTabs';
-import UserProfileComponent from './ChatUsersProfile';
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
+import TabsComponent from './ChatSideBarTabs.tsx';
+import UserProfileComponent from './ChatUsersProfile.tsx';
 import { type SideBarProps } from './types';
+import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts';
 
 export interface MembersInfo {
   url: string;
@@ -13,30 +13,18 @@ export interface MembersInfo {
   username: string;
 }
 
-const PaperStyling: SxProps<Theme> = {
-  backgroundColor: 'rgb(38, 33, 61)',
-  padding: '2px',
-  width: '300px',
-  color: 'white',
-  marginLeft: '15px',
-};
-
-const ListTextStyling: SxProps<Theme> = {
-  padding: '20px',
-};
-
 const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void }) => {
   const tabs = ['Info', 'Media'];
 
   return (
-    <Paper sx={PaperStyling}>
+    <Paper sx={paperStyles}>
       {onClose && (
-        <IconButton onClick={onClose} sx={{ color: 'white', float: 'right' }}>
+        <IconButton onClick={onClose} sx={closeButtonStyles}>
           <CloseIcon />
         </IconButton>
       )}
       <TabsComponent items={tabs} />
-      <ListItemText sx={ListTextStyling} primary="Group Info" />
+      <ListItemText sx={listTextStyles} primary="Group Info" />
 
       <List>
         {members.map((member, i) => {

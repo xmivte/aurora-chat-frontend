@@ -1,3 +1,5 @@
+import theme from "../../theme/theme";
+
 export const outerBoxSx = {
   paddingRight: '5px',
 };
@@ -31,7 +33,7 @@ export const contentEndSx = {
 export const avatarSx = {
   width: '40px',
   height: '40px',
-  borderRadius: '50%',
+  borderRadius: theme.customShape.roundedAvatar,
 };
 
 export const dateNameSx = {
@@ -40,21 +42,21 @@ export const dateNameSx = {
 };
 
 export const textBoxOtherSx = {
-  backgroundColor: '#232036',   
+  backgroundColor: theme.customColors.colorOtherMessage,
   display: 'inline-block',
-  borderRadius: '10px',
+  borderRadius: theme.customShape.roundedArea,
   padding: '12px 16px',
   margin: '8px',
   color: 'rgba(255, 255, 255, 0.87)',
 };
 
 export const textBoxMeSx = {
-  backgroundColor: '#292641',   
+  backgroundColor: theme.customColors.colorMyMessage,
   display: 'inline-block',
-  borderRadius: '10px',
+  borderRadius: theme.customShape.roundedArea,
   padding: '12px 16px',
   margin: '8px',
-  color: '#fff',
+  color: theme.customColors.colorText,
 };
 
 export const textSx = {

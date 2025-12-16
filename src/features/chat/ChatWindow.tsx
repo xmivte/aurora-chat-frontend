@@ -4,16 +4,16 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { ChatWindowProps } from '../../types/ChatWindowTypes';
+import { ChatWindowProps } from './ChatWindowTypes';
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
-import { outerBoxSx, messagesSx, inputSx, sendButtonSx, outerBoxFullSx, outerBoxOnlyChatSx } from './ChatWindow';
+import { outerBoxSx, messagesSx, inputSx, sendButtonSx, outerBoxFullSx, outerBoxOnlyChatSx } from './ChatWindow.ts';
 import { useEffect, useRef } from 'react';
 import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
 import firstUser from '@/assets/firstUser.svg';
 import secondUser from '@/assets/secondUser.svg';
 import thirdUser from '@/assets/thirdUser.svg';
-import { Chat, Message } from '../../types/index';
+import { Chat, Message } from './index';
 
 
 export const mockMembersList: MembersInfo[] = [
@@ -24,14 +24,14 @@ export const mockMembersList: MembersInfo[] = [
 ];
 
 
-const ChatWindow: React.FC<ChatWindowProps> = ({
-  curretUserId,
+const ChatWindow = ({
+  currentUserId,
   chatRoom,
   messages,
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
-}) => {
+}: ChatWindowProps) => {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -45,13 +45,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <Box sx={outerBoxOnlyChatSx}>
             <Box>
               <Header
-                curretUserId={curretUserId}
+                currentUserId={currentUserId}
                 chatRoom={chatRoom}
                 onOpenSidebar={onOpenSidebar}
               />
             </Box>
             <Box sx={messagesSx}>
-              <MessageField curretUserId={curretUserId} messages={messages}></MessageField>
+              <MessageField currentUserId={currentUserId} messages={messages}></MessageField>
               <div ref={messagesEndRef} />
             </Box>
             <TextField

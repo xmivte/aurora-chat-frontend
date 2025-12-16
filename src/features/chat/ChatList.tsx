@@ -1,5 +1,5 @@
 import './ChatList.css';
-import { Chat } from '../../types/index';
+import { Chat } from './index';
 
 import avatar from './assets/avatar.png';
 
@@ -18,7 +18,7 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
             <button className="chat-button" onClick={() => onSelectChat(chat.id)}>
               <div className="chat-avatar">
                 <img src={chat.image || avatar} alt={chat.name || 'avatar'} />
-              </div> 
+              </div>
               <span className={`chat-name ${chat.unread ? 'unread' : ''}`}>{chat.name}</span>
             </button>
           </li>

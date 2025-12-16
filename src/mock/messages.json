@@ -74,7 +74,7 @@
       "image": null
     },
     "content": "Hello, do you want to go for an run?",
-    "date": "2025-01-10T12:00:00.000Z",
+    "date": "2025-01-14T12:00:00.000Z",
     "fk_chatId": 2
   },
   {
@@ -85,7 +85,7 @@
       "image": "https://i.imgur.com/szV5sdGs.jpg"
     },
     "content": "Yes!",
-    "date": "2025-01-12T08:00:00.000Z",
+    "date": "2025-01-14T08:00:00.000Z",
     "fk_chatId": 2
   }
 ]
