@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App.tsx';
 import { AuthRoute, LoginPage } from './auth';
-//import theme from './theme/theme.ts';
 import theme, { rootDivStyle } from "./theme/theme.ts";
 import WebSocketExample from './websockets/pages/WebSocketExample.tsx';
 
