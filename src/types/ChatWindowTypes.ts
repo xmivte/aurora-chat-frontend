@@ -1,5 +1,5 @@
-import { Chat } from '../types/index';
-import { Message } from '../types/index';
+import { Chat } from '../features/chat/index';
+import { Message } from '../features/chat/index';
 
 export type ChatWindowProps = {
   curretUserId: string;

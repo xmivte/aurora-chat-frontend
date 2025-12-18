@@ -1,22 +1,16 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useState, useEffect } from 'react';
+
 import { LogoutButton } from './auth';
 import './App.css';
-//import './index.css';
-import ChatWindow from './features/chat/ChatWindow.tsx';
-import messages from './mock/messages.json';
-import { Message } from './features/chat/index';
-import ChatList from './features/chat/ChatList';
-import SideBar, { type Server } from './features/server/SideBar';
-import Button from '@mui/material/Button';
-import chatsData from './mock/chats.json';
-import './index.css';
 import { api } from './auth/utils/api';
-import ChatWindow from './components/ChatWindow/ChatWindow';
-import ChatList from './components/LeftPanel/ChatList';
-import SideBar, { type Server } from './components/SideBar';
-import { Chat, User } from './types/index';
+import ChatList from './features/chat/ChatList';
+import ChatWindow from './features/chat/ChatWindow.tsx';
+import { Chat, User } from './features/chat/index.ts';
+import SideBar, { type Server } from './features/server/SideBar';
+
+import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -42,6 +36,7 @@ export default function App() {
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>();
   const queryClient = useQueryClient();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
@@ -80,7 +75,7 @@ export default function App() {
           servers={mockServers}
           activeId={activeId}
           onServerChange={id => setActiveId(id)}
-          onAddServer={() => { }}
+          onAddServer={() => {}}
         />
       </div>
       <main className="main">
@@ -112,8 +107,8 @@ export default function App() {
                         </div>
                       </div>
                       <ChatList
-                        chats={chatsData}
-                        onSelectChat={(id) => {
+                        chats={chatRooms || []}
+                        onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
                         }}
@@ -121,11 +116,10 @@ export default function App() {
                       />
                     </aside>
                     <section className="chat-window-panel">
-                      {selectedChat && (
+                      {selectedChat && userId && (
                         <ChatWindow
-                          currentUserId={1}
+                          currentUserId={userId}
                           chatRoom={selectedChat}
-                          messages={selectedChatMessagesParsed}
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -142,5 +136,3 @@ export default function App() {
     </div>
   );
 }
-
-
