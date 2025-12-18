@@ -1,5 +1,6 @@
 import { SxProps, Theme } from '@mui/material';
-import theme from "../../theme/theme";
+
+import theme from '../../theme/theme';
 
 export const title: SxProps<Theme> = {
   fontSize: '2.5rem',
@@ -27,7 +28,7 @@ export const providerSignInButton: SxProps<Theme> = {
   fontSize: '16px',
   color: theme.customColors.colorText,
   '&:hover': {
-    background: `linear-gradient(90deg, ${theme.customColors.colorPurpleLight}, ${theme.customColors.colorPinkLight})`
+    background: `linear-gradient(90deg, ${theme.customColors.colorPurpleLight}, ${theme.customColors.colorPinkLight})`,
   },
 };
 

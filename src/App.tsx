@@ -1,14 +1,16 @@
 import { useState } from 'react';
+
 import { LogoutButton } from './auth';
 import './App.css';
 //import './index.css';
-import ChatWindow from './features/chat/ChatWindow.tsx';
-import messages from './mock/messages.json';
-import { Message } from './features/chat/index';
 import ChatList from './features/chat/ChatList';
+import ChatWindow from './features/chat/ChatWindow.tsx';
+import { Message } from './features/chat/index';
 import SideBar, { type Server } from './features/server/SideBar';
-import Button from '@mui/material/Button';
 import chatsData from './mock/chats.json';
+import messages from './mock/messages.json';
+
+import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -32,7 +34,6 @@ export default function App() {
     date: new Date(msg.date),
   }));
 
-
   return (
     <div className="app-layout">
       <div className="sidebar">
@@ -40,7 +41,7 @@ export default function App() {
           servers={mockServers}
           activeId={activeId}
           onServerChange={id => setActiveId(id)}
-          onAddServer={() => { }}
+          onAddServer={() => {}}
         />
       </div>
       <main className="main">
@@ -73,7 +74,7 @@ export default function App() {
                       </div>
                       <ChatList
                         chats={chatsData}
-                        onSelectChat={(id) => {
+                        onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
                         }}
@@ -102,5 +103,3 @@ export default function App() {
     </div>
   );
 }
-
-

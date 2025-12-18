@@ -1,5 +1,6 @@
-import theme from "../../theme/theme";
 import { BadgeProps } from '@mui/material';
+
+import theme from '../../theme/theme';
 
 export const listItemStyles = {
   mb: 1,

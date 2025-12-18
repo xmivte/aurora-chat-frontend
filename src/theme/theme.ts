@@ -1,7 +1,6 @@
 import { createTheme, Theme } from '@mui/material/styles';
 import './type';
 
-
 const theme = createTheme({
   cssVariables: true,
   typography: {
@@ -11,8 +10,8 @@ const theme = createTheme({
     },
   },
   palette: {
-    primary: { main: '#121222', }, // page color
-    secondary: { main: '#1A192D' }  // container color, a bit lighter
+    primary: { main: '#121222' }, // page color
+    secondary: { main: '#1A192D' }, // container color, a bit lighter
   },
   //colors that can be used for component styling
   customColors: {
@@ -44,27 +43,27 @@ const theme = createTheme({
     roundedArea: '10px',
     roundedBtn: '8px',
     roundedAvatar: '50%',
-  }
-
+  },
 });
 
 // helper for passing theme colors and other styling elements to css
-export const rootDivStyle = (theme: Theme): React.CSSProperties => ({
-  ['--color-primary' as any]: theme.palette.primary.main,
-  ['--color-secondary' as any]: theme.palette.secondary.main,
-  ['--color-text' as any]: theme.customColors.colorText,
-  ['--color-blue-dark' as any]: theme.customColors.colorBlueDark,
-  ['--color-blue-light' as any]: theme.customColors.colorBlueLight,
-  ['--color-blue-light-hover' as any]: theme.customColors.colorBlueLightHover,
-  ['--color-purple' as any]: theme.customColors.colorPurple,
-  ['--color-purple-light' as any]: theme.customColors.colorPurpleLight,
-  ['--color-pink' as any]: theme.customColors.colorPink,
-  ['--color-pink-light' as any]: theme.customColors.colorPinkLight,
-  ['--color-main-shadow' as any]: theme.customColors.colorMainShadow,
-  ['--rounded-container' as any]: theme.customShape.roundedContainer,
-  ['--rounded-area' as any]: theme.customShape.roundedArea,
-  ['--rounded-btn' as any]: theme.customShape.roundedBtn,
-  ['--rounded-avatar' as any]: theme.customShape.roundedAvatar,
+type CSSVars = Record<`--${string}`, string>;
+export const rootDivStyle = (theme: Theme): React.CSSProperties & CSSVars => ({
+  '--color-primary': theme.palette.primary.main,
+  '--color-secondary': theme.palette.secondary.main,
+  '--color-text': theme.customColors.colorText,
+  '--color-blue-dark': theme.customColors.colorBlueDark,
+  '--color-blue-light': theme.customColors.colorBlueLight,
+  '--color-blue-light-hover': theme.customColors.colorBlueLightHover,
+  '--color-purple': theme.customColors.colorPurple,
+  '--color-purple-light': theme.customColors.colorPurpleLight,
+  '--color-pink': theme.customColors.colorPink,
+  '--color-pink-light': theme.customColors.colorPinkLight,
+  '--color-main-shadow': theme.customColors.colorMainShadow,
+  '--rounded-container': theme.customShape.roundedContainer,
+  '--rounded-area': theme.customShape.roundedArea,
+  '--rounded-btn': theme.customShape.roundedBtn,
+  '--rounded-avatar': theme.customShape.roundedAvatar,
 });
 
 export default theme;

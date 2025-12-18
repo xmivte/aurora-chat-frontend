@@ -1,11 +1,12 @@
-import { Paper, List, SxProps, Theme } from '@mui/material';
-import ListItemText from '@mui/material/ListItemText';
 import CloseIcon from '@mui/icons-material/Close';
+import { Paper, List } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import ListItemText from '@mui/material/ListItemText';
+
+import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts';
 import TabsComponent from './ChatSideBarTabs.tsx';
 import UserProfileComponent from './ChatUsersProfile.tsx';
 import { type SideBarProps } from './types';
-import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts';
 
 export interface MembersInfo {
   url: string;

@@ -58,6 +58,7 @@ export default tseslint.config(
             'react/jsx-uses-react': 'off',
 
             // Import rules
+            "react/prop-types": "off",
             'import/no-unresolved': 'error',
             'import/order': [ 'warn', {
           groups: [

@@ -1,4 +1,4 @@
-import theme from "../../theme/theme";
+import theme from '../../theme/theme';
 
 export const createSideBarSx = () => {
   const containerSx = {
@@ -37,8 +37,8 @@ export const createSideBarSx = () => {
     overflowY: 'auto',
     overflowX: 'hidden',
     '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+      display: 'none',
+    },
   };
   const footerStackSx = { p: 1, alignItems: 'center', flexShrink: 0 };
 
