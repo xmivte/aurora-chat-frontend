@@ -1,6 +1,7 @@
-import './style.css';
-import avatar from '../../img/avatar.png';
-import { Chat } from '../../types/index';
+import './ChatList.css';
+import { Chat } from './index';
+
+import avatar from './assets/avatar.png';
 
 interface ChatListProps {
   chats: Chat[];
@@ -16,9 +17,8 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
           <li key={chat.id} className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}>
             <button className="chat-button" onClick={() => onSelectChat(chat.id)}>
               <div className="chat-avatar">
-                <img src={chat.image ?? avatar} alt={chat.name ?? 'avatar'} />
+                <img src={chat.image || avatar} alt={chat.name || 'avatar'} />
               </div>
-
               <span className={`chat-name ${chat.unread ? 'unread' : ''}`}>{chat.name}</span>
             </button>
           </li>

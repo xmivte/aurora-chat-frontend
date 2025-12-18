@@ -1,4 +1,10 @@
 * {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -9,6 +15,7 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  color: var(--color-text);
 }
 
 .sidebar {
@@ -26,34 +33,101 @@
 
 .container {
   display: flex;
+  flex-direction: column;
+  background: var(--color-primary);
   height: 100%;
+  overflow: hidden;
+  padding: 50px;
+
+}
+
+.container-content {
+  border-radius: var(--rounded-container);
+  background: var(--color-secondary);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panels {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  padding: 0 15px 15px 15px;
+  min-height: 0;
+}
+
+.chat-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 15px 15px 15px;
+}
+
+.chat-title {
+  font-size: 1.7rem;
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .chat-list-panel {
   width: 280px;
   flex-shrink: 0;
-  background: #1a1a2e;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .chat-window-panel {
   flex: 1;
   min-width: 0;
-  background: #16213e;
   display: flex;
   flex-direction: column;
+  border-radius: var(--rounded-container);
+  min-height: 0;
+}
+
+.app-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
 }
 
 .app-header {
   padding: 16px;
   font-weight: 700;
   font-size: 18px;
-  color: #fff;
+  font-size: 2.5rem;
+  letter-spacing: 4px;
+  font-weight: 600;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
 }
 
 .app-header-button {
   padding: 12px 16px;
   display: flex;
   justify-content: flex-end;
+}
+
+.new-chat-button-container {
+  display: flex;
+
+}
+
+.new-chat-button {
+  border-radius: var(--rounded-btn) !important;
+  background: linear-gradient(90deg, var(--color-purple), var(--color-pink));
+}
+
+.new-chat-button:hover {
+  background: linear-gradient(90deg, var(--color-purple-light), var(--color-pink-light));
+}
+
+.new-chat-button:focus,
+.new-chat-button:active {
+  outline: none;
+  border: none;
 }

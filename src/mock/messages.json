@@ -53,5 +53,39 @@
     "content": "?",
     "date": "2025-01-13T08:00:00.000Z",
     "fk_chatId": 2
+  },
+
+    {
+    "id": 4,
+    "user": {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    },
+    "content": "???",
+    "date": "2025-01-13T08:00:00.000Z",
+    "fk_chatId": 2
+  },
+  {
+    "id": 5,
+    "user": {
+      "name": "Tom",
+      "id": 1,
+      "image": null
+    },
+    "content": "Hello, do you want to go for an run?",
+    "date": "2025-01-14T12:00:00.000Z",
+    "fk_chatId": 2
+  },
+  {
+    "id": 2,
+    "user": {
+      "name": "Mickey",
+      "id": 2,
+      "image": "https://i.imgur.com/szV5sdGs.jpg"
+    },
+    "content": "Yes!",
+    "date": "2025-01-14T08:00:00.000Z",
+    "fk_chatId": 2
   }
 ]

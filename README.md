@@ -11,6 +11,13 @@ Currently, two official plugins are available:
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
+### Styling Guidelines
+
+- HTML elements: Styles for plain HTML tags (e.g. `<div>`, `<p>`) are written in `.css` files.  
+- MUI components: Styles for Material‑UI components are defined in `.ts` files using the `sx` prop or theme overrides.  
+- Theme values: Core styling values such as colors and border radius are centralized in `theme.ts` inside the `theme` folder.This file acts as the single source of truth for design tokens across the application.
+
+
 ```js
 export default tseslint.config({
   extends: [
@@ -51,4 +58,3 @@ export default tseslint.config({
     ...reactDom.configs.recommended.rules,
   },
 })
-```
