@@ -7,7 +7,7 @@ export type Message = {
 };
 
 export type User = {
-  id: number;
+  id: string;
   name: string;
   image?: string | null;
 };
@@ -24,6 +24,6 @@ export type ChatMessage = {
   content: string;
   createdAt: string;
   id: number;
-  senderId: number;
+  senderId: string;
   username: string;
 };

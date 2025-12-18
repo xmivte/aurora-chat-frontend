@@ -1,9 +1,11 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
 import { LogoutButton } from './auth';
 import './App.css';
 import './index.css';
+import { api } from './auth/utils/api';
 import ChatWindow from './components/ChatWindow/ChatWindow';
 import ChatList from './components/LeftPanel/ChatList';
 import SideBar, { type Server } from './components/SideBar';
@@ -18,91 +20,51 @@ const mockServers: Server[] = [
   { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
 ];
 
-type JwtPayload = {
-  id: number;
+const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
+  const res = await api.get<Chat[]>(`/group/${userId}`);
+  return res.data;
 };
 
-function decodeJwt(token: string | null): JwtPayload | null {
-  if (!token) return null;
-  const payload = token.split('.')[1];
-  try {
-    return JSON.parse(atob(payload)) as JwtPayload;
-  } catch (e) {
-    console.error('Invalid JWT:', e);
-    return null;
-  }
-}
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
+const fetchUsers = async (selectedChatId: number): Promise<User[]> => {
+  const res = await api.get<User[]>(`/user/${selectedChatId}`);
+  return res.data;
+};
 
 export default function App() {
   const [activeId, setActiveId] = useState<string>('me');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
-  const [userId, setUserId] = useState<number | null>();
-  const [chatRooms, setChatRooms] = useState<Chat[]>([]);
+  const [userId, setUserId] = useState<string | null>();
+  const queryClient = useQueryClient();
 
-  const selectedChat = chatRooms.find(chat => chat.id === selectedChatId) || null;
+  const { data: chatRooms } = useQuery<Chat[]>({
+    queryKey: ['chatRooms', userId],
+    queryFn: () => fetchChatRooms(userId as string),
+    enabled: !!userId,
+  });
+  const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
+
+  const { data: users } = useQuery<User[]>({
+    queryKey: ['users', selectedChatId],
+    queryFn: () => fetchUsers(selectedChatId as number),
+    enabled: !!selectedChatId,
+  });
 
   useEffect(() => {
-    let token = localStorage.getItem('accessToken');
-    if (!token) {
-      token = localStorage.getItem('JWT');
-      if (!token) {
-        console.warn('No token found');
-        return;
-      }
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setUserId(user.uid);
+    } else {
+      console.warn('No authenticated user');
     }
-    const decodedToken = decodeJwt(token);
-    setUserId(decodedToken?.id);
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
-
-    async function fetchChatRooms() {
-      try {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        const token = user ? await user.getIdToken() : null;
-        const res = await fetch(`${BACKEND_URL}/group/${userId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = (await res.json()) as Chat[];
-        setChatRooms(data);
-      } catch (error) {
-        console.error('Error fetching chat rooms:', error);
-      }
-    }
-    void fetchChatRooms();
-  }, [userId]);
-
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        if (selectedChatId === null) return;
-        const auth = getAuth();
-        const user = auth.currentUser;
-        const token = user ? await user.getIdToken() : null;
-        const res = await fetch(`${BACKEND_URL}/user/${selectedChatId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        const users = (await res.json()) as User[];
-        setChatRooms(prev =>
-          prev.map(chat => (chat.id === selectedChatId ? { ...chat, users } : chat))
-        );
-      } catch (error) {
-        console.error('Error fetching users for chat room:', error);
-      }
-    }
-    void fetchUsers();
-  }, [selectedChatId]);
+    if (!users || !selectedChatId) return;
+    queryClient.setQueryData<Chat[]>(['chatRooms', userId], chats =>
+      (chats ?? []).map(chat => (chat.id === selectedChatId ? { ...chat, users } : chat))
+    );
+  }, [users, selectedChatId, userId, queryClient]);
 
   return (
     <div className="app-layout">
@@ -121,7 +83,7 @@ export default function App() {
             <aside className="chat-list-panel">
               <div className="app-header">AURORA</div>
               <ChatList
-                chats={chatRooms}
+                chats={chatRooms || []}
                 onSelectChat={setSelectedChatId}
                 selectedChatId={selectedChatId}
               />

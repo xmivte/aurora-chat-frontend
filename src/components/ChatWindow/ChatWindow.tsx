@@ -8,16 +8,16 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { Client, IMessage } from '@stomp/stompjs';
-
 import './ChatWindow.css';
-import { getAuth } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
+import { api } from '../../auth/utils/api';
+import { getToken } from '../../auth/utils/fireBaseToken';
+import { BACKEND_URL } from '../../config/env';
 import { Message, ChatMessage } from '../../types/index.ts';
 
 import Header from './ChatHeader';
 import MessageField from './ChatMessages';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatWindowProps) => {
   const yesterday = new Date();
@@ -27,32 +27,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatW
   const [messagess, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
+  const CHARACTER_LIMIT = 2000;
 
-  useEffect(() => {
-    const characterLimitWarning = 2000;
-    if (input.length > characterLimitWarning) {
-      setLimitWarning(true);
-    } else {
-      setLimitWarning(false);
-    }
-  }, [input]);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setInput(value);
+    setLimitWarning(value.length > CHARACTER_LIMIT);
+  };
 
   useEffect(() => {
     let isMounted = true;
     const fetchMessages = async () => {
       try {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        const token = user ? await user.getIdToken() : null;
-
-        const res = await fetch(`${BACKEND_URL}/messages/${chatRoom.id}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = (await res.json()) as ChatMessage[];
+        const res = await api.get(`/messages/${chatRoom.id}`);
+        const data = res.data as ChatMessage[];
         const convertedMessages: Message[] = data.map((received: ChatMessage) => ({
           id: received.id,
           user: { id: received.senderId, name: received.username },
@@ -73,7 +61,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatW
 
   useEffect(() => {
     const stopActivate = async () => {
-      const token = await getAuth().currentUser?.getIdToken();
+      const token = await getToken();
       const stompClient = new Client({
         webSocketFactory: () => new SockJS(`${BACKEND_URL}/ws?token=${token}`),
         onConnect: () => {
@@ -120,7 +108,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatW
     <>
       <Container className="chatWindow-outer-box">
         <Header curretUserId={curretUserId} chatRoom={chatRoom}></Header>
-
         <MessageField curretUserId={curretUserId} messages={messagess}></MessageField>
         <TextField
           className="chatWindow-input"
@@ -132,7 +119,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ curretUserId, chatRoom }: ChatW
           value={input}
           error={limitWarning}
           helperText={limitWarning ? 'Reaching character limit' : ''}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => handleInputChange(e)}
           slotProps={{
             htmlInput: {
               maxLength: 2000,

@@ -2,16 +2,16 @@ import { Chat } from '../types/index';
 import { Message } from '../types/index';
 
 export type ChatWindowProps = {
-  curretUserId: number;
+  curretUserId: string;
   chatRoom: Chat;
 };
 
 export type HeaderProps = {
-  curretUserId: number;
+  curretUserId: string;
   chatRoom: Chat;
 };
 
 export type MessageProps = {
-  curretUserId: number;
+  curretUserId: string;
   messages: Message[];
 };
