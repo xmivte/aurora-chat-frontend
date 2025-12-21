@@ -4,6 +4,7 @@ import UserSearch from "./UserSearch";
 import { User } from "./UserType";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { backdropStyles, paperStyles, closeButtonStyles } from "./NewChatDialog";
 
 interface NewChatDialogProps {
     open: boolean;
@@ -18,27 +19,15 @@ const NewChatDialog = ({ open, onClose, onUserSelect }: NewChatDialogProps) => {
             onClose={onClose}
             fullWidth
             maxWidth="sm"
-            BackdropProps={{
-                sx: { backdropFilter: "blur(5px)" },
-            }}
-            PaperProps={{
-                sx: {
-                    marginTop: "15vh",   // move dialog up
-                    alignSelf: "flex-start", backgroundColor: "#121222", borderRadius: "12px", border: "1px solid grey",
-                    position: "relative",
-                },
+            slotProps={{
+                backdrop: backdropStyles,
+                paper: paperStyles,
             }}
         >
-
             <IconButton
                 aria-label="close"
                 onClick={onClose}
-                sx={{
-                    position: "absolute",
-                    right: 0,
-                    top: 0,
-                    color: "#aaa",
-                }}
+                sx={closeButtonStyles}
             >
                 <CloseIcon />
             </IconButton>

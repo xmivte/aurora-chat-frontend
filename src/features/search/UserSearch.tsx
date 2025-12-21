@@ -14,6 +14,14 @@ import { User } from "./UserType";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 
+import {
+    autocompletePaperStyles,
+    autocompleteRootStyles,
+    searchIconStyles,
+    clearIconStyles,
+    textFieldStyles,
+} from "./UserSearch";
+
 interface UserSearchProps {
     data: User[];
     onUserSelect: (user: User) => void;
@@ -31,32 +39,11 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
             forcePopupIcon={false}
             popupIcon={null}
             clearIcon={null}
-            noOptionsText = "Hmm, can't find anyone by that name..."
+            noOptionsText="Hmm, can't find anyone by that name..."
             slotProps={{
-                paper: {
-                    sx: {
-                        backgroundColor: "#1e1e2f", // dropdown background
-                        borderRadius: "12px",
-                        border: "1px solid grey",
-
-
-                        "& .MuiAutocomplete-option": {
-                            color: "#fff",
-                            "&:hover": {
-                                backgroundColor: "#333a55", // hover
-                            },
-
-                        },
-
-                        "& .MuiAutocomplete-noOptions": {
-                                color: "#fff",
-                            },
-                    },
-                },
+                paper: autocompletePaperStyles,
             }}
-            sx={{
-                width: "99%",
-            }}
+            sx={autocompleteRootStyles}
             renderOption={(props, option) => (
                 <li {...props} key={option.id}>
                     <ListItem
@@ -92,50 +79,29 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
                     placeholder="Start typing a name..."
                     variant="outlined"
                     fullWidth
-                    InputProps={{
-                        ...params.InputProps,
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon sx={{ color: "#aaa", mr: 1 }} />
-                            </InputAdornment>
-                        ),
-                        endAdornment: (
-                            <>
-                                {inputValue.length > 0 && (
-                                    <CloseIcon
-                                        onClick={() => setInputValue("")}
-                                        style={{ cursor: "pointer", color: "#fff" }}
-                                    />
-                                )}
-                                {params.InputProps.endAdornment}
-                            </>
-                        ),
+                    slotProps={{
+                        input: {
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={searchIconStyles} />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <>
+                                    {inputValue.length > 0 && (
+                                        <CloseIcon
+                                            onClick={() => setInputValue("")}
+                                            style={clearIconStyles}
+                                        />
+                                    )}
+                                    {params.InputProps.endAdornment}
+                                </>
+                            ),
+                        },
                     }}
-                    sx={{
-                        backgroundColor: "transparent",
-                        "& .MuiInputBase-root": {
-                            backgroundColor: "#292641",
-                            borderRadius: "20px",
-                            overflow: "hidden",
-                        },
-                        "& .MuiOutlinedInput-root": {
-                            "& legend": { display: "none" },
-                            "& fieldset": { top: 0 },
-                        },
-                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#444" },
-                        "& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#666" },
-                        "& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#888" },
-                        "& .MuiInputBase-input": {
-                            color: "#fff",
-                            height: "20px",
-                            padding: "0 12px",
-                        },
-                        "& .MuiAutocomplete-clearIndicator svg": {
-                            color: "#fff",
-                        },
 
-
-                    }}
+                    sx={textFieldStyles}
                 />
             )}
         />

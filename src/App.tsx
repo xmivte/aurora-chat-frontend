@@ -24,7 +24,6 @@ export default function App() {
   const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
   const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
   const [tempChat, setTempChat] = useState<any | null>(null);
 
@@ -41,7 +40,6 @@ export default function App() {
       id: -999, // special id for temp chat
       name: user.name,
       image: user.avatarUrl || "",
-      unread: false,
     };
     setTempChat(newChat);
     setSelectedChatId(newChat.id);
@@ -56,7 +54,6 @@ export default function App() {
           activeId={activeId}
           onServerChange={id => {
             setActiveId(id);
-            setTempChat(null);
           }}
           onAddServer={() => { }}
         />
