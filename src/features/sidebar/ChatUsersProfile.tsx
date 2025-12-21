@@ -1,4 +1,4 @@
-import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar } from '@mui/material';
+import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar, Box } from '@mui/material';
 
 import theme from '../../theme/theme';
 
@@ -9,7 +9,13 @@ import {
 } from './ChatUsersProfile.ts';
 import { type MembersInfo } from './types';
 
-const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
+type Props = MembersInfo & {
+  unreadCount?: number;
+};
+
+const ChatUsersProfile = ({ username, online, url, unreadCount = 0 }: Props) => {
+  const showUnread = unreadCount > 0;
+
   return (
     <ListItem sx={listItemStyles}>
       <Badge
@@ -27,7 +33,28 @@ const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
           <Avatar src={url} />
         </ListItemAvatar>
       </Badge>
+
       <ListItemText primary={username} />
+
+      {showUnread ? (
+        <Box
+          aria-label="unread-count"
+          sx={{
+            ml: 1,
+            minWidth: 22,
+            height: 22,
+            borderRadius: 999,
+            px: '6px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 12,
+            fontWeight: 700,
+          }}
+        >
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </Box>
+      ) : null}
     </ListItem>
   );
 };

@@ -8,12 +8,6 @@ import TabsComponent from './ChatSideBarTabs.tsx';
 import UserProfileComponent from './ChatUsersProfile.tsx';
 import { type SideBarProps } from './types';
 
-export interface MembersInfo {
-  url: string;
-  online: boolean;
-  username: string;
-}
-
 const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void }) => {
   const tabs = ['Info', 'Media'];
 
@@ -24,13 +18,19 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
           <CloseIcon />
         </IconButton>
       )}
+
       <TabsComponent items={tabs} />
       <ListItemText sx={listTextStyles} primary="Group Info" />
 
       <List>
-        {members.map((member, i) => {
-          return <UserProfileComponent key={i} {...member} />;
-        })}
+        {members.map(member => (
+          <UserProfileComponent
+            key={member.id}
+            username={member.name}
+            online={false}
+            url={member.image ?? ''}
+          />
+        ))}
       </List>
     </Paper>
   );

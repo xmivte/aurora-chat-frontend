@@ -30,6 +30,7 @@ export default function WebSocketExample() {
       onConnect: () => {
         stompClient.subscribe('/topic/chat.1', (message: IMessage) => {
           const received = JSON.parse(message.body) as ChatMessage;
+          console.log('Received message:', received);
           setMessages(prev => [...prev, `Message: ${received.content}`]);
         });
       },
