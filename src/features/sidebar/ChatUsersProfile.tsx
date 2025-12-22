@@ -1,18 +1,13 @@
-import {
-  ListItem,
-  Badge,
-  ListItemAvatar,
-  ListItemText,
-  Avatar
-} from '@mui/material';
-import { type MembersInfo } from './types';
+import { ListItem, Badge, ListItemAvatar, ListItemText, Avatar } from '@mui/material';
+
+import theme from '../../theme/theme';
+
 import {
   listItemStyles,
   onlineIndicatorPosition,
   onlineIndicatorForm,
 } from './ChatUsersProfile.ts';
-import theme from "../../theme/theme";
-
+import { type MembersInfo } from './types';
 
 const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
   return (
@@ -22,11 +17,9 @@ const ChatUsersProfile = ({ username, online, url }: MembersInfo) => {
         anchorOrigin={onlineIndicatorPosition}
         variant="dot"
         sx={{
-          "& .MuiBadge-badge": {
+          '& .MuiBadge-badge': {
             ...onlineIndicatorForm,
-            backgroundColor: online
-              ? theme.customColors.colorOnline
-              : theme.customColors.colorBusy,
+            backgroundColor: online ? theme.customColors.colorOnline : theme.customColors.colorBusy,
           },
         }}
       >

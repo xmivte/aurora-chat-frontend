@@ -10,6 +10,9 @@ import ChatWindow from './features/chat/ChatWindow.tsx';
 import { Chat, User } from './features/chat/index.ts';
 import SideBar, { type Server } from './features/server/SideBar';
 
+import chatsData from './mock/chats.json';
+import NewChatDialog from "./features/search/NewChatDIalog.tsx";
+
 import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
@@ -68,6 +71,17 @@ export default function App() {
     );
   }, [users, selectedChatId, userId, queryClient]);
 
+  const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
+    const newChat = {
+      id: -999, // special id for temp chat
+      name: user.name,
+      image: user.avatarUrl || "",
+    };
+    setTempChat(newChat);
+    setSelectedChatId(newChat.id);
+    setOpenNewChatDialog(false);
+  };
+
   return (
     <div className="app-layout">
       <div className="sidebar">
@@ -77,6 +91,7 @@ export default function App() {
           onServerChange={id => setActiveId(id)}
           onAddServer={() => {}}
         />
+          onAddServer={() => { }} />
       </div>
       <main className="main">
         <div className="page">
@@ -109,6 +124,8 @@ export default function App() {
                       <ChatList
                         chats={chatRooms || []}
                         onSelectChat={id => {
+                      <ChatList chats={tempChat ? [...chatsData, tempChat] : chatsData}
+                        onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
                         }}
@@ -120,6 +137,17 @@ export default function App() {
                         <ChatWindow
                           currentUserId={userId}
                           chatRoom={selectedChat}
+                          isSidebarOpen={isSidebarOpen}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          onCloseSidebar={() => setIsSidebarOpen(false)}
+
+                        />
+                      )}
+                      {selectedChatId === -999 && tempChat && (
+                        <ChatWindow
+                          currentUserId={1}
+                          chatRoom={tempChat}
+                          messages={[]} // no messages yet
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}

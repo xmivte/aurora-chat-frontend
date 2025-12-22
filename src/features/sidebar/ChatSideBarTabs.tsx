@@ -1,9 +1,9 @@
 import { Tabs, Box } from '@mui/material';
 import { useState } from 'react';
-import ChatSideBarTab from './ChatSideBarTab';
-import { type TabsComponentProps } from './types';
-import { boxStyles } from './ChatSideBarTabs.ts';
 
+import ChatSideBarTab from './ChatSideBarTab';
+import { boxStyles } from './ChatSideBarTabs.ts';
+import { type TabsComponentProps } from './types';
 
 const ChatSidebarTabs = ({ items }: TabsComponentProps) => {
   const [currentTab, setCurrentTab] = useState<string>(items[0]);

@@ -3,8 +3,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
-import avatar from '../../assets/firstUser.svg';
-
+import avatar from './assets/avatar.png';
 import { outerBoxSx, avatarSx, nameSx, chatInfoBtnSx } from './ChatHeader';
 import { HeaderProps } from './ChatWindowTypes';
 

@@ -1,4 +1,4 @@
-import theme from "../../theme/theme";
+import theme from '../../theme/theme';
 
 export const outerBoxSx = {
   flex: 1,
@@ -17,14 +17,14 @@ export const outerBoxFullSx = {
   display: 'flex',
   flexDirection: 'row',
   width: '100%',
-  height: '100%'
+  height: '100%',
 };
 
 export const outerBoxOnlyChatSx = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  height: '100%'
+  height: '100%',
 };
 
 export const messagesSx = {
@@ -34,8 +34,14 @@ export const messagesSx = {
   scrollbarWidth: 'thin',
   scrollbarColor: `${theme.customColors.colorGray} ${theme.palette.primary.main}`,
   '&::-webkit-scrollbar': { width: '8px' },
-  '&::-webkit-scrollbar-track': { background: theme.palette.primary.main, borderRadius: theme.customShape.roundedArea },
-  '&::-webkit-scrollbar-thumb': { backgroundColor: theme.customColors.colorGray, borderRadius: theme.customShape.roundedArea },
+  '&::-webkit-scrollbar-track': {
+    background: theme.palette.primary.main,
+    borderRadius: theme.customShape.roundedArea,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: theme.customColors.colorGray,
+    borderRadius: theme.customShape.roundedArea,
+  },
 };
 
 export const inputSx = {
