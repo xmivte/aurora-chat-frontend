@@ -20,7 +20,7 @@ import {
     searchIconStyles,
     clearIconStyles,
     textFieldStyles,
-} from "./UserSearch";
+} from "./UserSearch.ts";
 
 interface UserSearchProps {
     data: User[];

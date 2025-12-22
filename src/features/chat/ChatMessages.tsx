@@ -1,10 +1,8 @@
 import Avatar from '@mui/material/Avatar';
-import avatar from './assets/avatar.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { MessageProps } from './ChatWindowTypes';
-
+import avatar from './assets/avatar.png';
 import {
   outerBoxSx,
   messageRowSx,
@@ -17,6 +15,7 @@ import {
   textBoxMeSx,
   textSx,
 } from './ChatMessages';
+import { MessageProps } from './ChatWindowTypes';
 
 const ChatMessages = ({ currentUserId, messages }: MessageProps) => {
   const yesterday = new Date();
@@ -30,15 +29,9 @@ const ChatMessages = ({ currentUserId, messages }: MessageProps) => {
             key={message.id}
             sx={currentUserId === message.user.id ? messageReverseSx : messageRowSx}
           >
-            <Box sx={currentUserId === message.user.id ? contentEndSx : contentStartSx}
-            >
+            <Box sx={currentUserId === message.user.id ? contentEndSx : contentStartSx}>
               {message.user.image ? (
-                <Box
-                  component="img"
-                  src={message.user.image}
-                  alt="user"
-                  sx={avatarSx}
-                />
+                <Box component="img" src={message.user.image} alt="user" sx={avatarSx} />
               ) : (
                 <Avatar sx={avatarSx} src={avatar} />
               )}

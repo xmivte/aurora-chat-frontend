@@ -1,6 +1,7 @@
-import { Tab, SxProps, Theme } from '@mui/material';
-import { type TabProps } from './types';
+import { Tab } from '@mui/material';
+
 import { tabStyles, activeTabStyles } from './ChatSideBarTabs.ts';
+import { type TabProps } from './types';
 
 const ChatSideBarTab = ({ value, key, ...props }: TabProps) => {
   return (

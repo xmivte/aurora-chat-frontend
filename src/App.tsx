@@ -6,9 +6,10 @@ import messages from './mock/messages.json';
 import { Message } from './features/chat/index';
 import ChatList from './features/chat/ChatList';
 import SideBar, { type Server } from './features/server/SideBar';
-import Button from '@mui/material/Button';
 import chatsData from './mock/chats.json';
 import NewChatDialog from "./features/search/NewChatDIalog.tsx";
+
+import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -49,14 +50,10 @@ export default function App() {
   return (
     <div className="app-layout">
       <div className="sidebar">
-        <SideBar
-          servers={mockServers}
+        <SideBar servers={mockServers}
           activeId={activeId}
-          onServerChange={id => {
-            setActiveId(id);
-          }}
-          onAddServer={() => { }}
-        />
+          onServerChange={id => setActiveId(id)}
+          onAddServer={() => { }} />
       </div>
       <main className="main">
         <div className="page">
@@ -86,17 +83,13 @@ export default function App() {
                           </Button>
                         </div>
                       </div>
-                      <ChatList
-                        chats={tempChat ? [...chatsData, tempChat] : chatsData}
-                        onSelectChat={(id) => {
+                      <ChatList chats={tempChat ? [...chatsData, tempChat] : chatsData}
+                        onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
-                          if (id !== -999) {
-                            setTempChat(null);
-                          }
+                          if (id !== -999) setTempChat(null);
                         }}
-                        selectedChatId={selectedChatId}
-                      />
+                        selectedChatId={selectedChatId} />
                     </aside>
                     <section className="chat-window-panel">
                       {selectedChat && (
@@ -137,5 +130,3 @@ export default function App() {
     </div>
   );
 }
-
-

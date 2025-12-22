@@ -1,4 +1,4 @@
-import theme from "../../theme/theme";
+import theme from '../../theme/theme';
 
 export const outerBoxSx = {
   paddingRight: '5px',

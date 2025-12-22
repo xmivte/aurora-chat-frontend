@@ -1,6 +1,5 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme } from '@mui/material/styles';
 import './type';
-
 
 const theme = createTheme({
   cssVariables: true,
@@ -11,8 +10,8 @@ const theme = createTheme({
     },
   },
   palette: {
-    primary: { main: '#121222', }, // page color
-    secondary: { main: '#1A192D' }  // container color, a bit lighter
+    primary: { main: '#121222' }, // page color
+    secondary: { main: '#1A192D' }, // container color, a bit lighter
   },
   //colors that can be used for component styling
   customColors: {
@@ -44,9 +43,27 @@ const theme = createTheme({
     roundedArea: '10px',
     roundedBtn: '8px',
     roundedAvatar: '50%',
-  }
-
+  },
 });
 
+// helper for passing theme colors and other styling elements to css
+type CSSVars = Record<`--${string}`, string>;
+export const rootDivStyle = (theme: Theme): React.CSSProperties & CSSVars => ({
+  '--color-primary': theme.palette.primary.main,
+  '--color-secondary': theme.palette.secondary.main,
+  '--color-text': theme.customColors.colorText,
+  '--color-blue-dark': theme.customColors.colorBlueDark,
+  '--color-blue-light': theme.customColors.colorBlueLight,
+  '--color-blue-light-hover': theme.customColors.colorBlueLightHover,
+  '--color-purple': theme.customColors.colorPurple,
+  '--color-purple-light': theme.customColors.colorPurpleLight,
+  '--color-pink': theme.customColors.colorPink,
+  '--color-pink-light': theme.customColors.colorPinkLight,
+  '--color-main-shadow': theme.customColors.colorMainShadow,
+  '--rounded-container': theme.customShape.roundedContainer,
+  '--rounded-area': theme.customShape.roundedArea,
+  '--rounded-btn': theme.customShape.roundedBtn,
+  '--rounded-avatar': theme.customShape.roundedAvatar,
+});
 
 export default theme;

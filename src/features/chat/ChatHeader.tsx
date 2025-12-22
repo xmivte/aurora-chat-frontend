@@ -1,15 +1,17 @@
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import InfoIcon from '@mui/icons-material/Info';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import { HeaderProps } from './ChatWindowTypes';
-import { outerBoxSx, avatarSx, nameSx, chatInfoBtnSx } from './ChatHeader';
+import Typography from '@mui/material/Typography';
+
 import avatar from './assets/avatar.png';
+import { outerBoxSx, avatarSx, nameSx, chatInfoBtnSx } from './ChatHeader';
+import { HeaderProps } from './ChatWindowTypes';
 
 const ChatHeader = ({
   currentUserId,
   chatRoom,
-  onOpenSidebar, }: HeaderProps & { onOpenSidebar?: () => void }) => {
+  onOpenSidebar,
+}: HeaderProps & { onOpenSidebar?: () => void }) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -17,7 +19,9 @@ const ChatHeader = ({
     return (
       <Box sx={{ ...outerBoxSx, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Box component="img" src={avatar} alt="chat-room" sx={avatarSx} />
-        <Typography variant="h6" sx={nameSx}>Chat room</Typography>
+        <Typography variant="h6" sx={nameSx}>
+          Chat room
+        </Typography>
         {onOpenSidebar && (
           <IconButton
             onClick={onOpenSidebar}
@@ -40,7 +44,7 @@ const ChatHeader = ({
     <Box sx={{ ...outerBoxSx, display: 'flex', alignItems: 'center', gap: 2 }}>
       <Box
         component="img"
-        src={isDirectChat ? (otherUser?.image || avatar) : (chatRoom.image || avatar)}
+        src={isDirectChat ? otherUser?.image || avatar : chatRoom.image || avatar}
         alt="chat-room"
         sx={avatarSx}
       />
@@ -57,11 +61,12 @@ const ChatHeader = ({
       <IconButton
         onClick={() => onOpenSidebar?.()}
         sx={chatInfoBtnSx}
-        aria-label="Open chat sidebar">
+        aria-label="Open chat sidebar"
+      >
         <InfoIcon />
       </IconButton>
     </Box>
   );
 };
 
-export default ChatHeader
+export default ChatHeader;

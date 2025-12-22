@@ -1,10 +1,10 @@
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import UserSearch from "./UserSearch";
+import UserSearch from "./UserSearch.tsx";
 import { User } from "./UserType";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { backdropStyles, paperStyles, closeButtonStyles } from "./NewChatDialog";
+import { backdropStyles, paperStyles, closeButtonStyles } from "./NewChatDialog.ts";
 
 interface NewChatDialogProps {
     open: boolean;
