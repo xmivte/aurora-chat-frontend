@@ -1,19 +1,17 @@
+import Button from '@mui/material/Button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
 import { LogoutButton } from './auth';
-import './App.css';
 import { api } from './auth/utils/api';
 import ChatList from './features/chat/ChatList';
 import ChatWindow from './features/chat/ChatWindow.tsx';
 import { Chat, User } from './features/chat/index.ts';
+import './App.css';
+import NewChatDialog from './features/search/NewChatDialog.tsx';
 import SideBar, { type Server } from './features/server/SideBar';
-
 import chatsData from './mock/chats.json';
-import NewChatDialog from "./features/search/NewChatDIalog.tsx";
-
-import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -35,11 +33,14 @@ const fetchUsers = async (selectedChatId: number): Promise<User[]> => {
 };
 
 export default function App() {
-  const [activeId, setActiveId] = useState<string>('me');
-  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
-  const [userId, setUserId] = useState<string | null>();
-  const queryClient = useQueryClient();
+  const [activeId, setActiveId] = useState<string>('personal');
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
+  const [tempChat, setTempChat] = useState<Chat | null>(null);
+
+  const queryClient = useQueryClient();
+  const [userId, setUserId] = useState<string | null>();
 
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
@@ -75,7 +76,8 @@ export default function App() {
     const newChat = {
       id: -999, // special id for temp chat
       name: user.name,
-      image: user.avatarUrl || "",
+      image: user.avatarUrl || '',
+      users: [user],
     };
     setTempChat(newChat);
     setSelectedChatId(newChat.id);
@@ -91,7 +93,6 @@ export default function App() {
           onServerChange={id => setActiveId(id)}
           onAddServer={() => {}}
         />
-          onAddServer={() => { }} />
       </div>
       <main className="main">
         <div className="page">
@@ -115,19 +116,18 @@ export default function App() {
                             variant="contained"
                             color="primary"
                             disableRipple
-                            onClick={() => setSelectedChatId(-1)}
+                            onClick={() => setOpenNewChatDialog(true)}
                           >
                             New Chat
                           </Button>
                         </div>
                       </div>
                       <ChatList
-                        chats={chatRooms || []}
-                        onSelectChat={id => {
-                      <ChatList chats={tempChat ? [...chatsData, tempChat] : chatsData}
+                        chats={tempChat ? [...(chatRooms || []), tempChat] : chatRooms || []}
                         onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
+                          if (id !== -999) setTempChat(null);
                         }}
                         selectedChatId={selectedChatId}
                       />
@@ -140,14 +140,12 @@ export default function App() {
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
-
                         />
                       )}
-                      {selectedChatId === -999 && tempChat && (
+                      {selectedChatId === -999 && userId && tempChat && (
                         <ChatWindow
-                          currentUserId={1}
+                          currentUserId={userId}
                           chatRoom={tempChat}
-                          messages={[]} // no messages yet
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -161,6 +159,12 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      <NewChatDialog
+        open={openNewChatDialog}
+        onClose={() => setOpenNewChatDialog(false)}
+        onUserSelect={handleUserSelect}
+      />
     </div>
   );
 }

@@ -3,7 +3,6 @@ import avatar from '../../assets/firstUser.svg';
 
 import { Chat } from './index';
 
-
 interface ChatListProps {
   chats: Chat[];
   onSelectChat: (id: number) => void;
@@ -20,7 +19,8 @@ const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
               <div className="chat-avatar">
                 <img src={chat.image || avatar} alt={chat.name || 'avatar'} />
               </div>
-              <span className={`chat-name ${chat.unread ? 'unread' : ''}`}>{chat.name}
+              <span className={`chat-name ${chat ? 'unread' : ''}`}>
+                {chat.name}
                 {chat.id === -999 ? <i> (Draft)</i> : chat.name}
               </span>
             </button>

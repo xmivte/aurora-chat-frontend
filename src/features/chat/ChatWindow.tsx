@@ -8,21 +8,12 @@ import { Client, IMessage } from '@stomp/stompjs';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 
-import { useEffect, useRef } from 'react';
-
 import firstUser from '@/assets/firstUser.svg';
-
-import {
-  outerBoxSx,
-  messagesSx,
-  inputSx,
-  sendButtonSx,
-  outerBoxFullSx,
-  outerBoxOnlyChatSx,
-} from './ChatWindow.ts';
-
 import secondUser from '@/assets/secondUser.svg';
 import thirdUser from '@/assets/thirdUser.svg';
+import { api } from '@/auth/utils/api';
+import { getToken } from '@/auth/utils/fireBaseToken';
+import { BACKEND_URL } from '@/config/env';
 import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
 
 import Header from './ChatHeader.tsx';
@@ -36,6 +27,8 @@ import {
   outerBoxOnlyChatSx,
 } from './ChatWindow.ts';
 import { ChatWindowProps } from './ChatWindowTypes';
+
+import { Message, ChatMessage } from './index';
 
 export const mockMembersList: MembersInfo[] = [
   { url: firstUser, online: false, username: 'Diana' },
