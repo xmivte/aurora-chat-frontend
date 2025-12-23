@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import Button from '@mui/material/Button';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getAuth } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+
 import { LogoutButton } from './auth';
-import './App.css';
-import ChatWindow from './features/chat/ChatWindow.tsx';
-import messages from './mock/messages.json';
-import { Message } from './features/chat/index';
+import { api } from './auth/utils/api';
 import ChatList from './features/chat/ChatList';
+import ChatWindow from './features/chat/ChatWindow.tsx';
+import { Chat, User } from './features/chat/index.ts';
+import './App.css';
+import NewChatDialog from './features/search/NewChatDialog.tsx';
 import SideBar, { type Server } from './features/server/SideBar';
 import chatsData from './mock/chats.json';
-import NewChatDialog from "./features/search/NewChatDIalog.tsx";
-
-import Button from '@mui/material/Button';
 
 const mockServers: Server[] = [
   { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
@@ -20,27 +22,62 @@ const mockServers: Server[] = [
   { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
 ];
 
+const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
+  const res = await api.get<Chat[]>(`/group/${userId}`);
+  return res.data;
+};
+
+const fetchUsers = async (selectedChatId: number): Promise<User[]> => {
+  const res = await api.get<User[]>(`/user/${selectedChatId}`);
+  return res.data;
+};
+
 export default function App() {
   const [activeId, setActiveId] = useState<string>('personal');
   const [selectedChatId, setSelectedChatId] = useState<number | null>(chatsData[0].id);
-  const selectedChat = chatsData.find(chat => chat.id === selectedChatId) || null;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
-  const [tempChat, setTempChat] = useState<any | null>(null);
+  const [tempChat, setTempChat] = useState<Chat | null>(null);
 
-  const selectedChatMessages = messages.filter(message => message.fk_chatId === selectedChatId);
+  const queryClient = useQueryClient();
+  const [userId, setUserId] = useState<string | null>();
 
-  const selectedChatMessagesParsed: Message[] = selectedChatMessages.map(msg => ({
-    ...msg,
-    date: new Date(msg.date),
-  }));
+  const { data: chatRooms } = useQuery<Chat[]>({
+    queryKey: ['chatRooms', userId],
+    queryFn: () => fetchChatRooms(userId as string),
+    enabled: !!userId,
+  });
+  const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
 
+  const { data: users } = useQuery<User[]>({
+    queryKey: ['users', selectedChatId],
+    queryFn: () => fetchUsers(selectedChatId as number),
+    enabled: !!selectedChatId,
+  });
+
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setUserId(user.uid);
+    } else {
+      console.warn('No authenticated user');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!users || !selectedChatId) return;
+    queryClient.setQueryData<Chat[]>(['chatRooms', userId], chats =>
+      (chats ?? []).map(chat => (chat.id === selectedChatId ? { ...chat, users } : chat))
+    );
+  }, [users, selectedChatId, userId, queryClient]);
 
   const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
     const newChat = {
       id: -999, // special id for temp chat
       name: user.name,
-      image: user.avatarUrl || "",
+      image: user.avatarUrl || '',
+      users: [user],
     };
     setTempChat(newChat);
     setSelectedChatId(newChat.id);
@@ -50,10 +87,12 @@ export default function App() {
   return (
     <div className="app-layout">
       <div className="sidebar">
-        <SideBar servers={mockServers}
+        <SideBar
+          servers={mockServers}
           activeId={activeId}
           onServerChange={id => setActiveId(id)}
-          onAddServer={() => { }} />
+          onAddServer={() => {}}
+        />
       </div>
       <main className="main">
         <div className="page">
@@ -83,31 +122,30 @@ export default function App() {
                           </Button>
                         </div>
                       </div>
-                      <ChatList chats={tempChat ? [...chatsData, tempChat] : chatsData}
+                      <ChatList
+                        chats={tempChat ? [...(chatRooms || []), tempChat] : chatRooms || []}
                         onSelectChat={id => {
                           setSelectedChatId(id);
                           setIsSidebarOpen(false);
                           if (id !== -999) setTempChat(null);
                         }}
-                        selectedChatId={selectedChatId} />
+                        selectedChatId={selectedChatId}
+                      />
                     </aside>
                     <section className="chat-window-panel">
-                      {selectedChat && (
+                      {selectedChat && userId && (
                         <ChatWindow
-                          currentUserId={1}
+                          currentUserId={userId}
                           chatRoom={selectedChat}
-                          messages={selectedChatMessagesParsed}
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
-
                         />
                       )}
-                      {selectedChatId === -999 && tempChat && (
+                      {selectedChatId === -999 && userId && tempChat && (
                         <ChatWindow
-                          currentUserId={1}
+                          currentUserId={userId}
                           chatRoom={tempChat}
-                          messages={[]} // no messages yet
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}

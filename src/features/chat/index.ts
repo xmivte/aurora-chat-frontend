@@ -7,7 +7,7 @@ export type Message = {
 };
 
 export type User = {
-  id: number;
+  id: string;
   name: string;
   image?: string | null;
 };
@@ -16,6 +16,14 @@ export type Chat = {
   id: number;
   name?: string | null;
   image?: string | null;
-  unread?: boolean;
   users: User[];
+};
+
+export type ChatMessage = {
+  groupId: number;
+  content: string;
+  createdAt: string;
+  id: number;
+  senderId: string;
+  username: string;
 };

@@ -2,7 +2,8 @@ import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import avatar from './assets/avatar.png';
+import avatar from '../../assets/firstUser.svg';
+
 import {
   outerBoxSx,
   messageRowSx,
