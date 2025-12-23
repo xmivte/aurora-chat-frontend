@@ -9,7 +9,6 @@ import {
   ListItemText,
   InputAdornment,
 } from '@mui/material';
-import React from 'react';
 import { useState } from 'react';
 
 import avatar from '../../assets/firstUser.svg';
