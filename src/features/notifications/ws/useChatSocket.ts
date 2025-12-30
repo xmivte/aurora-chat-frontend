@@ -60,7 +60,6 @@ export function useChatSocket({ currentUserId, onNotification }: UseChatSocketOp
             console.warn('[WS] WebSocket error', event);
           },
 
-          // jei lint verkia dėl unused param — paprasčiausiai išimk param
           onWebSocketClose: () => {},
         });
 

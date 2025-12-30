@@ -122,7 +122,6 @@ export function NotificationsProvider({
     (evt: NotificationEventDTO) => {
       if (!evt) return;
 
-      // helperiai vietoje → jokių deps warningų
       const normalizePreview = (s: string) => s.replace(/\s+/g, ' ').trim();
       const shorten = (s: string, max = 60) => (s.length > max ? s.slice(0, max) + '…' : s);
 

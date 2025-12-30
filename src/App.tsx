@@ -7,6 +7,14 @@ import type { Chat, User } from '@/features/chat';
 
 import { LogoutButton } from './auth';
 import './App.css';
+import {
+  tempChatMessageStyles,
+  tempChatTitleStyles,
+  tempChatDescriptionStyles,
+  noChatSelectedStyles,
+  serverTabStyles,
+  loadingUserStyles,
+} from './App.styles';
 import { api } from './auth/utils/api';
 import ChatList from './features/chat/ChatList.tsx';
 import ChatWindow from './features/chat/ChatWindow.tsx';
@@ -86,6 +94,7 @@ function AppInner({ userId }: { userId: string }) {
       id: TEMP_CHAT_ID,
       name: user.name,
       image: user.avatarUrl || '',
+      users: [user],
     } as Chat;
 
     setTempChat(newTempChat);
@@ -156,28 +165,22 @@ function AppInner({ userId }: { userId: string }) {
                           onCloseSidebar={() => setIsSidebarOpen(false)}
                         />
                       ) : selectedChatId === TEMP_CHAT_ID && tempChat ? (
-                        <div style={{ padding: 16, opacity: 0.9 }}>
-                          <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                            New chat with: {tempChat.name}
-                          </div>
-                          <div style={{ opacity: 0.8 }}>
+                        <div style={tempChatMessageStyles}>
+                          <div style={tempChatTitleStyles}>New chat with: {tempChat.name}</div>
+                          <div style={tempChatDescriptionStyles}>
                             Temporary selection from search. Next step is creating a real chat/group
                             in backend, then refetching chatRooms.
                           </div>
                         </div>
                       ) : (
-                        <div style={{ padding: 16, opacity: 0.8 }}>
-                          Select a chat to start messaging.
-                        </div>
+                        <div style={noChatSelectedStyles}>Select a chat to start messaging.</div>
                       )}
                     </section>
                   </>
                 )}
 
                 {activeId !== 'personal' && (
-                  <div style={{ padding: 16, opacity: 0.8 }}>
-                    This server tab is UI-only for now.
-                  </div>
+                  <div style={serverTabStyles}>This server tab is UI-only for now.</div>
                 )}
               </div>
             </div>
@@ -205,7 +208,7 @@ export default function App() {
   }, []);
 
   if (!userId) {
-    return <div style={{ padding: 16 }}>Loading user…</div>;
+    return <div style={loadingUserStyles}>Loading user…</div>;
   }
 
   return (

@@ -1,6 +1,8 @@
+import theme from '@/theme/theme';
+
 export const chatListSx = {
   width: '100%',
-  color: '#ffffff',
+  color: theme.customColors.colorText,
 };
 
 export const ulSx = {
@@ -16,9 +18,9 @@ export const chatItemSx = (isSelected: boolean) => ({
   borderRadius: '8px',
   cursor: 'pointer',
   transition: 'background-color 0.2s ease',
-  backgroundColor: isSelected ? '#2a2a3f' : 'transparent',
+  backgroundColor: isSelected ? theme.customColors.colorBlueLight : 'transparent',
   '&:hover': {
-    backgroundColor: '#1a1a2b',
+    backgroundColor: theme.customColors.colorBlueLightHover,
   },
 });
 
@@ -37,7 +39,7 @@ export const avatarSx = {
   width: '36px',
   height: '36px',
   borderRadius: '50%',
-  backgroundColor: '#6a5acd',
+  backgroundColor: theme.customColors.colorPurpleLight,
   mr: '12px',
   overflow: 'hidden',
   display: 'flex',
@@ -61,7 +63,7 @@ export const nameRowSx = {
 export const chatNameSx = (isUnread: boolean) => ({
   fontSize: '16px',
   fontWeight: isUnread ? 'bold' : 'normal',
-  color: isUnread ? '#ffffff' : '#e0e0f0',
+  color: isUnread ? theme.customColors.colorText : theme.customColors.colorMutedText,
 });
 
 export const unreadCountSx = {
@@ -76,8 +78,8 @@ export const unreadCountSx = {
   fontSize: '12px',
   fontWeight: 800,
   lineHeight: 1,
-  color: '#f4f1ff',
+  color: theme.customColors.colorText,
   background: 'rgba(138, 92, 246, 0.28)',
-  border: '1px solid rgba(138, 92, 246, 0.95)',
+  border: `1px solid ${theme.customColors.colorPurpleLight}`,
   boxShadow: '0 0 0 2px rgba(0, 0, 0, 0.22)',
 };

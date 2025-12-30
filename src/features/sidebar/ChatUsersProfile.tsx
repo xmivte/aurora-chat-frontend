@@ -6,6 +6,7 @@ import {
   listItemStyles,
   onlineIndicatorPosition,
   onlineIndicatorForm,
+  unreadCountStyles,
 } from './ChatUsersProfile.ts';
 import { type MembersInfo } from './types';
 
@@ -37,21 +38,7 @@ const ChatUsersProfile = ({ username, online, url, unreadCount = 0 }: Props) => 
       <ListItemText primary={username} />
 
       {showUnread ? (
-        <Box
-          aria-label="unread-count"
-          sx={{
-            ml: 1,
-            minWidth: 22,
-            height: 22,
-            borderRadius: 999,
-            px: '6px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 12,
-            fontWeight: 700,
-          }}
-        >
+        <Box aria-label="unread-count" sx={unreadCountStyles}>
           {unreadCount > 99 ? '99+' : unreadCount}
         </Box>
       ) : null}
