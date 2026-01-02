@@ -37,7 +37,7 @@ const ChatMessages = ({ currentUserId, messages }: MessageProps) => {
                 <Avatar sx={avatarSx} src={avatar} />
               )}
               <Typography sx={dateNameSx}>
-                {message.user.name}{' '}
+                {message.user.username}{' '}
                 {message.date < yesterday
                   ? message.date.toLocaleDateString()
                   : message.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

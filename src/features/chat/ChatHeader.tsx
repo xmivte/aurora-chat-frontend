@@ -52,7 +52,7 @@ const ChatHeader = ({
 
       {isDirectChat && !chatRoom.name ? (
         <Typography variant="h6" sx={nameSx}>
-          {otherUser?.name ?? 'Unknown user'}
+          {otherUser?.username ?? 'Unknown user'}
         </Typography>
       ) : (
         <Typography variant="h6" sx={nameSx}>

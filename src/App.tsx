@@ -47,7 +47,12 @@ export default function App() {
     queryFn: () => fetchChatRooms(userId as string),
     enabled: !!userId,
   });
-  const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
+
+  const selectedChat = selectedChatId
+    ? (queryClient
+        .getQueryData<Chat[]>(['chatRooms', userId])
+        ?.find(chat => chat.id === selectedChatId) ?? null)
+    : null;
 
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
@@ -58,6 +63,7 @@ export default function App() {
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
+    console.log('Authenticated user:', user?.uid);
     if (user) {
       setUserId(user.uid);
     } else {
@@ -66,17 +72,23 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!users || !selectedChatId) return;
+    if (!users || !selectedChatId || !userId) return;
+    console.log('Updating chat users:', users);
+
     queryClient.setQueryData<Chat[]>(['chatRooms', userId], chats =>
       (chats ?? []).map(chat => (chat.id === selectedChatId ? { ...chat, users } : chat))
     );
+    console.log(
+      'Updated chatRooms in cache users attached:',
+      queryClient.getQueryData<Chat[]>(['chatRooms', userId])
+    );
   }, [users, selectedChatId, userId, queryClient]);
 
-  const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
+  const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
     const newChat = {
       id: -999, // special id for temp chat
-      name: user.name,
-      image: user.avatarUrl || '',
+      username: user.username,
+      image: user.image || '',
       users: [user],
     };
     setTempChat(newChat);
@@ -137,6 +149,7 @@ export default function App() {
                         <ChatWindow
                           currentUserId={userId}
                           chatRoom={selectedChat}
+                          users={users || []}
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -146,6 +159,7 @@ export default function App() {
                         <ChatWindow
                           currentUserId={userId}
                           chatRoom={tempChat}
+                          users={tempChat.users}
                           isSidebarOpen={isSidebarOpen}
                           onOpenSidebar={() => setIsSidebarOpen(true)}
                           onCloseSidebar={() => setIsSidebarOpen(false)}
