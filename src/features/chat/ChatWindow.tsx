@@ -48,6 +48,7 @@ const ChatWindow = ({
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
+  onChatCreated,
 }: ChatWindowProps) => {
   const { markGroupRead, playSendSound } = useNotifications();
 
@@ -195,6 +196,7 @@ const ChatWindow = ({
         if (document.visibilityState === 'visible') {
           void markGroupRead(groupId);
         }
+
       });
 
       const typingSub = client.subscribe(
@@ -227,7 +229,7 @@ const ChatWindow = ({
     markGroupRead,
   ]);
 
-  const pinMessage = (message: Message): void => {
+const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
     if (!canPinMore) return;
 
@@ -267,7 +269,60 @@ const ChatWindow = ({
     }
   };
 
-  const sendMessage = () => {
+  const createGroup = async (myUserId: string, otherUserId: string) => {
+    try {
+      const res = await api.post("/group", {
+        myUserId,
+        otherUserId,
+      });
+      return res.data;
+    } catch (err) {
+      console.error("Failed to create group:", err);
+      throw err;
+    }
+  };
+
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    let groupId = chatRoom.id;
+
+    //New chat
+    if (chatRoom.isDraft) {
+
+      const otherUserId = chatRoom.users.find(u => u.id !== currentUserId)?.id;
+      if (!otherUserId) {
+        console.error("Could not determine other user");
+        return;
+      }
+
+      const newGroup = await createGroup(currentUserId, otherUserId);
+
+      groupId = newGroup.id;
+      onChatCreated(newGroup.id);
+
+      //Subscribe to new topic
+      if (client && client.connected) {
+        client.subscribe(`/topic/chat.${groupId}`, (message: IMessage) => {
+          const received = JSON.parse(message.body) as ChatMessage;
+          const converted: Message = {
+            id: received.id,
+            user: { id: received.senderId, username: received.username },
+            content: received.content,
+            date: new Date(received.createdAt),
+            fk_chatId: received.groupId,
+          };
+
+          setMessages(prev => {
+            if (prev.some(m => m.id === converted.id)) return prev;
+            return [...prev, converted];
+          });
+        });
+      }
+    }
+
+    //Send the message (works for both: new + existing chats)
     if (!client?.connected) return;
     if (!groupId) return;
 
@@ -308,7 +363,6 @@ const ChatWindow = ({
         <Box sx={outerBoxOnlyChatSx}>
           <Box>
             <Header
-              currentUserId={currentUserId}
               chatRoom={chatRoom}
               pinnedMessages={pinnedMessages}
               onDiscardPin={messageId => void discardPin(messageId)}

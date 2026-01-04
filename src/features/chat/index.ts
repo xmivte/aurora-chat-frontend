@@ -16,6 +16,9 @@ export type Chat = {
   id: string;
   name?: string | null;
   image?: string | null;
+  displayName?: string | null;
+  displayImage?: string | null;
+  isDraft?: boolean;
   users: User[];
 };
 

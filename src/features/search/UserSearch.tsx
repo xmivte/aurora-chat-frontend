@@ -20,7 +20,8 @@ import {
   clearIconStyles,
   textFieldStyles,
 } from './UserSearch.ts';
-import { User } from './UserType';
+
+import { User } from '../chat/index.ts';
 
 interface UserSearchProps {
   data: User[];
@@ -31,7 +32,7 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
   const [inputValue, setInputValue] = useState('');
   return (
     <Autocomplete
-      options={data}
+      options={[...data].sort((a, b) => a.username.localeCompare(b.username))}
       getOptionLabel={option => option.username}
       inputValue={inputValue}
       onInputChange={(_, value) => setInputValue(value)}
@@ -45,7 +46,7 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
       sx={autocompleteRootStyles}
       renderOption={(props, option) => (
         <li {...props} key={option.id}>
-          <ListItem disableGutters sx={{}}>
+          <ListItem disableGutters sx={{}} component="div">
             <ListItemAvatar>
               <Avatar src={option.image || avatar} alt={option.username} sx={{}}>
                 {option.username.charAt(0)}

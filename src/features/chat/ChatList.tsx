@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import avatar from '../../assets/firstUser.svg';
 
 import {
   chatListSx,
@@ -36,7 +37,7 @@ export default function ChatList({
           const unread = unreadByGroup[chatKey] ?? 0;
           const isUnread = unread > 0;
 
-          const displayName = chat.name && chat.name.trim().length > 0 ? chat.name : 'Chat';
+          const displayName = chat.displayName && chat.displayName.trim().length > 0 ? chat.displayName : 'Chat';
 
           return (
             <Box key={chatKey} component="li" sx={chatItemSx(isSelected)}>
@@ -47,12 +48,15 @@ export default function ChatList({
                 onClick={() => onSelectChat(chatKey)}
               >
                 <Box sx={avatarSx}>
-                  {chat.image ? <img src={chat.image} alt={displayName} /> : null}
+                  {chat.displayImage && chat.displayImage.trim() !== "" ? 
+                  ( <img src={chat.displayImage} alt={displayName || "avatar"} /> ) : 
+                  ( <img src={avatar} alt="avatar" /> )}
                 </Box>
 
                 <Box sx={nameRowSx}>
                   <Box component="span" sx={chatNameSx(isUnread)}>
                     {displayName}
+                    {chat.isDraft && <i> (Draft)</i>}
                   </Box>
 
                   {isUnread ? (

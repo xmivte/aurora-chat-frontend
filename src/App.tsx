@@ -2,15 +2,13 @@ import Button from '@mui/material/Button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
-
 import type { Chat, User } from '@/features/chat';
-
 import {
-  tempChatMessageStyles,
-  tempChatTitleStyles,
-  tempChatDescriptionStyles,
-  noChatSelectedStyles,
-  serverTabStyles,
+ // tempChatMessageStyles,
+ // tempChatTitleStyles,
+ // tempChatDescriptionStyles,
+ // noChatSelectedStyles,
+ // serverTabStyles,
   loadingUserStyles,
 } from './App.styles';
 import { LogoutButton } from './auth';
@@ -23,6 +21,9 @@ import { NotificationsProvider } from './features/notifications/NotificationsPro
 import { useNotifications } from './features/notifications/useNotifications';
 import NewChatDialog from './features/search/NewChatDialog.tsx';
 import SideBar, { type Server } from './features/server/SideBar';
+import { getChatDisplayName, getChatDisplayImage } from './features/chat/helpers/getChatDisplayInfo.ts';
+import { handleUserSelect, handleChatCreated } from './features/chat/logic/chatActions.ts';
+import chatsData from './mock/chats.json';
 
 const mockServers: Server[] = [
   { id: 'personal', label: 'Personal', glyph: 'P', bg: '#5553eb' },
@@ -46,6 +47,11 @@ const fetchUsers = async (groupId: string): Promise<User[]> => {
   return res.data;
 };
 
+const fetchAllUsers = async (): Promise<User[]> => {
+  const res = await api.get<User[]>(`/user/all`);
+  return res.data;
+};
+
 function AppInner({ userId }: { userId: string }) {
   const [activeId, setActiveId] = useState<string>('personal');
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -59,7 +65,14 @@ function AppInner({ userId }: { userId: string }) {
 
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
-    queryFn: () => fetchChatRooms(userId),
+    queryFn: async () => {
+      const rooms = await fetchChatRooms(userId as string);
+      return rooms.map(room => ({
+        ...room,
+        displayName: getChatDisplayName(room, userId as string),
+        displayImage: getChatDisplayImage(room, userId as string),
+      }));
+    },
     enabled: !!userId,
   });
 
@@ -68,10 +81,10 @@ function AppInner({ userId }: { userId: string }) {
     return chatRooms.find(chat => String(chat.id) === String(selectedChatId)) || null;
   }, [chatRooms, selectedChatId]);
 
-  const chatsForList = useMemo(() => {
-    const base = chatRooms ?? [];
-    return tempChat ? [...base, tempChat] : base;
-  }, [chatRooms, tempChat]);
+  //const chatsForList = useMemo(() => {
+   // const base = chatRooms ?? [];
+   // return tempChat ? [...base, tempChat] : base;
+ // }, [chatRooms, tempChat]);
 
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
@@ -79,9 +92,15 @@ function AppInner({ userId }: { userId: string }) {
     enabled: !!selectedChatId && selectedChatId !== TEMP_CHAT_ID,
   });
 
+  //const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
+
+  const { data: allUsers } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => fetchAllUsers(),
+  });
+
   useEffect(() => {
     if (!users || !selectedChatId || selectedChatId === TEMP_CHAT_ID) return;
-
     queryClient.setQueryData<Chat[]>(['chatRooms', userId], (chats): Chat[] => {
       const safeChats = chats ?? [];
       return safeChats.map(chat =>
@@ -90,18 +109,36 @@ function AppInner({ userId }: { userId: string }) {
     });
   }, [users, selectedChatId, userId, queryClient]);
 
-  const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
-    const newTempChat: Chat = {
-      id: TEMP_CHAT_ID,
-      name: user.username,
-      image: user.image || '',
-      users: [user],
-    } as Chat;
+  //const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
+  //const newTempChat: Chat = {
+  // id: TEMP_CHAT_ID,
+  // name: user.username,
+  // image: user.image || '',
+  //  users: [user],
+  //} as Chat;
 
-    setTempChat(newTempChat);
-    setSelectedChatId(TEMP_CHAT_ID);
-    setOpenNewChatDialog(false);
-  };
+  // setTempChat(newTempChat);
+  // setSelectedChatId(TEMP_CHAT_ID);
+  // setOpenNewChatDialog(false);
+  // };
+
+
+  useEffect(() => {
+    if (
+      chatRooms &&
+      chatRooms.length > 0 &&
+      selectedChatId === null &&
+      !tempChat
+    ) {
+      setSelectedChatId(chatRooms[0].id);
+    }
+  }, [chatRooms, selectedChatId, tempChat]);
+
+
+  const activeChat =
+    tempChat && selectedChatId === tempChat.id
+      ? tempChat
+      : selectedChat;
 
   return (
     <WebSocketProvider>
@@ -111,10 +148,9 @@ function AppInner({ userId }: { userId: string }) {
             servers={mockServers}
             activeId={activeId}
             onServerChange={id => setActiveId(id)}
-            onAddServer={() => {}}
+            onAddServer={() => { }}
           />
         </div>
-
         <main className="main">
           <div className="page">
             <div className="container">
@@ -146,43 +182,38 @@ function AppInner({ userId }: { userId: string }) {
                         </div>
 
                         <ChatList
-                          chats={chatsForList}
-                          selectedChatId={selectedChatId}
-                          onSelectChat={(id: string) => {
-                            setSelectedChatId(String(id));
+                          chats={tempChat ? [...(chatRooms || []), tempChat] : chatRooms || []}
+                          onSelectChat={id => {
+                            setSelectedChatId(id);
                             setIsSidebarOpen(false);
-                            if (String(id) !== TEMP_CHAT_ID) setTempChat(null);
+                            if (id != tempChat?.id) { setTempChat(null); }
                           }}
+                          selectedChatId={selectedChatId}
                           unreadByGroup={unreadByGroup}
                         />
                       </aside>
-
                       <section className="chat-window-panel">
-                        {selectedChat ? (
+                        {activeChat && userId && (
                           <ChatWindow
                             currentUserId={userId}
-                            chatRoom={selectedChat}
+                            chatRoom={activeChat}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
+                            onChatCreated={(newId) =>
+                              handleChatCreated({
+                                newId,
+                                userId,
+                                tempChat,
+                                queryClient,
+                                setTempChat,
+                                setSelectedChatId
+                              })
+                            }
                           />
-                        ) : selectedChatId === TEMP_CHAT_ID && tempChat ? (
-                          <div style={tempChatMessageStyles}>
-                            <div style={tempChatTitleStyles}>New chat with: {tempChat.name}</div>
-                            <div style={tempChatDescriptionStyles}>
-                              Temporary selection from search. Next step is creating a real
-                              chat/group in backend, then refetching chatRooms.
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={noChatSelectedStyles}>Select a chat to start messaging.</div>
                         )}
                       </section>
                     </>
-                  )}
-
-                  {activeId !== 'personal' && (
-                    <div style={serverTabStyles}>This server tab is UI-only for now.</div>
                   )}
                 </div>
               </div>
@@ -193,10 +224,19 @@ function AppInner({ userId }: { userId: string }) {
         <NewChatDialog
           open={openNewChatDialog}
           onClose={() => setOpenNewChatDialog(false)}
-          onUserSelect={handleUserSelect}
+          onUserSelect={(user) =>
+            handleUserSelect({
+              user,
+              chatRooms,
+              setSelectedChatId,
+              setTempChat,
+              closeDialog: () => setOpenNewChatDialog(false),
+            })
+          }
+          allUsers={(allUsers || []).filter(u => u.id !== userId)}
         />
-      </div>
-    </WebSocketProvider>
+      </div >
+    </WebSocketProvider >
   );
 }
 
