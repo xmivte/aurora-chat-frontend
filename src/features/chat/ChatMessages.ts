@@ -48,6 +48,10 @@ export const textBoxOtherSx = {
   padding: '12px 16px',
   margin: '8px',
   color: 'rgba(255, 255, 255, 0.87)',
+  position: 'relative',
+  '&:hover .message-actions': {
+    opacity: 1,
+  },
 };
 
 export const textBoxMeSx = {
@@ -57,8 +61,40 @@ export const textBoxMeSx = {
   padding: '12px 16px',
   margin: '8px',
   color: theme.customColors.colorText,
+  position: 'relative',
+  '&:hover .message-actions': {
+    opacity: 1,
+  },
 };
 
 export const textSx = {
   fontSize: '14px',
+};
+
+export const messageActionsRightSx = {
+  position: 'absolute',
+  top: '50%',
+  right: -40,
+  transform: 'translateY(-50%)',
+  opacity: 0,
+  transition: 'opacity 0.1s ease-in-out',
+};
+
+export const messageActionsLeftSx = {
+  position: 'absolute',
+  top: '50%',
+  left: -40,
+  transform: 'translateY(-50%)',
+  opacity: 0,
+  transition: 'opacity 0.1s ease-in-out',
+};
+
+export const menuPaperMeSx = {
+  backgroundColor: '#292641', // colours pakeisti i theme
+  color: 'white',
+};
+
+export const menuPaperOtherSx = {
+  backgroundColor: '#232036',
+  color: 'white',
 };
