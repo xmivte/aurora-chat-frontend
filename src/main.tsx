@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-      <div style={rootDivStyle(theme)}>
+        <div style={rootDivStyle(theme)}>
           <Router>
             <Routes>
               <Route
@@ -31,7 +31,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/websockets" element={<WebSocketExample />} />
             </Routes>
           </Router>
-      </div>
+        </div>
       </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
