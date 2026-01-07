@@ -106,7 +106,7 @@ const ChatHeader = ({
 
         <Typography variant="h6" sx={nameSx}>
           {isDirectChat && !chatRoom.name
-            ? (otherUser?.name ?? 'Unknown user')
+            ? (otherUser?.username ?? 'Unknown user')
             : (chatRoom.name ?? 'Chat room')}
         </Typography>
 
@@ -145,12 +145,12 @@ const ChatHeader = ({
                 <Box
                   component="img"
                   src={pin.message.user.image || avatar}
-                  alt={pin.message.user.name}
+                  alt={pin.message.user.username}
                   sx={pinnedAvatarSx}
                 />
                 <Box sx={pinnedBodySx}>
                   <Box sx={pinnedMetaRowSx}>
-                    <Box sx={pinnedNameSx}>{pin.message.user.name}</Box>
+                    <Box sx={pinnedNameSx}>{pin.message.user.username}</Box>
                     <Box sx={pinnedTimeSx}>
                       {pin.pinnedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </Box>

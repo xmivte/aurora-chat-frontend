@@ -15,4 +15,5 @@ export const onlineIndicatorForm = {
   width: 10,
   height: 10,
   borderRadius: theme.customShape.roundedAvatar,
+  right: '20px',
 };

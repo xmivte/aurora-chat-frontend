@@ -8,7 +8,7 @@ export type Message = {
 
 export type User = {
   id: string;
-  name: string;
+  username: string;
   image?: string | null;
 };
 
