@@ -219,7 +219,7 @@ const ChatWindow = ({
       stompClientRef.current = null;
       if (client) void client.deactivate();
     };
-  }, [chatRoom.id, groupId, pinnedQueryKey, queryClient]);
+  }, [chatRoom.id]);
 
   const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
