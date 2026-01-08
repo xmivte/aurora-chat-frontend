@@ -4,20 +4,16 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { Client, type IMessage } from '@stomp/stompjs';
+import { IMessage } from '@stomp/stompjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import SockJS from 'sockjs-client';
 
-import firstUser from '@/assets/firstUser.svg';
-import secondUser from '@/assets/secondUser.svg';
-import thirdUser from '@/assets/thirdUser.svg';
 import { api } from '@/auth/utils/api';
-import { getToken } from '@/auth/utils/fireBaseToken';
 import { BACKEND_URL } from '@/config/env';
 import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
 import { auth } from '@/firebase';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -34,13 +30,6 @@ import { type ApiPinnedMessage, type PinnedMessage, type ChatWindowProps } from 
 import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
 
 import { type Message, type ChatMessage } from './index';
-
-export const mockMembersList: MembersInfo[] = [
-  { url: firstUser, online: false, username: 'Diana' },
-  { url: secondUser, online: true, username: 'Tie' },
-  { url: thirdUser, online: false, username: 'Ryan' },
-  { url: '', online: true, username: 'Sam' },
-];
 
 async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]> {
   const res = await api.get<ApiPinnedMessage[]>(
@@ -61,9 +50,9 @@ const ChatWindow = ({
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
   const queryClient = useQueryClient();
+  const { client, isConnected, onlineUserIds } = useWebSocket();
   const groupId = String(chatRoom.id);
 
-  const stompClientRef = useRef<Client | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -117,9 +106,15 @@ const ChatWindow = ({
     });
   }, [pinnedRecords, messages, chatRoom.id]);
 
+  const members: MembersInfo[] =
+    chatRoom.users?.map(user => ({
+      url: user.image || '',
+      online: onlineUserIds.includes(user.id),
+      username: user.username,
+    })) || [];
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
-    const client = stompClientRef.current;
     if (client?.connected && !isTyping && value.length > 0) {
       setIsTyping(true);
       client.publish({
@@ -135,91 +130,61 @@ const ChatWindow = ({
     setLimitWarning(value.length > CHARACTER_LIMIT);
   };
 
-  useEffect(() => {
-    let isMounted = true;
+  const { data: fetchedMessages } = useQuery({
+    queryKey: ['messages', chatRoom.id],
+    queryFn: async () => {
+      const res = await api.get(`/messages/${chatRoom.id}`);
+      const data = res.data as ChatMessage[];
+      return data.map((received: ChatMessage) => ({
+        id: received.id,
+        user: { id: received.senderId, username: received.username },
+        content: received.content,
+        date: new Date(received.createdAt),
+        fk_chatId: received.groupId,
+      }));
+    },
+    enabled: !!chatRoom.id,
+  });
 
-    const fetchMessages = async () => {
-      try {
-        const res = await api.get(`/messages/${chatRoom.id}`);
-        const data = res.data as ChatMessage[];
-        const convertedMessages: Message[] = data.map(received => ({
+  useEffect(() => {
+    if (fetchedMessages) {
+      setMessages(fetchedMessages);
+    }
+  }, [fetchedMessages]);
+
+  useEffect(() => {
+    if (client && isConnected) {
+      const chatSub = client.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
+        const received = JSON.parse(message.body) as ChatMessage;
+        const converted: Message = {
           id: received.id,
           user: { id: received.senderId, username: received.username },
           content: received.content,
           date: new Date(received.createdAt),
           fk_chatId: received.groupId,
-        }));
-        if (isMounted) setMessages(convertedMessages);
-      } catch (err) {
-        console.error('Failed to fetch messages:', err);
-      }
-    };
-
-    void fetchMessages();
-    return () => {
-      isMounted = false;
-    };
-  }, [chatRoom.id]);
-
-  useEffect(() => {
-    let isActive = true;
-    let client: Client | null = null;
-
-    const activate = async () => {
-      try {
-        const token = await getToken();
-        if (!isActive) return;
-
-        const wsUrl = token
-          ? `${BACKEND_URL}/ws?token=${encodeURIComponent(token)}`
-          : `${BACKEND_URL}/ws`;
-
-        client = new Client({
-          webSocketFactory: () => new SockJS(wsUrl),
-          onConnect: () => {
-            client?.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
-              const received = JSON.parse(message.body) as ChatMessage;
-              const converted: Message = {
-                id: received.id,
-                user: { id: received.senderId, username: received.username },
-                content: received.content,
-                date: new Date(received.createdAt),
-                fk_chatId: received.groupId,
-              };
-
-              setMessages(prev => {
-                if (prev.some(m => m.id === converted.id)) return prev;
-                return [...prev, converted];
-              });
-            });
-
-            client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
-              const received = JSON.parse(message.body) as string[];
-              setTypingUsers(received.filter(id => id !== currentUserId));
-            });
-
-            client?.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
-              const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
-              queryClient.setQueryData(pinnedQueryKey, updated);
-            });
-          },
+        };
+        setMessages(prev => {
+          if (prev.some(m => m.id === converted.id)) return prev;
+          return [...prev, converted];
         });
+      });
 
-        stompClientRef.current = client;
-        client.activate();
-      } catch (e) {
-        console.error('Failed to activate websocket client:', e);
-      }
-    };
+      client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
+        const received = JSON.parse(message.body) as string[];
+        setTypingUsers(received.filter(id => id !== currentUserId));
+      });
 
-    void activate();
+      const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
+        const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
+        queryClient.setQueryData(pinnedQueryKey, updated);
+      });
 
-    return () => {
-      isActive = false;
-      stompClientRef.current = null;
-      if (client) void client.deactivate();
-    };
-  }, [chatRoom.id]);
+      return () => {
+        chatSub.unsubscribe();
+        pinSub.unsubscribe();
+      };
+    }
+  }, [client, isConnected, chatRoom.id, groupId, pinnedQueryKey, queryClient]);
 
   const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
@@ -228,12 +193,10 @@ const ChatWindow = ({
     const payload = { messageId: message.id, pinnedBy };
 
     try {
-      const client = stompClientRef.current;
       if (!client?.connected) {
         console.error('WebSocket not connected - pin action skipped');
         return;
       }
-
       client.publish({
         destination: `/app/groups.${groupId}.pin`,
         body: JSON.stringify(payload),
@@ -247,7 +210,6 @@ const ChatWindow = ({
 
   const discardPin = (messageId: number): void => {
     try {
-      const client = stompClientRef.current;
       if (!client?.connected) {
         console.error('WebSocket not connected - unpin action skipped');
         return;
@@ -265,7 +227,6 @@ const ChatWindow = ({
   };
 
   const sendMessage = () => {
-    const client = stompClientRef.current;
     if (!client?.connected) return;
 
     const trimmed = input.trim();
@@ -359,7 +320,7 @@ const ChatWindow = ({
               )}
             </Box>
           </Box>
-          {isSidebarOpen && <ChatSideBar members={mockMembersList} onClose={onCloseSidebar} />}
+          {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
         </Box>
       </Container>
     </>

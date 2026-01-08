@@ -104,15 +104,11 @@ const ChatHeader = ({
           sx={avatarSx}
         />
 
-        {isDirectChat && !chatRoom.name ? (
-          <Typography variant="h6" sx={nameSx}>
-            {otherUser?.username ?? 'Unknown user'}
-          </Typography>
-        ) : (
-          <Typography variant="h6" sx={nameSx}>
-            {chatRoom.name ?? 'Chat room'}
-          </Typography>
-        )}
+        <Typography variant="h6" sx={nameSx}>
+          {isDirectChat && !chatRoom.name
+            ? (otherUser?.username ?? 'Unknown user')
+            : (chatRoom.name ?? 'Chat room')}
+        </Typography>
 
         {onOpenSidebar && (
           <IconButton onClick={onOpenSidebar} sx={chatInfoBtnSx} aria-label="Open chat sidebar">
