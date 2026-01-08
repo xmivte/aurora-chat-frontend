@@ -11,7 +11,8 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
-import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
+import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
+import { type MembersInfo } from '@/features/sidebar/types';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
 

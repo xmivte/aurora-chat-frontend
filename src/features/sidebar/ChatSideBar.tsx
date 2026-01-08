@@ -6,9 +6,9 @@ import ListItemText from '@mui/material/ListItemText';
 import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts';
 import TabsComponent from './ChatSideBarTabs.tsx';
 import UserProfileComponent from './ChatUsersProfile.tsx';
-import { type SideBarProps } from './types';
+import { type MembersInfo } from './types';
 
-const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void }) => {
+const ChatSideBar = ({ members, onClose }: { members: MembersInfo[]; onClose?: () => void }) => {
   const tabs = ['Info', 'Media'];
 
   return (
@@ -23,12 +23,12 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
       <ListItemText sx={listTextStyles} primary="Group Info" />
 
       <List>
-        {members.map(member => (
+        {members.map((member, index) => (
           <UserProfileComponent
-            key={member.id}
-            username={member.name}
-            online={false}
-            url={member.image ?? ''}
+            key={index}
+            username={member.username}
+            online={member.online}
+            url={member.url}
           />
         ))}
       </List>
