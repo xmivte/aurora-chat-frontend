@@ -47,6 +47,7 @@ export default function App() {
     queryFn: () => fetchChatRooms(userId as string),
     enabled: !!userId,
   });
+
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
     queryFn: () => fetchUsers(selectedChatId as number),
@@ -63,6 +64,7 @@ export default function App() {
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
+    console.log('Authenticated user:', user?.uid);
     if (user) {
       setUserId(user.uid);
     } else {
@@ -70,18 +72,12 @@ export default function App() {
     }
   }, []);
 
-  const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
+  const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
     const newChat = {
       id: -999, // special id for temp chat
-      name: user.name,
-      image: user.avatarUrl || '',
-      users: [
-        {
-          id: user.id,
-          username: user.name,
-          image: user.avatarUrl || null,
-        },
-      ],
+      name: user.username,
+      image: user.image || '',
+      users: [user],
     };
     setTempChat(newChat);
     setSelectedChatId(newChat.id);
@@ -142,6 +138,7 @@ export default function App() {
                           <ChatWindow
                             currentUserId={userId}
                             chatRoom={selectedChat}
+                            users={users || []}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -151,6 +148,7 @@ export default function App() {
                           <ChatWindow
                             currentUserId={userId}
                             chatRoom={tempChat}
+                            users={tempChat.users || []}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}

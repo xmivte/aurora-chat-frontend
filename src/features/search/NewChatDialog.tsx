@@ -32,10 +32,10 @@ const NewChatDialog = ({ open, onClose, onUserSelect }: NewChatDialogProps) => {
       <DialogContent>
         <UserSearch
           data={[
-            { id: '1', name: 'Alice Johnson', avatarUrl: 'https://i.pravatar.cc/150?img=1' },
-            { id: '2', name: 'Bob Smith', avatarUrl: 'https://i.pravatar.cc/150?img=2' },
-            { id: '3', name: 'Charlie Brown', avatarUrl: 'https://i.pravatar.cc/150?img=3' },
-            { id: '4', name: 'Diana Prince', avatarUrl: '' },
+            { id: '1', username: 'Alice Johnson', image: 'https://i.pravatar.cc/150?img=1' },
+            { id: '2', username: 'Bob Smith', image: 'https://i.pravatar.cc/150?img=2' },
+            { id: '3', username: 'Charlie Brown', image: 'https://i.pravatar.cc/150?img=3' },
+            { id: '4', username: 'Diana Prince', image: '' },
           ]}
           onUserSelect={onUserSelect}
         />

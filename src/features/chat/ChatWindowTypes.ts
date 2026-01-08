@@ -1,4 +1,4 @@
-import { Chat } from './index';
+import { Chat, User } from './index';
 import { Message } from './index';
 
 export type ApiPinnedMessage = {
@@ -17,6 +17,7 @@ export type PinnedMessage = {
 export type ChatWindowProps = {
   currentUserId: string;
   chatRoom: Chat;
+  users: User[];
   isSidebarOpen: boolean;
   onOpenSidebar: () => void;
   onCloseSidebar: () => void;

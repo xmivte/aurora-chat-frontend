@@ -32,7 +32,7 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
   return (
     <Autocomplete
       options={data}
-      getOptionLabel={option => option.name}
+      getOptionLabel={option => option.username}
       inputValue={inputValue}
       onInputChange={(_, value) => setInputValue(value)}
       forcePopupIcon={false}
@@ -47,11 +47,11 @@ const UserSearch = ({ data, onUserSelect }: UserSearchProps) => {
         <li {...props} key={option.id}>
           <ListItem disableGutters sx={{}}>
             <ListItemAvatar>
-              <Avatar src={option.avatarUrl || avatar} alt={option.name} sx={{}}>
-                {option.name.charAt(0)}
+              <Avatar src={option.image || avatar} alt={option.username} sx={{}}>
+                {option.username.charAt(0)}
               </Avatar>
             </ListItemAvatar>
-            <ListItemText primary={option.name} sx={{}} />
+            <ListItemText primary={option.username} sx={{}} />
           </ListItem>
         </li>
       )}

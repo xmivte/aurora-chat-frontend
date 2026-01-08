@@ -24,6 +24,7 @@ import {
   sendButtonSx,
   outerBoxFullSx,
   outerBoxOnlyChatSx,
+  isTypingSx,
 } from './ChatWindow.ts';
 import { type ApiPinnedMessage, type PinnedMessage, type ChatWindowProps } from './ChatWindowTypes';
 import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
@@ -40,10 +41,14 @@ async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]>
 const ChatWindow = ({
   currentUserId,
   chatRoom,
+  users,
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
 }: ChatWindowProps) => {
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { client, isConnected, onlineUserIds } = useWebSocket();
   const groupId = String(chatRoom.id);
@@ -55,10 +60,19 @@ const ChatWindow = ({
   const [limitWarning, setLimitWarning] = useState(false);
   const CHARACTER_LIMIT = 2000;
 
+  useEffect(() => {
+    setTypingUsernames(
+      typingUsers
+        .map(id => users?.find(u => u.id === id)?.username)
+        .filter((name): name is string => !!name)
+    );
+  }, [typingUsers]);
+
   const [uid, setUid] = useState<string | null>(auth.currentUser?.uid ?? null);
   useEffect(() => {
     return onAuthStateChanged(auth, user => setUid(user?.uid ?? null));
   }, []);
+
   const pinnedBy = uid ?? undefined;
 
   const pinnedQueryKey = useMemo(() => ['pinnedMessages', groupId] as const, [groupId]);
@@ -101,6 +115,17 @@ const ChatWindow = ({
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
+    if (client?.connected && !isTyping && value.length > 0) {
+      setIsTyping(true);
+      client.publish({
+        destination: `/app/user.typing/start/${chatRoom.id}`,
+      });
+    } else if (client?.connected && isTyping && value.length == 0) {
+      setIsTyping(false);
+      client.publish({
+        destination: `/app/user.typing/stop/${chatRoom.id}`,
+      });
+    }
     setInput(value);
     setLimitWarning(value.length > CHARACTER_LIMIT);
   };
@@ -142,6 +167,11 @@ const ChatWindow = ({
           if (prev.some(m => m.id === converted.id)) return prev;
           return [...prev, converted];
         });
+      });
+
+      client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
+        const received = JSON.parse(message.body) as string[];
+        setTypingUsers(received.filter(id => id !== currentUserId));
       });
 
       const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
@@ -214,6 +244,13 @@ const ChatWindow = ({
       body: JSON.stringify(outgoing),
     });
 
+    if (client?.connected && isTyping) {
+      setIsTyping(false);
+      client.publish({
+        destination: `/app/user.typing/stop/${chatRoom.id}`,
+      });
+    }
+
     setInput('');
     setLimitWarning(false);
   };
@@ -274,6 +311,13 @@ const ChatWindow = ({
                   },
                 }}
               />
+              {typingUsernames.length > 0 && (
+                <Box sx={isTypingSx}>
+                  {typingUsernames.length === 1
+                    ? `${typingUsernames[0]} is typing...`
+                    : 'Multiple people are typing...'}
+                </Box>
+              )}
             </Box>
           </Box>
           {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
