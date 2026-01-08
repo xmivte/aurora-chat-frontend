@@ -5,8 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Chat, User } from '@/features/chat';
 
-import { LogoutButton } from './auth';
-import './App.css';
 import {
   tempChatMessageStyles,
   tempChatTitleStyles,
@@ -15,7 +13,10 @@ import {
   serverTabStyles,
   loadingUserStyles,
 } from './App.styles';
+import { LogoutButton } from './auth';
+import './App.css';
 import { api } from './auth/utils/api';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 import ChatList from './features/chat/ChatList.tsx';
 import ChatWindow from './features/chat/ChatWindow.tsx';
 import { NotificationsProvider } from './features/notifications/NotificationsProvider';
@@ -89,11 +90,11 @@ function AppInner({ userId }: { userId: string }) {
     });
   }, [users, selectedChatId, userId, queryClient]);
 
-  const handleUserSelect = (user: { id: string; name: string; avatarUrl?: string }) => {
+  const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
     const newTempChat: Chat = {
       id: TEMP_CHAT_ID,
-      name: user.name,
-      image: user.avatarUrl || '',
+      name: user.username,
+      image: user.image || '',
       users: [user],
     } as Chat;
 
@@ -103,97 +104,99 @@ function AppInner({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="app-layout">
-      <div className="sidebar">
-        <SideBar
-          servers={mockServers}
-          activeId={activeId}
-          onServerChange={id => setActiveId(id)}
-          onAddServer={() => {}}
-        />
-      </div>
+    <WebSocketProvider>
+      <div className="app-layout">
+        <div className="sidebar">
+          <SideBar
+            servers={mockServers}
+            activeId={activeId}
+            onServerChange={id => setActiveId(id)}
+            onAddServer={() => {}}
+          />
+        </div>
 
-      <main className="main">
-        <div className="page">
-          <div className="container">
-            <div className="container-content">
-              <div className="app-header-bar">
-                <div className="app-header">AURORA</div>
-                <div className="app-header-button">
-                  <LogoutButton />
+        <main className="main">
+          <div className="page">
+            <div className="container">
+              <div className="container-content">
+                <div className="app-header-bar">
+                  <div className="app-header">AURORA</div>
+                  <div className="app-header-button">
+                    <LogoutButton />
+                  </div>
                 </div>
-              </div>
 
-              <div className="panels">
-                {activeId === 'personal' && (
-                  <>
-                    <aside className="chat-list-panel">
-                      <div className="chat-list-header">
-                        <div className="chat-title">Chat</div>
-                        <div className="new-chat-button-container">
-                          <Button
-                            className="new-chat-button"
-                            variant="contained"
-                            color="primary"
-                            disableRipple
-                            onClick={() => setOpenNewChatDialog(true)}
-                          >
-                            New Chat
-                          </Button>
-                        </div>
-                      </div>
-
-                      <ChatList
-                        chats={chatsForList}
-                        selectedChatId={selectedChatId}
-                        onSelectChat={(id: string) => {
-                          setSelectedChatId(String(id));
-                          setIsSidebarOpen(false);
-                          if (String(id) !== TEMP_CHAT_ID) setTempChat(null);
-                        }}
-                        unreadByGroup={unreadByGroup}
-                      />
-                    </aside>
-
-                    <section className="chat-window-panel">
-                      {selectedChat ? (
-                        <ChatWindow
-                          currentUserId={userId}
-                          chatRoom={selectedChat}
-                          isSidebarOpen={isSidebarOpen}
-                          onOpenSidebar={() => setIsSidebarOpen(true)}
-                          onCloseSidebar={() => setIsSidebarOpen(false)}
-                        />
-                      ) : selectedChatId === TEMP_CHAT_ID && tempChat ? (
-                        <div style={tempChatMessageStyles}>
-                          <div style={tempChatTitleStyles}>New chat with: {tempChat.name}</div>
-                          <div style={tempChatDescriptionStyles}>
-                            Temporary selection from search. Next step is creating a real chat/group
-                            in backend, then refetching chatRooms.
+                <div className="panels">
+                  {activeId === 'personal' && (
+                    <>
+                      <aside className="chat-list-panel">
+                        <div className="chat-list-header">
+                          <div className="chat-title">Chat</div>
+                          <div className="new-chat-button-container">
+                            <Button
+                              className="new-chat-button"
+                              variant="contained"
+                              color="primary"
+                              disableRipple
+                              onClick={() => setOpenNewChatDialog(true)}
+                            >
+                              New Chat
+                            </Button>
                           </div>
                         </div>
-                      ) : (
-                        <div style={noChatSelectedStyles}>Select a chat to start messaging.</div>
-                      )}
-                    </section>
-                  </>
-                )}
 
-                {activeId !== 'personal' && (
-                  <div style={serverTabStyles}>This server tab is UI-only for now.</div>
-                )}
+                        <ChatList
+                          chats={chatsForList}
+                          selectedChatId={selectedChatId}
+                          onSelectChat={(id: string) => {
+                            setSelectedChatId(String(id));
+                            setIsSidebarOpen(false);
+                            if (String(id) !== TEMP_CHAT_ID) setTempChat(null);
+                          }}
+                          unreadByGroup={unreadByGroup}
+                        />
+                      </aside>
+
+                      <section className="chat-window-panel">
+                        {selectedChat ? (
+                          <ChatWindow
+                            currentUserId={userId}
+                            chatRoom={selectedChat}
+                            isSidebarOpen={isSidebarOpen}
+                            onOpenSidebar={() => setIsSidebarOpen(true)}
+                            onCloseSidebar={() => setIsSidebarOpen(false)}
+                          />
+                        ) : selectedChatId === TEMP_CHAT_ID && tempChat ? (
+                          <div style={tempChatMessageStyles}>
+                            <div style={tempChatTitleStyles}>New chat with: {tempChat.name}</div>
+                            <div style={tempChatDescriptionStyles}>
+                              Temporary selection from search. Next step is creating a real
+                              chat/group in backend, then refetching chatRooms.
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={noChatSelectedStyles}>Select a chat to start messaging.</div>
+                        )}
+                      </section>
+                    </>
+                  )}
+
+                  {activeId !== 'personal' && (
+                    <div style={serverTabStyles}>This server tab is UI-only for now.</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      <NewChatDialog
-        open={openNewChatDialog}
-        onClose={() => setOpenNewChatDialog(false)}
-        onUserSelect={handleUserSelect}
-      />
-    </div>
+        <NewChatDialog
+          open={openNewChatDialog}
+          onClose={() => setOpenNewChatDialog(false)}
+          onUserSelect={handleUserSelect}
+        />
+      </div>
+    </WebSocketProvider>
   );
 }
 

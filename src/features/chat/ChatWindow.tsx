@@ -4,16 +4,18 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { Client, type IMessage } from '@stomp/stompjs';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import SockJS from 'sockjs-client';
+import { type IMessage } from '@stomp/stompjs';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
-import { getToken } from '@/auth/utils/fireBaseToken';
 import { BACKEND_URL } from '@/config/env';
+import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
+import { auth } from '@/firebase';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 import { useNotifications } from '../notifications/useNotifications';
-import ChatSideBar from '../sidebar/ChatSideBar.tsx';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -24,29 +26,21 @@ import {
   sendButtonSx,
   outerBoxFullSx,
   outerBoxOnlyChatSx,
+  isTypingSx,
 } from './ChatWindow.ts';
-import type { ChatWindowProps } from './ChatWindowTypes';
+import { type ApiPinnedMessage, type PinnedMessage, type ChatWindowProps } from './ChatWindowTypes';
+import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
 
-import type { ChatMessage, Message } from './index';
+import { type Message, type ChatMessage } from './index';
 
 const CHARACTER_LIMIT = 2000;
 
-// ---- small helpers to satisfy eslint no-unsafe-assignment
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
-
-const isChatMessage = (v: unknown): v is ChatMessage => {
-  if (!isRecord(v)) return false;
-
-  // Validate only what you actually use below
-  return (
-    'id' in v &&
-    'senderId' in v &&
-    'groupId' in v &&
-    'content' in v &&
-    'createdAt' in v &&
-    'username' in v
+async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]> {
+  const res = await api.get<ApiPinnedMessage[]>(
+    `/api/groups/${encodeURIComponent(groupId)}/pinned-messages`
   );
-};
+  return res.data;
+}
 
 const ChatWindow = ({
   currentUserId,
@@ -59,64 +53,116 @@ const ChatWindow = ({
 
   const groupId = useMemo(() => String(chatRoom?.id ?? ''), [chatRoom?.id]);
 
-  const [client, setClient] = useState<Client | null>(null);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
+  const queryClient = useQueryClient();
+  const { client, isConnected, onlineUserIds } = useWebSocket();
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    setTypingUsernames(
+      typingUsers
+        .map(id => chatRoom.users?.find(u => u.id === id)?.username)
+        .filter((name): name is string => !!name)
+    );
+  }, [typingUsers, chatRoom.users]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const [uid, setUid] = useState<string | null>(auth.currentUser?.uid ?? null);
+  useEffect(() => {
+    return onAuthStateChanged(auth, user => setUid(user?.uid ?? null));
+  }, []);
+
+  const pinnedBy = uid ?? undefined;
+
+  const pinnedQueryKey = useMemo(() => ['pinnedMessages', groupId] as const, [groupId]);
+
+  const { data: pinnedRecords = [] } = useQuery<ApiPinnedMessage[]>({
+    queryKey: pinnedQueryKey,
+    queryFn: () => fetchPinnedMessages(groupId),
+    enabled: Boolean(BACKEND_URL) && Boolean(groupId),
+    refetchOnMount: 'always',
+  });
+
+  const pinnedCount = pinnedRecords.length;
+  const canPinMore = pinnedCount < PINNED_MESSAGES_LIMIT;
+
+  const pinnedMessages: PinnedMessage[] = useMemo(() => {
+    return pinnedRecords.map(record => {
+      const found = messages.find(m => m.id === record.messageId);
+
+      const fallbackMessage: Message = {
+        id: record.messageId,
+        user: { id: 'unknown', username: 'Unknown user', image: null },
+        content: '(Message not loaded)',
+        date: new Date(record.pinnedAt),
+        fk_chatId: chatRoom.id,
+      };
+
+      return {
+        message: found ?? fallbackMessage,
+        pinnedAt: new Date(record.pinnedAt),
+      };
+    });
+  }, [pinnedRecords, messages, chatRoom.id]);
+
+  const members: MembersInfo[] =
+    chatRoom.users?.map(user => ({
+      url: user.image || '',
+      online: onlineUserIds.includes(user.id),
+      username: user.username,
+    })) || [];
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
+    if (client?.connected && !isTyping && value.length > 0) {
+      setIsTyping(true);
+      client.publish({
+        destination: `/app/user.typing/start/${chatRoom.id}`,
+      });
+    } else if (client?.connected && isTyping && value.length == 0) {
+      setIsTyping(false);
+      client.publish({
+        destination: `/app/user.typing/stop/${chatRoom.id}`,
+      });
+    }
     setInput(value);
     setLimitWarning(value.length > CHARACTER_LIMIT);
   };
 
-  const markReadIfVisible = useCallback(async () => {
+  const { data: fetchedMessages } = useQuery({
+    queryKey: ['messages', chatRoom.id],
+    queryFn: async () => {
+      const res = await api.get(`/messages/${chatRoom.id}`);
+      const data = res.data as ChatMessage[];
+      return data.map((received: ChatMessage) => ({
+        id: received.id,
+        user: { id: received.senderId, username: received.username },
+        content: received.content,
+        date: new Date(received.createdAt),
+        fk_chatId: received.groupId,
+      }));
+    },
+    enabled: !!chatRoom.id,
+  });
+
+  useEffect(() => {
+    if (fetchedMessages) {
+      setMessages(fetchedMessages);
+    }
+  }, [fetchedMessages]);
+
+  useEffect(() => {
     if (!groupId) return;
     if (document.visibilityState !== 'visible') return;
-    await markGroupRead(groupId);
-  }, [groupId, markGroupRead]);
+    void markGroupRead(groupId);
+  }, [groupId, messages, markGroupRead]);
 
-  // Scroll to bottom on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, [messages]);
-
-  // Fetch messages on room change
-  useEffect(() => {
-    if (!groupId) return;
-
-    let isMounted = true;
-
-    const fetchMessages = async () => {
-      try {
-        const res = await api.get<ChatMessage[]>(`/messages/${groupId}`);
-        const data = res.data;
-
-        const convertedMessages: Message[] = data.map(received => ({
-          id: received.id,
-          user: { id: received.senderId, name: received.username },
-          content: received.content,
-          date: new Date(received.createdAt),
-          fk_chatId: String(received.groupId),
-        }));
-
-        if (isMounted) setMessages(convertedMessages);
-      } catch (err) {
-        console.error('Failed to fetch messages:', err);
-      }
-    };
-
-    void fetchMessages();
-    void markReadIfVisible();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [groupId, markReadIfVisible]);
-
-  // Mark read when tab becomes visible
   useEffect(() => {
     if (!groupId) return;
 
@@ -130,93 +176,104 @@ const ChatWindow = ({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [groupId, markGroupRead]);
 
-  // WS subscribe
   useEffect(() => {
-    if (!groupId) return;
-
-    let disposed = false;
-    let stompClient: Client | null = null;
-
-    const connect = async () => {
-      try {
-        const token = await getToken();
-        if (!token) {
-          console.warn('[ChatWindow] no token for ws');
-          return;
-        }
-        if (disposed) return;
-
-        stompClient = new Client({
-          webSocketFactory: () =>
-            new SockJS(`${BACKEND_URL}/ws?token=${encodeURIComponent(token)}`),
-          reconnectDelay: 3000,
-
-          onConnect: () => {
-            if (!stompClient) return;
-
-            stompClient.subscribe(`/topic/chat.${groupId}`, (message: IMessage) => {
-              try {
-                const parsed: unknown = JSON.parse(message.body);
-
-                if (!isChatMessage(parsed)) {
-                  console.warn('[ChatWindow] received unknown ws payload', parsed);
-                  return;
-                }
-
-                const received = parsed;
-
-                const converted: Message = {
-                  id: received.id,
-                  user: { id: received.senderId, name: received.username },
-                  content: received.content,
-                  date: new Date(received.createdAt),
-                  fk_chatId: String(received.groupId),
-                };
-
-                setMessages(prev => {
-                  if (prev.some(m => m.id === converted.id)) return prev;
-                  return [...prev, converted];
-                });
-
-                if (document.visibilityState === 'visible') {
-                  void markGroupRead(groupId);
-                }
-              } catch (e) {
-                console.warn('[ChatWindow] failed to parse chat message', e);
-              }
-            });
-          },
+    if (client && isConnected) {
+      const chatSub = client.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
+        const received = JSON.parse(message.body) as ChatMessage;
+        const converted: Message = {
+          id: received.id,
+          user: { id: received.senderId, username: received.username },
+          content: received.content,
+          date: new Date(received.createdAt),
+          fk_chatId: received.groupId,
+        };
+        setMessages(prev => {
+          if (prev.some(m => m.id === converted.id)) return prev;
+          return [...prev, converted];
         });
 
-        stompClient.activate();
-        setClient(stompClient);
-      } catch (e) {
-        console.warn('[ChatWindow] ws connect failed', e);
-      }
-    };
-
-    void connect();
-
-    return () => {
-      disposed = true;
-      setClient(null);
-
-      if (stompClient) {
-        try {
-          void stompClient.deactivate();
-        } catch {
-          // ignore
+        if (document.visibilityState === 'visible') {
+          void markGroupRead(groupId);
         }
+      });
+
+      const typingSub = client.subscribe(
+        `/topic/typing-users/${chatRoom.id}`,
+        (message: IMessage) => {
+          const received = JSON.parse(message.body) as string[];
+          setTypingUsers(received.filter(id => id !== currentUserId));
+        }
+      );
+
+      const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
+        const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
+        queryClient.setQueryData(pinnedQueryKey, updated);
+      });
+
+      return () => {
+        chatSub.unsubscribe();
+        typingSub.unsubscribe();
+        pinSub.unsubscribe();
+      };
+    }
+  }, [
+    client,
+    isConnected,
+    chatRoom.id,
+    groupId,
+    pinnedQueryKey,
+    queryClient,
+    currentUserId,
+    markGroupRead,
+  ]);
+
+  const pinMessage = (message: Message): void => {
+    if (!pinnedBy) return;
+    if (!canPinMore) return;
+
+    const payload = { messageId: message.id, pinnedBy };
+
+    try {
+      if (!client?.connected) {
+        console.error('WebSocket not connected - pin action skipped');
+        return;
       }
-    };
-  }, [groupId, markGroupRead]);
+      client.publish({
+        destination: `/app/groups.${groupId}.pin`,
+        body: JSON.stringify(payload),
+      });
+
+      void queryClient.invalidateQueries({ queryKey: pinnedQueryKey });
+    } catch (error) {
+      console.error('Failed to pin message', error);
+    }
+  };
+
+  const discardPin = (messageId: number): void => {
+    try {
+      if (!client?.connected) {
+        console.error('WebSocket not connected - unpin action skipped');
+        return;
+      }
+
+      client.publish({
+        destination: `/app/groups.${groupId}.unpin`,
+        body: JSON.stringify({ messageId }),
+      });
+
+      void queryClient.invalidateQueries({ queryKey: pinnedQueryKey });
+    } catch (error) {
+      console.error('Failed to unpin message', error);
+    }
+  };
 
   const sendMessage = () => {
-    if (!client || !client.connected) return;
+    if (!client?.connected) return;
     if (!groupId) return;
 
     const trimmed = input.trim();
     if (!trimmed) return;
+    if (trimmed.length > CHARACTER_LIMIT) return;
 
     const payload = {
       groupId,
@@ -229,10 +286,21 @@ const ChatWindow = ({
       body: JSON.stringify(payload),
     });
 
+    if (client?.connected && isTyping) {
+      setIsTyping(false);
+      client.publish({
+        destination: `/app/user.typing/stop/${chatRoom.id}`,
+      });
+    }
+
     playSendSound();
     setInput('');
     setLimitWarning(false);
   };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, [messages]);
 
   return (
     <Container disableGutters maxWidth={false} sx={outerBoxSx}>
@@ -242,44 +310,59 @@ const ChatWindow = ({
             <Header
               currentUserId={currentUserId}
               chatRoom={chatRoom}
+              pinnedMessages={pinnedMessages}
+              onDiscardPin={messageId => void discardPin(messageId)}
               onOpenSidebar={onOpenSidebar}
             />
           </Box>
 
           <Box sx={messagesSx}>
-            <MessageField currentUserId={currentUserId} messages={messages} />
+            <MessageField
+              currentUserId={currentUserId}
+              messages={messages}
+              onPinMessage={message => void pinMessage(message)}
+              canPin={canPinMore}
+            />
             <div ref={messagesEndRef} />
           </Box>
 
-          <TextField
-            multiline
-            fullWidth
-            id="Input"
-            placeholder="Type a message..."
-            variant="outlined"
-            error={limitWarning}
-            helperText={limitWarning ? 'Reaching character limit' : ''}
-            sx={inputSx}
-            onChange={handleInputChange}
-            value={input}
-            slotProps={{
-              htmlInput: { maxLength: CHARACTER_LIMIT },
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton sx={sendButtonSx} onClick={sendMessage}>
-                      <SendIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+          <Box id="chat-composer">
+            <TextField
+              multiline
+              fullWidth
+              id="Input"
+              placeholder="Type a message..."
+              variant="outlined"
+              error={limitWarning}
+              helperText={limitWarning ? 'Reaching character limit' : ''}
+              sx={inputSx}
+              onChange={handleInputChange}
+              value={input}
+              slotProps={{
+                htmlInput: {
+                  maxLength: CHARACTER_LIMIT,
+                },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton sx={sendButtonSx} onClick={sendMessage}>
+                        <SendIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            {typingUsernames.length > 0 && (
+              <Box sx={isTypingSx}>
+                {typingUsernames.length === 1
+                  ? `${typingUsernames[0]} is typing...`
+                  : 'Multiple people are typing...'}
+              </Box>
+            )}
+          </Box>
         </Box>
-
-        {isSidebarOpen && chatRoom ? (
-          <ChatSideBar members={chatRoom.users} onClose={onCloseSidebar} />
-        ) : null}
+        {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
       </Box>
     </Container>
   );

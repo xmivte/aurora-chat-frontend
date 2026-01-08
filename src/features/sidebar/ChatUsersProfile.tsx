@@ -26,7 +26,9 @@ const ChatUsersProfile = ({ username, online, url, unreadCount = 0 }: Props) => 
         sx={{
           '& .MuiBadge-badge': {
             ...onlineIndicatorForm,
-            backgroundColor: online ? theme.customColors.colorOnline : theme.customColors.colorBusy,
+            backgroundColor: online
+              ? theme.customColors.colorOnline
+              : theme.customColors.colorInactive,
           },
         }}
       >

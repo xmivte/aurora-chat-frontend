@@ -63,3 +63,9 @@ export const sendButtonSx = {
     border: 'none',
   },
 };
+
+export const isTypingSx = {
+  padding: '8px 16px',
+  fontStyle: 'italic',
+  fontSize: '12px',
+};

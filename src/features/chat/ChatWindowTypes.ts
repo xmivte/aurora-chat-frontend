@@ -1,6 +1,19 @@
 import { Chat } from './index';
 import { Message } from './index';
 
+export type ApiPinnedMessage = {
+  id: number;
+  messageId: number;
+  groupId: string;
+  pinnedBy: string;
+  pinnedAt: string;
+};
+
+export type PinnedMessage = {
+  message: Message;
+  pinnedAt: Date;
+};
+
 export type ChatWindowProps = {
   currentUserId: string;
   chatRoom: Chat;
@@ -12,9 +25,14 @@ export type ChatWindowProps = {
 export type HeaderProps = {
   currentUserId: string;
   chatRoom: Chat;
+  pinnedMessages: PinnedMessage[];
+  onDiscardPin?: (messageId: number) => void;
+  onOpenPinnedMenu?: () => void;
 };
 
 export type MessageProps = {
   currentUserId: string;
   messages: Message[];
+  onPinMessage?: (message: Message) => void;
+  canPin?: boolean;
 };
