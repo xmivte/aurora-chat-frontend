@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { IMessage } from '@stomp/stompjs';
+import { type IMessage } from '@stomp/stompjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
@@ -14,6 +14,8 @@ import { BACKEND_URL } from '@/config/env';
 import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
+
+import { useNotifications } from '../notifications/useNotifications';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -31,6 +33,8 @@ import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
 
 import { type Message, type ChatMessage } from './index';
 
+const CHARACTER_LIMIT = 2000;
+
 async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]> {
   const res = await api.get<ApiPinnedMessage[]>(
     `/api/groups/${encodeURIComponent(groupId)}/pinned-messages`
@@ -41,32 +45,33 @@ async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]>
 const ChatWindow = ({
   currentUserId,
   chatRoom,
-  users,
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
 }: ChatWindowProps) => {
+  const { markGroupRead, playSendSound } = useNotifications();
+
+  const groupId = useMemo(() => String(chatRoom?.id ?? ''), [chatRoom?.id]);
+
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { client, isConnected, onlineUserIds } = useWebSocket();
-  const groupId = String(chatRoom.id);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
-  const CHARACTER_LIMIT = 2000;
 
   useEffect(() => {
     setTypingUsernames(
       typingUsers
-        .map(id => users?.find(u => u.id === id)?.username)
+        .map(id => chatRoom.users?.find(u => u.id === id)?.username)
         .filter((name): name is string => !!name)
     );
-  }, [typingUsers]);
+  }, [typingUsers, chatRoom.users]);
 
   const [uid, setUid] = useState<string | null>(auth.currentUser?.uid ?? null);
   useEffect(() => {
@@ -153,6 +158,25 @@ const ChatWindow = ({
   }, [fetchedMessages]);
 
   useEffect(() => {
+    if (!groupId) return;
+    if (document.visibilityState !== 'visible') return;
+    void markGroupRead(groupId);
+  }, [groupId, messages, markGroupRead]);
+
+  useEffect(() => {
+    if (!groupId) return;
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        void markGroupRead(groupId);
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [groupId, markGroupRead]);
+
+  useEffect(() => {
     if (client && isConnected) {
       const chatSub = client.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
         const received = JSON.parse(message.body) as ChatMessage;
@@ -167,12 +191,19 @@ const ChatWindow = ({
           if (prev.some(m => m.id === converted.id)) return prev;
           return [...prev, converted];
         });
+
+        if (document.visibilityState === 'visible') {
+          void markGroupRead(groupId);
+        }
       });
 
-      client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
-        const received = JSON.parse(message.body) as string[];
-        setTypingUsers(received.filter(id => id !== currentUserId));
-      });
+      const typingSub = client.subscribe(
+        `/topic/typing-users/${chatRoom.id}`,
+        (message: IMessage) => {
+          const received = JSON.parse(message.body) as string[];
+          setTypingUsers(received.filter(id => id !== currentUserId));
+        }
+      );
 
       const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
         const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
@@ -181,10 +212,20 @@ const ChatWindow = ({
 
       return () => {
         chatSub.unsubscribe();
+        typingSub.unsubscribe();
         pinSub.unsubscribe();
       };
     }
-  }, [client, isConnected, chatRoom.id, groupId, pinnedQueryKey, queryClient]);
+  }, [
+    client,
+    isConnected,
+    chatRoom.id,
+    groupId,
+    pinnedQueryKey,
+    queryClient,
+    currentUserId,
+    markGroupRead,
+  ]);
 
   const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
@@ -228,20 +269,21 @@ const ChatWindow = ({
 
   const sendMessage = () => {
     if (!client?.connected) return;
+    if (!groupId) return;
 
     const trimmed = input.trim();
     if (!trimmed) return;
     if (trimmed.length > CHARACTER_LIMIT) return;
 
-    const outgoing = {
-      groupId: chatRoom.id,
+    const payload = {
+      groupId,
       content: trimmed,
       senderId: currentUserId,
     };
 
     client.publish({
       destination: '/app/send.message',
-      body: JSON.stringify(outgoing),
+      body: JSON.stringify(payload),
     });
 
     if (client?.connected && isTyping) {
@@ -251,6 +293,7 @@ const ChatWindow = ({
       });
     }
 
+    playSendSound();
     setInput('');
     setLimitWarning(false);
   };
@@ -260,70 +303,68 @@ const ChatWindow = ({
   }, [messages]);
 
   return (
-    <>
-      <Container disableGutters maxWidth={false} sx={outerBoxSx}>
-        <Box sx={outerBoxFullSx}>
-          <Box sx={outerBoxOnlyChatSx}>
-            <Box>
-              <Header
-                currentUserId={currentUserId}
-                chatRoom={chatRoom}
-                pinnedMessages={pinnedMessages}
-                onDiscardPin={messageId => void discardPin(messageId)}
-                onOpenSidebar={onOpenSidebar}
-              />
-            </Box>
-
-            <Box sx={messagesSx}>
-              <MessageField
-                currentUserId={currentUserId}
-                messages={messages}
-                onPinMessage={message => void pinMessage(message)}
-                canPin={canPinMore}
-              />
-              <div ref={messagesEndRef} />
-            </Box>
-
-            <Box id="chat-composer">
-              <TextField
-                multiline
-                fullWidth
-                id="Input"
-                placeholder="Type a message..."
-                variant="outlined"
-                error={limitWarning}
-                helperText={limitWarning ? 'Reaching character limit' : ''}
-                sx={inputSx}
-                onChange={handleInputChange}
-                value={input}
-                slotProps={{
-                  htmlInput: {
-                    maxLength: CHARACTER_LIMIT,
-                  },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton sx={sendButtonSx} onClick={sendMessage}>
-                          <SendIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              {typingUsernames.length > 0 && (
-                <Box sx={isTypingSx}>
-                  {typingUsernames.length === 1
-                    ? `${typingUsernames[0]} is typing...`
-                    : 'Multiple people are typing...'}
-                </Box>
-              )}
-            </Box>
+    <Container disableGutters maxWidth={false} sx={outerBoxSx}>
+      <Box sx={outerBoxFullSx}>
+        <Box sx={outerBoxOnlyChatSx}>
+          <Box>
+            <Header
+              currentUserId={currentUserId}
+              chatRoom={chatRoom}
+              pinnedMessages={pinnedMessages}
+              onDiscardPin={messageId => void discardPin(messageId)}
+              onOpenSidebar={onOpenSidebar}
+            />
           </Box>
-          {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
+
+          <Box sx={messagesSx}>
+            <MessageField
+              currentUserId={currentUserId}
+              messages={messages}
+              onPinMessage={message => void pinMessage(message)}
+              canPin={canPinMore}
+            />
+            <div ref={messagesEndRef} />
+          </Box>
+
+          <Box id="chat-composer">
+            <TextField
+              multiline
+              fullWidth
+              id="Input"
+              placeholder="Type a message..."
+              variant="outlined"
+              error={limitWarning}
+              helperText={limitWarning ? 'Reaching character limit' : ''}
+              sx={inputSx}
+              onChange={handleInputChange}
+              value={input}
+              slotProps={{
+                htmlInput: {
+                  maxLength: CHARACTER_LIMIT,
+                },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton sx={sendButtonSx} onClick={sendMessage}>
+                        <SendIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            {typingUsernames.length > 0 && (
+              <Box sx={isTypingSx}>
+                {typingUsernames.length === 1
+                  ? `${typingUsernames[0]} is typing...`
+                  : 'Multiple people are typing...'}
+              </Box>
+            )}
+          </Box>
         </Box>
-      </Container>
-    </>
+        {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
+      </Box>
+    </Container>
   );
 };
 

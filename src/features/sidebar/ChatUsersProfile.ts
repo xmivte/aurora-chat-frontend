@@ -17,3 +17,16 @@ export const onlineIndicatorForm = {
   borderRadius: theme.customShape.roundedAvatar,
   right: '20px',
 };
+
+export const unreadCountStyles = {
+  ml: 1,
+  minWidth: 22,
+  height: 22,
+  borderRadius: 999,
+  px: '6px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 12,
+  fontWeight: 700,
+};
