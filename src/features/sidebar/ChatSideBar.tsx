@@ -24,7 +24,7 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
       <ListItemText sx={listTextStyles} primary="Group Info" />
 
       <List>
-        {members.map(member => (
+        {members.map((member, index) => (
           <UserProfileComponent
             id={member.id}
             username={member.username}
