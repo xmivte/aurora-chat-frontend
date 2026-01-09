@@ -11,7 +11,8 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
-import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
+import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
+import { type MembersInfo } from '../sidebar/types.ts';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
 
@@ -114,6 +115,7 @@ const ChatWindow = ({
 
   const members: MembersInfo[] =
     chatRoom.users?.map(user => ({
+      id: user.id,
       url: user.image || '',
       online: onlineUserIds.includes(user.id),
       username: user.username,

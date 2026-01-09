@@ -7,9 +7,10 @@ import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts
 import TabsComponent from './ChatSideBarTabs.tsx';
 import UserProfileComponent from './ChatUsersProfile.tsx';
 import { type SideBarProps } from './types';
+import avatar from '../../assets/firstUser.svg';
 
 const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void }) => {
-  const tabs = ['Info', 'Media'];
+  const tabs = ['Info'];
 
   return (
     <Paper sx={paperStyles}>
@@ -25,10 +26,10 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
       <List>
         {members.map(member => (
           <UserProfileComponent
-            key={member.id}
-            username={member.name}
+            id={member.id}
+            username={member.username}
             online={false}
-            url={member.image ?? ''}
+            url={member.image ? member.image : avatar}
           />
         ))}
       </List>
