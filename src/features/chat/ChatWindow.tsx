@@ -364,7 +364,6 @@ const ChatWindow = ({
             <Header
               chatRoom={chatRoom}
               pinnedMessages={pinnedMessages}
-              //onDiscardPin={messageId => void discardPin(messageId)}
               onDiscardPin={discardPin}
               onOpenSidebar={onOpenSidebar}
             />
@@ -374,7 +373,6 @@ const ChatWindow = ({
             <MessageField
               currentUserId={currentUserId}
               messages={messages}
-              //onPinMessage={message => void pinMessage(message)}
               onPinMessage={pinMessage}
               canPin={canPinMore}
             />
