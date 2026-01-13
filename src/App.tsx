@@ -2,13 +2,15 @@ import Button from '@mui/material/Button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
+
 import type { Chat, User } from '@/features/chat';
+
 import {
- // tempChatMessageStyles,
- // tempChatTitleStyles,
- // tempChatDescriptionStyles,
- // noChatSelectedStyles,
- // serverTabStyles,
+  // tempChatMessageStyles,
+  // tempChatTitleStyles,
+  // tempChatDescriptionStyles,
+  // noChatSelectedStyles,
+  // serverTabStyles,
   loadingUserStyles,
 } from './App.styles';
 import { LogoutButton } from './auth';
@@ -17,13 +19,15 @@ import { api } from './auth/utils/api';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import ChatList from './features/chat/ChatList.tsx';
 import ChatWindow from './features/chat/ChatWindow.tsx';
+import {
+  getChatDisplayName,
+  getChatDisplayImage,
+} from './features/chat/helpers/getChatDisplayInfo.ts';
+import { handleUserSelect, handleChatCreated } from './features/chat/logic/chatActions.ts';
 import { NotificationsProvider } from './features/notifications/NotificationsProvider';
 import { useNotifications } from './features/notifications/useNotifications';
 import NewChatDialog from './features/search/NewChatDialog.tsx';
 import SideBar, { type Server } from './features/server/SideBar';
-import { getChatDisplayName, getChatDisplayImage } from './features/chat/helpers/getChatDisplayInfo.ts';
-import { handleUserSelect, handleChatCreated } from './features/chat/logic/chatActions.ts';
-import chatsData from './mock/chats.json';
 
 const mockServers: Server[] = [
   { id: 'personal', label: 'Personal', glyph: 'P', bg: '#5553eb' },
@@ -66,11 +70,11 @@ function AppInner({ userId }: { userId: string }) {
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
     queryFn: async () => {
-      const rooms = await fetchChatRooms(userId as string);
+      const rooms = await fetchChatRooms(userId);
       return rooms.map(room => ({
         ...room,
-        displayName: getChatDisplayName(room, userId as string),
-        displayImage: getChatDisplayImage(room, userId as string),
+        displayName: getChatDisplayName(room, userId),
+        displayImage: getChatDisplayImage(room, userId),
       }));
     },
     enabled: !!userId,
@@ -82,9 +86,9 @@ function AppInner({ userId }: { userId: string }) {
   }, [chatRooms, selectedChatId]);
 
   //const chatsForList = useMemo(() => {
-   // const base = chatRooms ?? [];
-   // return tempChat ? [...base, tempChat] : base;
- // }, [chatRooms, tempChat]);
+  // const base = chatRooms ?? [];
+  // return tempChat ? [...base, tempChat] : base;
+  // }, [chatRooms, tempChat]);
 
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
@@ -122,23 +126,13 @@ function AppInner({ userId }: { userId: string }) {
   // setOpenNewChatDialog(false);
   // };
 
-
   useEffect(() => {
-    if (
-      chatRooms &&
-      chatRooms.length > 0 &&
-      selectedChatId === null &&
-      !tempChat
-    ) {
+    if (chatRooms && chatRooms.length > 0 && selectedChatId === null && !tempChat) {
       setSelectedChatId(chatRooms[0].id);
     }
   }, [chatRooms, selectedChatId, tempChat]);
 
-
-  const activeChat =
-    tempChat && selectedChatId === tempChat.id
-      ? tempChat
-      : selectedChat;
+  const activeChat = tempChat && selectedChatId === tempChat.id ? tempChat : selectedChat;
 
   return (
     <WebSocketProvider>
@@ -148,7 +142,7 @@ function AppInner({ userId }: { userId: string }) {
             servers={mockServers}
             activeId={activeId}
             onServerChange={id => setActiveId(id)}
-            onAddServer={() => { }}
+            onAddServer={() => {}}
           />
         </div>
         <main className="main">
@@ -186,7 +180,9 @@ function AppInner({ userId }: { userId: string }) {
                           onSelectChat={id => {
                             setSelectedChatId(id);
                             setIsSidebarOpen(false);
-                            if (id != tempChat?.id) { setTempChat(null); }
+                            if (id != tempChat?.id) {
+                              setTempChat(null);
+                            }
                           }}
                           selectedChatId={selectedChatId}
                           unreadByGroup={unreadByGroup}
@@ -200,14 +196,14 @@ function AppInner({ userId }: { userId: string }) {
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
-                            onChatCreated={(newId) =>
+                            onChatCreated={newId =>
                               handleChatCreated({
                                 newId,
                                 userId,
                                 tempChat,
                                 queryClient,
                                 setTempChat,
-                                setSelectedChatId
+                                setSelectedChatId,
                               })
                             }
                           />
@@ -224,7 +220,7 @@ function AppInner({ userId }: { userId: string }) {
         <NewChatDialog
           open={openNewChatDialog}
           onClose={() => setOpenNewChatDialog(false)}
-          onUserSelect={(user) =>
+          onUserSelect={user =>
             handleUserSelect({
               user,
               chatRooms,
@@ -235,8 +231,8 @@ function AppInner({ userId }: { userId: string }) {
           }
           allUsers={(allUsers || []).filter(u => u.id !== userId)}
         />
-      </div >
-    </WebSocketProvider >
+      </div>
+    </WebSocketProvider>
   );
 }
 

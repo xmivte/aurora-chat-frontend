@@ -12,11 +12,11 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
 import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
-import { type MembersInfo } from '../sidebar/types.ts';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
 
 import { useNotifications } from '../notifications/useNotifications';
+import { type MembersInfo } from '../sidebar/types.ts';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -198,7 +198,6 @@ const ChatWindow = ({
         if (document.visibilityState === 'visible') {
           void markGroupRead(groupId);
         }
-
       });
 
       const typingSub = client.subscribe(
@@ -231,7 +230,7 @@ const ChatWindow = ({
     markGroupRead,
   ]);
 
-const pinMessage = (message: Message): void => {
+  const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
     if (!canPinMore) return;
 
@@ -273,17 +272,16 @@ const pinMessage = (message: Message): void => {
 
   const createGroup = async (myUserId: string, otherUserId: string) => {
     try {
-      const res = await api.post("/group", {
+      const res = await api.post<{ id: string }>('/group', {
         myUserId,
         otherUserId,
       });
       return res.data;
     } catch (err) {
-      console.error("Failed to create group:", err);
+      console.error('Failed to create group:', err);
       throw err;
     }
   };
-
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -292,10 +290,9 @@ const pinMessage = (message: Message): void => {
 
     //New chat
     if (chatRoom.isDraft) {
-
       const otherUserId = chatRoom.users.find(u => u.id !== currentUserId)?.id;
       if (!otherUserId) {
-        console.error("Could not determine other user");
+        console.error('Could not determine other user');
         return;
       }
 
@@ -367,7 +364,8 @@ const pinMessage = (message: Message): void => {
             <Header
               chatRoom={chatRoom}
               pinnedMessages={pinnedMessages}
-              onDiscardPin={messageId => void discardPin(messageId)}
+              //onDiscardPin={messageId => void discardPin(messageId)}
+              onDiscardPin={discardPin}
               onOpenSidebar={onOpenSidebar}
             />
           </Box>
@@ -376,7 +374,8 @@ const pinMessage = (message: Message): void => {
             <MessageField
               currentUserId={currentUserId}
               messages={messages}
-              onPinMessage={message => void pinMessage(message)}
+              //onPinMessage={message => void pinMessage(message)}
+              onPinMessage={pinMessage}
               canPin={canPinMore}
             />
             <div ref={messagesEndRef} />
@@ -401,7 +400,7 @@ const pinMessage = (message: Message): void => {
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton sx={sendButtonSx} onClick={sendMessage}>
+                      <IconButton sx={sendButtonSx} onClick={() => void sendMessage()}>
                         <SendIcon />
                       </IconButton>
                     </InputAdornment>

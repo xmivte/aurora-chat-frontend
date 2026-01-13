@@ -3,11 +3,12 @@ import { Paper, List } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
+import avatar from '../../assets/firstUser.svg';
+
 import { paperStyles, listTextStyles, closeButtonStyles } from './ChatSideBar.ts';
 import TabsComponent from './ChatSideBarTabs.tsx';
 import UserProfileComponent from './ChatUsersProfile.tsx';
 import { type SideBarProps } from './types';
-import avatar from '../../assets/firstUser.svg';
 
 const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void }) => {
   const tabs = ['Info'];
@@ -24,8 +25,9 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
       <ListItemText sx={listTextStyles} primary="Group Info" />
 
       <List>
-        {members.map((member, index) => (
+        {members.map(member => (
           <UserProfileComponent
+            key={member.id}
             id={member.id}
             username={member.username}
             online={false}

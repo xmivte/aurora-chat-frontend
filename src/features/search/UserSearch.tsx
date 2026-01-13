@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 
 import avatar from '../../assets/firstUser.svg';
+import { User } from '../chat/index.ts';
 
 import {
   autocompletePaperStyles,
@@ -20,8 +21,6 @@ import {
   clearIconStyles,
   textFieldStyles,
 } from './UserSearch.ts';
-
-import { User } from '../chat/index.ts';
 
 interface UserSearchProps {
   data: User[];
