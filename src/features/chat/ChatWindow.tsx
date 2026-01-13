@@ -283,6 +283,7 @@ const ChatWindow = ({
     }
   };
 
+  //send message
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -297,7 +298,6 @@ const ChatWindow = ({
       }
 
       const newGroup = await createGroup(currentUserId, otherUserId);
-
       groupId = newGroup.id;
       onChatCreated(newGroup.id);
 
