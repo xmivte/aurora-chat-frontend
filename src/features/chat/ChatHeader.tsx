@@ -35,7 +35,6 @@ import { HeaderProps } from './ChatWindowTypes';
 import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
 
 const ChatHeader = ({
-  currentUserId,
   chatRoom,
   pinnedMessages,
   onDiscardPin,
@@ -89,25 +88,18 @@ const ChatHeader = ({
     );
   }
 
-  const isDirectChat = chatRoom.users?.length === 2;
-  const otherUser = isDirectChat
-    ? chatRoom.users?.find(user => String(user.id) !== String(currentUserId))
-    : null;
-
   return (
     <>
       <Box sx={headerBoxSx}>
         <Box
           component="img"
-          src={isDirectChat ? otherUser?.image || avatar : chatRoom.image || avatar}
-          alt="chat-room"
+          src={chatRoom?.displayImage || avatar}
+          alt={chatRoom?.displayName || ""}
           sx={avatarSx}
         />
 
         <Typography variant="h6" sx={nameSx}>
-          {isDirectChat && !chatRoom.name
-            ? (otherUser?.username ?? 'Unknown user')
-            : (chatRoom.name ?? 'Chat room')}
+          {chatRoom?.displayName}
         </Typography>
 
         {onOpenSidebar && (

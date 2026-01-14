@@ -10,9 +10,10 @@ export type TabProps = {
 };
 
 export type MembersInfo = {
+  id: string;
   url: string;
   online: boolean;
-  username: string;
+  username: string; 
 };
 
 export type SideBarProps = {

@@ -12,11 +12,11 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
 import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
-import { type MembersInfo } from '@/features/sidebar/types';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
 
 import { useNotifications } from '../notifications/useNotifications';
+import { type MembersInfo } from '../sidebar/types.ts';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -49,6 +49,7 @@ const ChatWindow = ({
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
+  onChatCreated,
 }: ChatWindowProps) => {
   const { markGroupRead, playSendSound } = useNotifications();
 
@@ -114,6 +115,7 @@ const ChatWindow = ({
 
   const members: MembersInfo[] =
     chatRoom.users?.map(user => ({
+      id: user.id,
       url: user.image || '',
       online: onlineUserIds.includes(user.id),
       username: user.username,
@@ -268,7 +270,58 @@ const ChatWindow = ({
     }
   };
 
-  const sendMessage = () => {
+  const createGroup = async (myUserId: string, otherUserId: string) => {
+    try {
+      const res = await api.post<{ id: string }>('/group', {
+        myUserId,
+        otherUserId,
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create group:', err);
+      throw err;
+    }
+  };
+
+  //send message
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    let groupId = chatRoom.id;
+
+    //New chat
+    if (chatRoom.isDraft) {
+      const otherUserId = chatRoom.users.find(u => u.id !== currentUserId)?.id;
+      if (!otherUserId) {
+        console.error('Could not determine other user');
+        return;
+      }
+
+      const newGroup = await createGroup(currentUserId, otherUserId);
+      groupId = newGroup.id;
+      onChatCreated(newGroup.id);
+
+      //Subscribe to new topic
+      if (client && client.connected) {
+        client.subscribe(`/topic/chat.${groupId}`, (message: IMessage) => {
+          const received = JSON.parse(message.body) as ChatMessage;
+          const converted: Message = {
+            id: received.id,
+            user: { id: received.senderId, username: received.username },
+            content: received.content,
+            date: new Date(received.createdAt),
+            fk_chatId: received.groupId,
+          };
+
+          setMessages(prev => {
+            if (prev.some(m => m.id === converted.id)) return prev;
+            return [...prev, converted];
+          });
+        });
+      }
+    }
+
+    //Send the message (works for both: new + existing chats)
     if (!client?.connected) return;
     if (!groupId) return;
 
@@ -309,10 +362,9 @@ const ChatWindow = ({
         <Box sx={outerBoxOnlyChatSx}>
           <Box>
             <Header
-              currentUserId={currentUserId}
               chatRoom={chatRoom}
               pinnedMessages={pinnedMessages}
-              onDiscardPin={messageId => void discardPin(messageId)}
+              onDiscardPin={discardPin}
               onOpenSidebar={onOpenSidebar}
             />
           </Box>
@@ -321,7 +373,7 @@ const ChatWindow = ({
             <MessageField
               currentUserId={currentUserId}
               messages={messages}
-              onPinMessage={message => void pinMessage(message)}
+              onPinMessage={pinMessage}
               canPin={canPinMore}
             />
             <div ref={messagesEndRef} />
@@ -346,7 +398,7 @@ const ChatWindow = ({
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton sx={sendButtonSx} onClick={sendMessage}>
+                      <IconButton sx={sendButtonSx} onClick={() => void sendMessage()}>
                         <SendIcon />
                       </IconButton>
                     </InputAdornment>

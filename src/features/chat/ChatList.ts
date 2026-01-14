@@ -2,7 +2,6 @@ import theme from '@/theme/theme';
 
 export const chatListSx = {
   width: '100%',
-  color: theme.customColors.colorText,
 };
 
 export const ulSx = {
@@ -17,10 +16,12 @@ export const chatItemSx = (isSelected: boolean) => ({
   p: '12px',
   borderRadius: '8px',
   cursor: 'pointer',
+  margin: '0 15px 5px 5px',
   transition: 'background-color 0.2s ease',
-  backgroundColor: isSelected ? theme.customColors.colorBlueLight : 'transparent',
-  '&:hover': {
-    backgroundColor: theme.customColors.colorBlueLightHover,
+  ...(isSelected && { background: 'linear-gradient(to right, var(--color-blue-dark), var(--color-blue-light))', 
+    boxShadow: '0px 4px 8px var(--color-main-shadow)', }),
+  '&:hover': { background: 'linear-gradient(to right, var(--color-blue-dark), var(--color-blue-light-hover))', 
+    boxShadow: '0px 6px 12px var(--color-main-shadow)',
   },
 });
 
