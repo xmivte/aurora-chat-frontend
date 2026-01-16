@@ -52,13 +52,10 @@ const ChatWindow = ({
   onCloseSidebar,
   onChatCreated,
 }: ChatWindowProps) => {
-<<<<<<< HEAD
-=======
   const { markGroupRead, playSendSound } = useNotifications();
 
   const groupId = useMemo(() => String(chatRoom?.id ?? ''), [chatRoom?.id]);
 
->>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
@@ -212,12 +209,6 @@ const ChatWindow = ({
         }
       });
 
-<<<<<<< HEAD
-      client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
-        const received = JSON.parse(message.body) as string[];
-        setTypingUsers(received.filter(id => id !== currentUserId));
-      });
-=======
       const typingSub = client.subscribe(
         `/topic/typing-users/${chatRoom.id}`,
         (message: IMessage) => {
@@ -225,7 +216,6 @@ const ChatWindow = ({
           setTypingUsers(received.filter(id => id !== currentUserId));
         }
       );
->>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
 
       const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
         const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
@@ -366,10 +356,7 @@ const ChatWindow = ({
       });
     }
 
-<<<<<<< HEAD
-=======
     playSendSound();
->>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
     setInput('');
     setLimitWarning(false);
   };
@@ -379,67 +366,6 @@ const ChatWindow = ({
   }, [messages]);
 
   return (
-<<<<<<< HEAD
-    <>
-      <Container disableGutters maxWidth={false} sx={outerBoxSx}>
-        <Box sx={outerBoxFullSx}>
-          <Box sx={outerBoxOnlyChatSx}>
-            <Box>
-              <Header
-                currentUserId={currentUserId}
-                chatRoom={chatRoom}
-                pinnedMessages={pinnedMessages}
-                onDiscardPin={messageId => void discardPin(messageId)}
-                onOpenSidebar={onOpenSidebar}
-              />
-            </Box>
-
-            <Box sx={messagesSx}>
-              <MessageField
-                currentUserId={currentUserId}
-                messages={messages}
-                onPinMessage={message => void pinMessage(message)}
-                canPin={canPinMore}
-              />
-              <div ref={messagesEndRef} />
-            </Box>
-
-            <Box id="chat-composer">
-              <TextField
-                multiline
-                fullWidth
-                id="Input"
-                placeholder="Type a message..."
-                variant="outlined"
-                error={limitWarning}
-                helperText={limitWarning ? 'Reaching character limit' : ''}
-                sx={inputSx}
-                onChange={handleInputChange}
-                value={input}
-                slotProps={{
-                  htmlInput: {
-                    maxLength: CHARACTER_LIMIT,
-                  },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton sx={sendButtonSx} onClick={sendMessage}>
-                          <SendIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              {typingUsernames.length > 0 && (
-                <Box sx={isTypingSx}>
-                  {typingUsernames.length === 1
-                    ? `${typingUsernames[0]} is typing...`
-                    : 'Multiple people are typing...'}
-                </Box>
-              )}
-            </Box>
-=======
     <Container disableGutters maxWidth={false} sx={outerBoxSx}>
       <Box sx={outerBoxFullSx}>
         <Box sx={outerBoxOnlyChatSx}>
@@ -496,7 +422,6 @@ const ChatWindow = ({
                   : 'Multiple people are typing...'}
               </Box>
             )}
->>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
           </Box>
         </Box>
         {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
