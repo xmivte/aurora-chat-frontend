@@ -21,10 +21,10 @@ export type ChatWindowProps = {
   isSidebarOpen: boolean;
   onOpenSidebar: () => void;
   onCloseSidebar: () => void;
+  onChatCreated: (newChatId: string) => void;
 };
 
 export type HeaderProps = {
-  currentUserId: string;
   chatRoom: Chat;
   pinnedMessages: PinnedMessage[];
   onDiscardPin?: (messageId: number) => void;

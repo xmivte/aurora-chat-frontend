@@ -1,3 +1,5 @@
+import type { User } from '../chat';
+
 export type TabsComponentProps = {
   items: string[];
 };
@@ -8,11 +10,12 @@ export type TabProps = {
 };
 
 export type MembersInfo = {
+  id: string;
   url: string;
   online: boolean;
-  username: string;
+  username: string; 
 };
 
 export type SideBarProps = {
-  members: MembersInfo[];
+  members: User[];
 };

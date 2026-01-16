@@ -1,34 +1,79 @@
-import './ChatList.css';
+import Box from '@mui/material/Box';
+
 import avatar from '../../assets/firstUser.svg';
 
-import { Chat } from './index';
+import {
+  chatListSx,
+  ulSx,
+  chatItemSx,
+  chatButtonSx,
+  avatarSx,
+  nameRowSx,
+  chatNameSx,
+  unreadCountSx,
+} from './ChatList';
 
-interface ChatListProps {
+import type { Chat } from './index';
+
+type Props = {
   chats: Chat[];
-  onSelectChat: (id: number) => void;
-  selectedChatId: number | null;
-}
-
-const ChatList = ({ chats, onSelectChat, selectedChatId }: ChatListProps) => {
-  return (
-    <div className="chat-list">
-      <ul>
-        {chats.map(chat => (
-          <li key={chat.id} className={`chat-item ${chat.id === selectedChatId ? 'selected' : ''}`}>
-            <button className="chat-button" onClick={() => onSelectChat(chat.id)}>
-              <div className="chat-avatar">
-                <img src={chat.image || avatar} alt={chat.name || 'avatar'} />
-              </div>
-              <span className={`chat-name ${chat ? 'unread' : ''}`}>
-                {chat.name}
-                {chat.id === -999 ? <i> (Draft)</i> : chat.name}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  selectedChatId: string | null;
+  onSelectChat: (id: string) => void;
+  unreadByGroup?: Record<string, number>;
 };
 
-export default ChatList;
+export default function ChatList({
+  chats,
+  selectedChatId,
+  onSelectChat,
+  unreadByGroup = {},
+}: Props) {
+  return (
+    <Box sx={chatListSx}>
+      <Box component="ul" sx={ulSx}>
+        {chats.map(chat => {
+          const chatKey = String(chat.id);
+          const isSelected = selectedChatId !== null && chatKey === selectedChatId;
+
+          const unread = unreadByGroup[chatKey] ?? 0;
+          const isUnread = unread > 0;
+
+          const displayName =
+            chat.displayName && chat.displayName.trim().length > 0 ? chat.displayName : 'Chat';
+
+          return (
+            <Box key={chatKey} component="li" sx={chatItemSx(isSelected)}>
+              <Box
+                component="button"
+                type="button"
+                sx={chatButtonSx}
+                onClick={() => onSelectChat(chatKey)}
+              >
+                <Box sx={avatarSx}>
+                  {chat.displayImage && chat.displayImage.trim() !== '' ? (
+                    <img src={chat.displayImage} alt={displayName || 'avatar'} />
+                  ) : (
+                    <img src={avatar} alt="avatar" />
+                  )}
+                </Box>
+
+                <Box sx={nameRowSx}>
+                  <Box component="span" sx={chatNameSx(isUnread)}>
+                    {displayName}
+                    {chat.isDraft && <i> (Draft)</i>}
+                  </Box>
+
+                  {isUnread ? (
+                    <Box component="span" sx={unreadCountSx} aria-label="unread-count">
+                      {unread > 99 ? '99+' : unread}
+                    </Box>
+                  ) : null}
+                </Box>
+              </Box>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+}

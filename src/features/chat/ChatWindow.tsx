@@ -4,16 +4,19 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { IMessage } from '@stomp/stompjs';
+import { type IMessage } from '@stomp/stompjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
-import ChatSideBar, { type MembersInfo } from '@/features/sidebar/ChatSideBar.tsx';
+import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
+
+import { useNotifications } from '../notifications/useNotifications';
+import { type MembersInfo } from '../sidebar/types.ts';
 
 import Header from './ChatHeader.tsx';
 import MessageField from './ChatMessages.tsx';
@@ -31,6 +34,8 @@ import { PINNED_MESSAGES_LIMIT } from './pinnedLimits';
 
 import { type Message, type ChatMessage } from './index';
 
+const CHARACTER_LIMIT = 2000;
+
 async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]> {
   const res = await api.get<ApiPinnedMessage[]>(
     `/api/groups/${encodeURIComponent(groupId)}/pinned-messages`
@@ -45,20 +50,34 @@ const ChatWindow = ({
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
+  onChatCreated,
 }: ChatWindowProps) => {
+<<<<<<< HEAD
+=======
+  const { markGroupRead, playSendSound } = useNotifications();
+
+  const groupId = useMemo(() => String(chatRoom?.id ?? ''), [chatRoom?.id]);
+
+>>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsernames, setTypingUsernames] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { client, isConnected, onlineUserIds } = useWebSocket();
-  const groupId = String(chatRoom.id);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
-  const CHARACTER_LIMIT = 2000;
+
+  useEffect(() => {
+    setTypingUsernames(
+      typingUsers
+        .map(id => chatRoom.users?.find(u => u.id === id)?.username)
+        .filter((name): name is string => !!name)
+    );
+  }, [typingUsers, chatRoom.users]);
 
   useEffect(() => {
     setTypingUsernames(
@@ -108,6 +127,7 @@ const ChatWindow = ({
 
   const members: MembersInfo[] =
     chatRoom.users?.map(user => ({
+      id: user.id,
       url: user.image || '',
       online: onlineUserIds.includes(user.id),
       username: user.username,
@@ -153,6 +173,25 @@ const ChatWindow = ({
   }, [fetchedMessages]);
 
   useEffect(() => {
+    if (!groupId) return;
+    if (document.visibilityState !== 'visible') return;
+    void markGroupRead(groupId);
+  }, [groupId, messages, markGroupRead]);
+
+  useEffect(() => {
+    if (!groupId) return;
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        void markGroupRead(groupId);
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [groupId, markGroupRead]);
+
+  useEffect(() => {
     if (client && isConnected) {
       const chatSub = client.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
         const received = JSON.parse(message.body) as ChatMessage;
@@ -167,12 +206,26 @@ const ChatWindow = ({
           if (prev.some(m => m.id === converted.id)) return prev;
           return [...prev, converted];
         });
+
+        if (document.visibilityState === 'visible') {
+          void markGroupRead(groupId);
+        }
       });
 
+<<<<<<< HEAD
       client?.subscribe(`/topic/typing-users/${chatRoom.id}`, (message: IMessage) => {
         const received = JSON.parse(message.body) as string[];
         setTypingUsers(received.filter(id => id !== currentUserId));
       });
+=======
+      const typingSub = client.subscribe(
+        `/topic/typing-users/${chatRoom.id}`,
+        (message: IMessage) => {
+          const received = JSON.parse(message.body) as string[];
+          setTypingUsers(received.filter(id => id !== currentUserId));
+        }
+      );
+>>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
 
       const pinSub = client.subscribe(`/topic/groups.${groupId}.pinned`, (msg: IMessage) => {
         const updated = JSON.parse(msg.body) as ApiPinnedMessage[];
@@ -181,10 +234,20 @@ const ChatWindow = ({
 
       return () => {
         chatSub.unsubscribe();
+        typingSub.unsubscribe();
         pinSub.unsubscribe();
       };
     }
-  }, [client, isConnected, chatRoom.id, groupId, pinnedQueryKey, queryClient]);
+  }, [
+    client,
+    isConnected,
+    chatRoom.id,
+    groupId,
+    pinnedQueryKey,
+    queryClient,
+    currentUserId,
+    markGroupRead,
+  ]);
 
   const pinMessage = (message: Message): void => {
     if (!pinnedBy) return;
@@ -226,22 +289,74 @@ const ChatWindow = ({
     }
   };
 
-  const sendMessage = () => {
+  const createGroup = async (myUserId: string, otherUserId: string) => {
+    try {
+      const res = await api.post<{ id: string }>('/group', {
+        myUserId,
+        otherUserId,
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Failed to create group:', err);
+      throw err;
+    }
+  };
+
+  //send message
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    let groupId = chatRoom.id;
+
+    //New chat
+    if (chatRoom.isDraft) {
+      const otherUserId = chatRoom.users.find(u => u.id !== currentUserId)?.id;
+      if (!otherUserId) {
+        console.error('Could not determine other user');
+        return;
+      }
+
+      const newGroup = await createGroup(currentUserId, otherUserId);
+      groupId = newGroup.id;
+      onChatCreated(newGroup.id);
+
+      //Subscribe to new topic
+      if (client && client.connected) {
+        client.subscribe(`/topic/chat.${groupId}`, (message: IMessage) => {
+          const received = JSON.parse(message.body) as ChatMessage;
+          const converted: Message = {
+            id: received.id,
+            user: { id: received.senderId, username: received.username },
+            content: received.content,
+            date: new Date(received.createdAt),
+            fk_chatId: received.groupId,
+          };
+
+          setMessages(prev => {
+            if (prev.some(m => m.id === converted.id)) return prev;
+            return [...prev, converted];
+          });
+        });
+      }
+    }
+
+    //Send the message (works for both: new + existing chats)
     if (!client?.connected) return;
+    if (!groupId) return;
 
     const trimmed = input.trim();
     if (!trimmed) return;
     if (trimmed.length > CHARACTER_LIMIT) return;
 
-    const outgoing = {
-      groupId: chatRoom.id,
+    const payload = {
+      groupId,
       content: trimmed,
       senderId: currentUserId,
     };
 
     client.publish({
       destination: '/app/send.message',
-      body: JSON.stringify(outgoing),
+      body: JSON.stringify(payload),
     });
 
     if (client?.connected && isTyping) {
@@ -251,6 +366,10 @@ const ChatWindow = ({
       });
     }
 
+<<<<<<< HEAD
+=======
+    playSendSound();
+>>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
     setInput('');
     setLimitWarning(false);
   };
@@ -260,6 +379,7 @@ const ChatWindow = ({
   }, [messages]);
 
   return (
+<<<<<<< HEAD
     <>
       <Container disableGutters maxWidth={false} sx={outerBoxSx}>
         <Box sx={outerBoxFullSx}>
@@ -319,11 +439,69 @@ const ChatWindow = ({
                 </Box>
               )}
             </Box>
+=======
+    <Container disableGutters maxWidth={false} sx={outerBoxSx}>
+      <Box sx={outerBoxFullSx}>
+        <Box sx={outerBoxOnlyChatSx}>
+          <Box>
+            <Header
+              chatRoom={chatRoom}
+              pinnedMessages={pinnedMessages}
+              onDiscardPin={discardPin}
+              onOpenSidebar={onOpenSidebar}
+            />
           </Box>
-          {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
+
+          <Box sx={messagesSx}>
+            <MessageField
+              currentUserId={currentUserId}
+              messages={messages}
+              onPinMessage={pinMessage}
+              canPin={canPinMore}
+            />
+            <div ref={messagesEndRef} />
+          </Box>
+
+          <Box id="chat-composer">
+            <TextField
+              multiline
+              fullWidth
+              id="Input"
+              placeholder="Type a message..."
+              variant="outlined"
+              error={limitWarning}
+              helperText={limitWarning ? 'Reaching character limit' : ''}
+              sx={inputSx}
+              onChange={handleInputChange}
+              value={input}
+              slotProps={{
+                htmlInput: {
+                  maxLength: CHARACTER_LIMIT,
+                },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton sx={sendButtonSx} onClick={() => void sendMessage()}>
+                        <SendIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            {typingUsernames.length > 0 && (
+              <Box sx={isTypingSx}>
+                {typingUsernames.length === 1
+                  ? `${typingUsernames[0]} is typing...`
+                  : 'Multiple people are typing...'}
+              </Box>
+            )}
+>>>>>>> 4637c6ecde479d43eff33098a9d0075b6834765e
+          </Box>
         </Box>
-      </Container>
-    </>
+        {isSidebarOpen && <ChatSideBar members={members} onClose={onCloseSidebar} />}
+      </Box>
+    </Container>
   );
 };
 
