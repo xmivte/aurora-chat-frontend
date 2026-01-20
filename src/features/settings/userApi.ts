@@ -11,7 +11,7 @@ export const fetchUser = async (): Promise<UserDataDto> => {
 };
 
 export const createUser = async (userDataDto: UserDataDto): Promise<UserDataDto> => {
-  const response = await axiosApi.post<UserDataDto>(USER_BACKEND_URL, userDataDto); //, config);
+  const response = await axiosApi.post<UserDataDto>(USER_BACKEND_URL, userDataDto);
   return response.data;
 };
 

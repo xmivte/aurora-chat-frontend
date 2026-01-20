@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import App from './App.tsx';
 import { AuthRoute, LoginPage } from './auth';
 import { BACKEND_URL } from './config/env.ts';
+import SettingsPage from './features/settings/SettingsPage.tsx';
 import { type UserDataDto } from './features/settings/types';
 import theme, { rootDivStyle } from './theme/theme.ts';
 
@@ -63,6 +64,7 @@ const Main = () => {
                   <Routes>
                     <Route path="/" element={<App />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                     <Route path="*" element={<Navigate to="/" />} />
                   </Routes>
                 </AuthRoute>
