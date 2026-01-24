@@ -7,15 +7,14 @@ import Tooltip from '@mui/material/Tooltip';
 import { JSX } from 'react';
 
 import PersonalChatsIcon from './assets/personal-chats-icon.svg';
+import { Server } from './ServerTypes.ts';
 import { SideBarAddServerSection } from './SideBar_AddServer_Button.tsx';
 import { createSideBarSx } from './sidebar_style.ts';
 
-export type Server = { id: string; label: string; glyph?: string; bg?: string };
-
 export type SideBarProps = {
   servers: Server[];
-  activeId: string;
-  onServerChange: (id: string) => void;
+  activeId: number;
+  onServerChange: (id: number) => void;
   onAddServer?: () => void;
 };
 
@@ -38,25 +37,21 @@ const SideBar = ({ servers, activeId, onServerChange, onAddServer }: SideBarProp
     <Box sx={containerSx}>
       <Stack spacing={1} sx={topStackSx}>
         <Tooltip title="Personal Chats" placement="right">
-          <IconButton onClick={() => onServerChange('personal')} disableRipple sx={buttonSx}>
-            <Avatar
-              src={PersonalChatsIcon}
-              className="sb-avatar"
-              sx={avatarSx(activeId === 'personal')}
-            />
+          <IconButton onClick={() => onServerChange(-1)} disableRipple sx={buttonSx}>
+            <Avatar src={PersonalChatsIcon} className="sb-avatar" sx={avatarSx(activeId === -1)} />
           </IconButton>
         </Tooltip>
         <Divider sx={dividerSx} />
       </Stack>
       <Stack spacing={1} sx={contentStackSx}>
-        {servers.length > 0 ? (
+        {servers?.length > 0 ? (
           servers.map(s => {
             const isActive = s.id === activeId;
             return (
-              <Tooltip key={s.id} title={s.label} placement="right">
+              <Tooltip key={s.id} title={s.name} placement="right">
                 <IconButton onClick={() => onServerChange(s.id)} disableRipple sx={buttonSx}>
-                  <Avatar className="sb-avatar" sx={avatarSx(isActive, s.bg)}>
-                    {s.glyph ?? s.label.charAt(0).toUpperCase()}
+                  <Avatar className="sb-avatar" sx={avatarSx(isActive, s.backgroundColorHex)}>
+                    {s.name.charAt(0).toUpperCase()}
                   </Avatar>
                 </IconButton>
               </Tooltip>
