@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../auth/utils/api';
 import theme from '../../theme/theme';
 
-import { backdropStyles, paperStyles, closeButtonStyles } from './NewChatDialog.ts';
+import { backdropStyles, paperStyles, closeButtonStyles } from './Dialog.ts';
 
 interface NewChatDialogProps {
   open: boolean;

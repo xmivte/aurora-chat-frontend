@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { api } from '../../auth/utils/api';
 import theme from '../../theme/theme';
 
-import { backdropStyles, paperStyles, closeButtonStyles } from './NewChatDialog.ts';
+import { backdropStyles, paperStyles, closeButtonStyles } from './Dialog.ts';
 import { PostServer, Server } from './ServerTypes.ts';
 
 interface NewChatDialogProps {
