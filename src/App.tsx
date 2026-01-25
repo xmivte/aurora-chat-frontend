@@ -5,15 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Chat, User } from '@/features/chat';
 
-import {
-  // tempChatMessageStyles,
-  // tempChatTitleStyles,
-  // tempChatDescriptionStyles,
-  // noChatSelectedStyles,
-  // serverTabStyles,
-  loadingUserStyles,
-} from './App.styles';
-import { LogoutButton } from './auth';
+import { loadingUserStyles } from './App.styles';
 import './App.css';
 import { api } from './auth/utils/api';
 import { WebSocketProvider } from './contexts/WebSocketContext';
@@ -85,18 +77,11 @@ function AppInner({ userId }: { userId: string }) {
     return chatRooms.find(chat => String(chat.id) === String(selectedChatId)) || null;
   }, [chatRooms, selectedChatId]);
 
-  //const chatsForList = useMemo(() => {
-  // const base = chatRooms ?? [];
-  // return tempChat ? [...base, tempChat] : base;
-  // }, [chatRooms, tempChat]);
-
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
     queryFn: () => fetchUsers(selectedChatId as string),
     enabled: !!selectedChatId && selectedChatId !== TEMP_CHAT_ID,
   });
-
-  //const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
 
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
@@ -112,19 +97,6 @@ function AppInner({ userId }: { userId: string }) {
       );
     });
   }, [users, selectedChatId, userId, queryClient]);
-
-  //const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
-  //const newTempChat: Chat = {
-  // id: TEMP_CHAT_ID,
-  // name: user.username,
-  // image: user.image || '',
-  //  users: [user],
-  //} as Chat;
-
-  // setTempChat(newTempChat);
-  // setSelectedChatId(TEMP_CHAT_ID);
-  // setOpenNewChatDialog(false);
-  // };
 
   useEffect(() => {
     if (chatRooms && chatRooms.length > 0 && selectedChatId === null && !tempChat) {
@@ -151,9 +123,6 @@ function AppInner({ userId }: { userId: string }) {
               <div className="container-content">
                 <div className="app-header-bar">
                   <div className="app-header">AURORA</div>
-                  <div className="app-header-button">
-                    <LogoutButton />
-                  </div>
                 </div>
 
                 <div className="panels">

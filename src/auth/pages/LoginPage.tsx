@@ -7,6 +7,9 @@ import ProviderSignInButton from '../components/ProviderSignInButton';
 import { useAuthState } from '../hooks/useAuthState';
 import { backgroundContainer, title, paper, alert } from '../styles/styles';
 
+const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
+
 const LoginPage = () => {
   const { authing, error, buttonProps } = useAuthState();
 
@@ -19,13 +22,13 @@ const LoginPage = () => {
             <ProviderSignInButton
               text="Continue with Google"
               image={googleIcon}
-              authProvider={new GoogleAuthProvider()}
+              authProvider={googleProvider}
               {...buttonProps}
             />
             <ProviderSignInButton
               text="Continue with GitHub"
               image={githubIcon}
-              authProvider={new GithubAuthProvider()}
+              authProvider={githubProvider}
               {...buttonProps}
             />
           </Stack>
