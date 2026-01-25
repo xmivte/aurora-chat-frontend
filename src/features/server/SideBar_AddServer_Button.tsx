@@ -39,7 +39,11 @@ export function SideBarAddServerSection({
       </Tooltip>
       <Tooltip title="Settings" placement="right">
         <IconButton onClick={() => switchToSettings()} disableRipple sx={buttonSx}>
-          <Avatar src={settingsIcon} className="sb-avatar" />
+          <Avatar
+            src={settingsIcon}
+            className="sb-avatar"
+            sx={{ filter: 'invert(1)', opacity: 0.5 }}
+          />
         </IconButton>
       </Tooltip>
     </Stack>
