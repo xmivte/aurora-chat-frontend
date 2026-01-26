@@ -226,6 +226,7 @@ function AppInner({ userId }: { userId: string }) {
                           <ChatWindow
                             currentUserId={userId}
                             chatRoom={activeChat}
+                            users={activeChat.users}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -299,6 +300,7 @@ function AppInner({ userId }: { userId: string }) {
                           <ChatWindow
                             currentUserId={userId}
                             chatRoom={serverChatToChat(selectedServerChat)}
+                            users={serverChatToChat(selectedServerChat).users}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
