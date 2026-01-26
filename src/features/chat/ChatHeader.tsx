@@ -6,6 +6,8 @@ import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
 import { MouseEvent, useState } from 'react';
 
+import { FileAttachment } from '@/features/files';
+
 import avatar from '../../assets/firstUser.svg';
 
 import pinIcon from './assets/pin-message-icon.png';
@@ -28,6 +30,7 @@ import {
   pinnedContentSx,
   pinnedDiscardButtonSx,
   pinnedBodySx,
+  pinnedFilesSx,
   getPinMenuPaperSx,
   getPinMenuFooterSx,
 } from './ChatHeader';
@@ -94,7 +97,7 @@ const ChatHeader = ({
         <Box
           component="img"
           src={chatRoom?.displayImage || avatar}
-          alt={chatRoom?.displayName || ""}
+          alt={chatRoom?.displayName || ''}
           sx={avatarSx}
         />
 
@@ -155,7 +158,14 @@ const ChatHeader = ({
                       Discard
                     </Button>
                   </Box>
-                  <Box sx={pinnedContentSx}>{pin.message.content}</Box>
+                  {pin.message.fileAttachments && pin.message.fileAttachments.length > 0 && (
+                    <Box sx={pinnedFilesSx}>
+                      {pin.message.fileAttachments.map(file => (
+                        <FileAttachment key={file.id} file={file} />
+                      ))}
+                    </Box>
+                  )}
+                  {pin.message.content && <Box sx={pinnedContentSx}>{pin.message.content}</Box>}
                 </Box>
               </Box>
             ))

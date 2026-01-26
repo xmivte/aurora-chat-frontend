@@ -11,6 +11,10 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
+import { FilePreview } from '@/features/files';
+import { FileUploadButton } from '@/features/files';
+import { useFileUpload } from '@/features/files';
+import { type FileMetadataDTO } from '@/features/files';
 import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -66,6 +70,17 @@ const ChatWindow = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
+
+  const {
+    selectedFiles,
+    isUploading,
+    error: fileError,
+    addFiles,
+    uploadFiles,
+    removeFile,
+    clearFiles,
+    MAX_FILES,
+  } = useFileUpload();
 
   useEffect(() => {
     setTypingUsernames(
@@ -149,6 +164,7 @@ const ChatWindow = ({
         content: received.content,
         date: new Date(received.createdAt),
         fk_chatId: received.groupId,
+        fileAttachments: received.fileAttachments,
       }));
     },
     enabled: !!chatRoom.id,
@@ -189,6 +205,7 @@ const ChatWindow = ({
           content: received.content,
           date: new Date(received.createdAt),
           fk_chatId: received.groupId,
+          fileAttachments: received.fileAttachments,
         };
         setMessages(prev => {
           if (prev.some(m => m.id === converted.id)) return prev;
@@ -285,7 +302,12 @@ const ChatWindow = ({
 
   //send message
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    const trimmedInput = input.trim();
+    const hasContent = trimmedInput.length > 0;
+    const hasFiles = selectedFiles.length > 0;
+
+    // must have either text or files
+    if (!hasContent && !hasFiles) return;
 
     let groupId = chatRoom.id;
 
@@ -311,6 +333,7 @@ const ChatWindow = ({
             content: received.content,
             date: new Date(received.createdAt),
             fk_chatId: received.groupId,
+            fileAttachments: received.fileAttachments,
           };
 
           setMessages(prev => {
@@ -325,31 +348,40 @@ const ChatWindow = ({
     if (!client?.connected) return;
     if (!groupId) return;
 
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    if (trimmed.length > CHARACTER_LIMIT) return;
+    if (hasContent && trimmedInput.length > CHARACTER_LIMIT) return;
 
-    const payload = {
-      groupId,
-      content: trimmed,
-      senderId: currentUserId,
-    };
+    try {
+      let fileMetadata: FileMetadataDTO[] = [];
+      if (hasFiles) {
+        fileMetadata = await uploadFiles();
+      }
 
-    client.publish({
-      destination: '/app/send.message',
-      body: JSON.stringify(payload),
-    });
+      const payload = {
+        groupId,
+        content: hasContent ? trimmedInput : '',
+        senderId: currentUserId,
+        fileMetadata: fileMetadata,
+      };
 
-    if (client?.connected && isTyping) {
-      setIsTyping(false);
       client.publish({
-        destination: `/app/user.typing/stop/${chatRoom.id}`,
+        destination: '/app/send.message',
+        body: JSON.stringify(payload),
       });
-    }
 
-    playSendSound();
-    setInput('');
-    setLimitWarning(false);
+      if (client?.connected && isTyping) {
+        setIsTyping(false);
+        client.publish({
+          destination: `/app/user.typing/stop/${chatRoom.id}`,
+        });
+      }
+
+      playSendSound();
+      setInput('');
+      setLimitWarning(false);
+      clearFiles();
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   useEffect(() => {
@@ -380,6 +412,14 @@ const ChatWindow = ({
           </Box>
 
           <Box id="chat-composer">
+            {selectedFiles.length > 0 && (
+              <FilePreview files={selectedFiles} onRemove={removeFile} />
+            )}
+            {fileError && (
+              <Box sx={{ color: 'error.main', fontSize: '0.875rem', padding: '4px 8px' }}>
+                {fileError}
+              </Box>
+            )}
             <TextField
               multiline
               fullWidth
@@ -391,14 +431,28 @@ const ChatWindow = ({
               sx={inputSx}
               onChange={handleInputChange}
               value={input}
+              disabled={isUploading}
               slotProps={{
                 htmlInput: {
                   maxLength: CHARACTER_LIMIT,
                 },
                 input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FileUploadButton
+                        onFilesSelected={addFiles}
+                        disabled={isUploading}
+                        maxFiles={MAX_FILES}
+                      />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton sx={sendButtonSx} onClick={() => void sendMessage()}>
+                      <IconButton
+                        sx={sendButtonSx}
+                        onClick={() => void sendMessage()}
+                        disabled={isUploading}
+                      >
                         <SendIcon />
                       </IconButton>
                     </InputAdornment>
