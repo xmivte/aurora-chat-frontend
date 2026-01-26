@@ -7,15 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Chat, ServerChat, User } from '@/features/chat';
 
-import {
-  // tempChatMessageStyles,
-  // tempChatTitleStyles,
-  // tempChatDescriptionStyles,
-  // noChatSelectedStyles,
-  // serverTabStyles,
-  loadingUserStyles,
-} from './App.styles';
-import { LogoutButton } from './auth';
+import { loadingUserStyles } from './App.styles';
 import './App.css';
 import { api } from './auth/utils/api';
 import { WebSocketProvider } from './contexts/WebSocketContext';
@@ -128,8 +120,6 @@ function AppInner({ userId }: { userId: string }) {
     enabled: !!selectedChatId && selectedChatId !== TEMP_CHAT_ID,
   });
 
-  //const selectedChat = chatRooms?.find(chat => chat.id === selectedChatId) || null;
-
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: () => fetchAllUsers(),
@@ -197,9 +187,6 @@ function AppInner({ userId }: { userId: string }) {
               <div className="container-content">
                 <div className="app-header-bar">
                   <div className="app-header">AURORA</div>
-                  <div className="app-header-button">
-                    <LogoutButton />
-                  </div>
                 </div>
 
                 <div className="panels">
