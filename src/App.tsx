@@ -235,18 +235,6 @@ function AppInner({ userId }: { userId: string }) {
                         <div className="chat-list-header">
                           <div>
                             <div className="chat-title">Topics</div>
-                            {fetchedServers?.find(server => server.id == activeId)?.userEmail ===
-                              userId && (
-                              <Button
-                                className="new-chat-button"
-                                variant="contained"
-                                color="primary"
-                                disableRipple
-                                onClick={() => setOpenServerDeleteDialog(true)}
-                              >
-                                Delete server
-                              </Button>
-                            )}
                             <IconButton
                               onClick={() => setIsServerSidebarOpen(true)}
                               sx={{ ...chatInfoBtnSx, marginLeft: 'auto' }}
