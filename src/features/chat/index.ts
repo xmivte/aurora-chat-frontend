@@ -1,9 +1,12 @@
+import { FileAttachment } from '../files/types/file';
+
 export type Message = {
   id: number;
   user: User;
   content: string;
   date: Date;
   fk_chatId: string;
+  fileAttachments?: FileAttachment[];
 };
 
 export type User = {
@@ -30,4 +33,5 @@ export type ChatMessage = {
   createdAt: string;
   username: string;
   userImage?: string | null;
+  fileAttachments?: FileAttachment[];
 };

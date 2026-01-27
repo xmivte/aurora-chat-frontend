@@ -9,6 +9,7 @@ import { MouseEvent, useState } from 'react';
 
 import avatar from '../../assets/firstUser.svg';
 import theme from '../../theme/theme';
+import { FileAttachment } from '../files/components/FileAttachment/FileAttachment.tsx';
 
 import {
   outerBoxSx,
@@ -78,9 +79,19 @@ const ChatMessages = ({ currentUserId, messages, onPinMessage, canPin = true }: 
               </Typography>
 
               <Box sx={isCurrentUser ? textBoxMeSx : textBoxOtherSx}>
-                <Typography gutterBottom sx={textSx}>
-                  {message.content}
-                </Typography>
+                {message.fileAttachments && message.fileAttachments.length > 0 && (
+                  <Box sx={{ marginBottom: message.content ? 1 : 0 }}>
+                    {message.fileAttachments.map(file => (
+                      <FileAttachment key={file.id} file={file} />
+                    ))}
+                  </Box>
+                )}
+
+                {message.content && (
+                  <Typography gutterBottom sx={textSx}>
+                    {message.content}
+                  </Typography>
+                )}
 
                 <Box
                   className="message-actions"

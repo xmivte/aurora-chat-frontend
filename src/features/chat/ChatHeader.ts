@@ -191,3 +191,10 @@ export const pinnedContentSx = {
   color: theme.customColors.colorText,
   wordBreak: 'break-word',
 };
+
+export const pinnedFilesSx = {
+  marginTop: '6px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+};
