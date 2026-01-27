@@ -29,14 +29,13 @@ const ServerDeleteDialog = ({ open, onClose, userId, serverId }: NewChatDialogPr
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['servers', userId] });
       await queryClient.invalidateQueries({ queryKey: ['serverChatRooms', userId] });
+      onClose();
     },
   });
 
   const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
     deleteMutation.mutate(serverId);
-
-    onClose();
   };
 
   return (

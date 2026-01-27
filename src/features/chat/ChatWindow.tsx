@@ -69,20 +69,14 @@ const ChatWindow = ({
   const [limitWarning, setLimitWarning] = useState(false);
 
   useEffect(() => {
-    setTypingUsernames(
-      typingUsers
-        .map(id => chatRoom.users?.find(u => u.id === id)?.username)
-        .filter((name): name is string => !!name)
-    );
-  }, [typingUsers, chatRoom.users]);
+    const sourceUsers = chatRoom.users?.length ? chatRoom.users : users;
 
-  useEffect(() => {
     setTypingUsernames(
       typingUsers
-        .map(id => users?.find(u => u.id === id)?.username)
+        .map(id => sourceUsers?.find(u => u.id === id)?.username)
         .filter((name): name is string => !!name)
     );
-  }, [typingUsers]);
+  }, [typingUsers, chatRoom.users, users]);
 
   const [uid, setUid] = useState<string | null>(auth.currentUser?.uid ?? null);
   useEffect(() => {

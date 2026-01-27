@@ -67,11 +67,17 @@ function AppInner({ userId }: { userId: string }) {
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
   const [openNewServerDialog, setOpenNewServerDialog] = useState(false);
   const [openServerDeleteDialog, setOpenServerDeleteDialog] = useState(false);
+  const [serverDeleteId, setServerDeleteId] = useState<number>(-1);
 
   const [tempChat, setTempChat] = useState<Chat | null>(null);
 
   const queryClient = useQueryClient();
   const { unreadByGroup } = useNotifications();
+
+  function serverDeleteCallback(serverDeleteId: number) {
+    setServerDeleteId(serverDeleteId);
+    setOpenServerDeleteDialog(true);
+  }
 
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
@@ -109,11 +115,6 @@ function AppInner({ userId }: { userId: string }) {
     return serverChatRooms.find(chat => String(chat.id) === String(selectedServerChatId)) || null;
   }, [serverChatRooms, selectedServerChatId]);
 
-  //const chatsForList = useMemo(() => {
-  // const base = chatRooms ?? [];
-  // return tempChat ? [...base, tempChat] : base;
-  // }, [chatRooms, tempChat]);
-
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
     queryFn: () => fetchUsers(selectedChatId as string),
@@ -135,19 +136,6 @@ function AppInner({ userId }: { userId: string }) {
     });
   }, [users, selectedChatId, userId, queryClient]);
 
-  //const handleUserSelect = (user: { id: string; username: string; image?: string }) => {
-  //const newTempChat: Chat = {
-  // id: TEMP_CHAT_ID,
-  // name: user.username,
-  // image: user.image || '',
-  //  users: [user],
-  //} as Chat;
-
-  // setTempChat(newTempChat);
-  // setSelectedChatId(TEMP_CHAT_ID);
-  // setOpenNewChatDialog(false);
-  // };
-
   const { data: fetchedServers } = useQuery<Server[]>({
     queryKey: ['servers', userId],
     queryFn: async () => {
@@ -163,12 +151,6 @@ function AppInner({ userId }: { userId: string }) {
     }
   }, [chatRooms, selectedChatId, tempChat]);
 
-  useEffect(() => {
-    if (serverChatRooms && serverChatRooms.length > 0 && selectedServerChatId === null) {
-      setSelectedServerChatId(serverChatRooms[0].id);
-    }
-  }, [serverChatRooms, selectedServerChatId, tempChat]);
-
   const activeChat = tempChat && selectedChatId === tempChat.id ? tempChat : selectedChat;
   return (
     <WebSocketProvider>
@@ -177,8 +159,10 @@ function AppInner({ userId }: { userId: string }) {
           <SideBar
             servers={fetchedServers || []}
             activeId={activeId}
+            userId={userId}
             onServerChange={id => setActiveId(id)}
             onAddServer={() => setOpenNewServerDialog(true)}
+            onServerDelete={serverDeleteCallback}
           />
         </div>
         <main className="main">
@@ -251,7 +235,7 @@ function AppInner({ userId }: { userId: string }) {
                         <div className="chat-list-header">
                           <div>
                             <div className="chat-title">Topics</div>
-                            {fetchedServers?.find(server => server.id == activeId)?.userId ===
+                            {fetchedServers?.find(server => server.id == activeId)?.userEmail ===
                               userId && (
                               <Button
                                 className="new-chat-button"
@@ -331,7 +315,7 @@ function AppInner({ userId }: { userId: string }) {
             setActiveId(-1);
           }}
           userId={userId}
-          serverId={activeId}
+          serverId={serverDeleteId}
         />
         <NewServerDialog
           open={openNewServerDialog}
