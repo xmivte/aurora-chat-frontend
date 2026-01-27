@@ -12,7 +12,6 @@ import { getAuth, signOut } from 'firebase/auth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { logoutButton } from '@/auth/styles/styles';
 import theme from '@/theme/theme.ts';
 
 import { deleteUser } from './userApi.ts';
@@ -26,6 +25,19 @@ const dialogPaperStyles: SxProps<Theme> = {
 const deleteActionStyles: SxProps<Theme> = {
   background: theme.customColors.colorPink,
   borderRadius: theme.customShape.roundedBtn,
+};
+
+const deleteAccButton: SxProps<Theme> = {
+  p: '10px 0',
+  borderRadius: theme.customShape.roundedBtn,
+  background: theme.customColors.btnLogout,
+  lineHeight: 1.4,
+  fontSize: '16px',
+  color: theme.customColors.colorText,
+  width: '150px',
+  '&:hover': {
+    background: theme.palette.primary.main,
+  },
 };
 
 const DeleteButton = () => {
@@ -52,7 +64,7 @@ const DeleteButton = () => {
 
   return (
     <>
-      <Button sx={logoutButton} onClick={handleOpen} disabled={busy}>
+      <Button sx={deleteAccButton} onClick={handleOpen} disabled={busy}>
         Delete Account
       </Button>
 
