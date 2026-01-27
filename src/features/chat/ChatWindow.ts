@@ -62,6 +62,9 @@ export const sendButtonSx = {
   '&:focus': {
     border: 'none',
   },
+  '&:hover': {
+    backgroundColor: theme.customColors.colorBlueLightHover,
+  },
 };
 
 export const isTypingSx = {
