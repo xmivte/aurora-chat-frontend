@@ -11,7 +11,7 @@ export type UseChatSocketOptions = {
 };
 
 function getApiBaseUrl(): string {
-  const viteUrl = (import.meta.env as { VITE_API_URL?: string }).VITE_API_URL;
+  const viteUrl = (import.meta.env as { VITE_BACKEND_URL?: string }).VITE_BACKEND_URL;
   return (viteUrl ?? 'http://localhost:8080').replace(/\/$/, '');
 }
 
