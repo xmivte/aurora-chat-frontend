@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import { type IMessage } from '@stomp/stompjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
@@ -164,6 +164,13 @@ const ChatWindow = ({
     }
     setInput(value);
     setLimitWarning(value.length > CHARACTER_LIMIT);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      void sendMessage();
+    }
   };
 
   const { data: fetchedMessages } = useQuery({
@@ -520,6 +527,7 @@ const ChatWindow = ({
               helperText={limitWarning ? 'Reaching character limit' : ''}
               sx={inputSx}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               value={input}
               disabled={isUploading}
               slotProps={{
