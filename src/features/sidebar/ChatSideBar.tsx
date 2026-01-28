@@ -30,8 +30,8 @@ const ChatSideBar = ({ members, onClose }: SideBarProps & { onClose?: () => void
             key={member.id}
             id={member.id}
             username={member.username}
-            online={false}
-            url={member.image ? member.image : avatar}
+            online={member.online}
+            url={member.url ? member.url : avatar}
           />
         ))}
       </List>
