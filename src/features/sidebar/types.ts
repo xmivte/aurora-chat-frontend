@@ -17,3 +17,7 @@ export type MembersInfo = {
 export type SideBarProps = {
   members: MembersInfo[];
 };
+
+export type ServerSideBarProps = {
+  serverId: number;
+};

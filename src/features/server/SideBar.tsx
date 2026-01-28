@@ -1,3 +1,4 @@
+import Delete from '@mui/icons-material/Delete';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -7,20 +8,38 @@ import Tooltip from '@mui/material/Tooltip';
 import { JSX } from 'react';
 
 import PersonalChatsIcon from './assets/personal-chats-icon.svg';
+import ContextMenu from './ContextMenu.tsx';
+import { Server } from './ServerTypes.ts';
 import { SideBarAddServerSection } from './SideBar_AddServer_Button.tsx';
 import { createSideBarSx } from './sidebar_style.ts';
 
-export type Server = { id: string; label: string; glyph?: string; bg?: string };
-
 export type SideBarProps = {
   servers: Server[];
-  activeId: string;
-  onServerChange: (id: string) => void;
+  activeId: number;
+  userId: string;
+  onServerChange: (id: number) => void;
   onAddServer?: () => void;
+  onServerDelete?: (id: number) => void;
 };
 
+const buildMenuItems = (server: Server, userId: string, onServerDelete?: (id: number) => void) => [
+  {
+    label: 'Delete',
+    icon: <Delete fontSize="small" />,
+    onClick: () => onServerDelete?.(server.id),
+    disabled: server.userEmail !== userId,
+  },
+];
+
 const Static_side_bar_sx = createSideBarSx();
-const SideBar = ({ servers, activeId, onServerChange, onAddServer }: SideBarProps): JSX.Element => {
+const SideBar = ({
+  servers,
+  activeId,
+  userId,
+  onServerChange,
+  onAddServer,
+  onServerDelete,
+}: SideBarProps): JSX.Element => {
   const {
     containerSx,
     buttonSx,
@@ -38,28 +57,26 @@ const SideBar = ({ servers, activeId, onServerChange, onAddServer }: SideBarProp
     <Box sx={containerSx}>
       <Stack spacing={1} sx={topStackSx}>
         <Tooltip title="Personal Chats" placement="right">
-          <IconButton onClick={() => onServerChange('personal')} disableRipple sx={buttonSx}>
-            <Avatar
-              src={PersonalChatsIcon}
-              className="sb-avatar"
-              sx={avatarSx(activeId === 'personal')}
-            />
+          <IconButton onClick={() => onServerChange(-1)} disableRipple sx={buttonSx}>
+            <Avatar src={PersonalChatsIcon} className="sb-avatar" sx={avatarSx(activeId === -1)} />
           </IconButton>
         </Tooltip>
         <Divider sx={dividerSx} />
       </Stack>
       <Stack spacing={1} sx={contentStackSx}>
-        {servers.length > 0 ? (
+        {servers?.length > 0 ? (
           servers.map(s => {
             const isActive = s.id === activeId;
             return (
-              <Tooltip key={s.id} title={s.label} placement="right">
-                <IconButton onClick={() => onServerChange(s.id)} disableRipple sx={buttonSx}>
-                  <Avatar className="sb-avatar" sx={avatarSx(isActive, s.bg)}>
-                    {s.glyph ?? s.label.charAt(0).toUpperCase()}
-                  </Avatar>
-                </IconButton>
-              </Tooltip>
+              <ContextMenu key={s.id} menuItems={buildMenuItems(s, userId, onServerDelete)}>
+                <Tooltip title={s.name} placement="right">
+                  <IconButton onClick={() => onServerChange(s.id)} disableRipple sx={buttonSx}>
+                    <Avatar className="sb-avatar" sx={avatarSx(isActive, s.backgroundColorHex)}>
+                      {s.name.charAt(0).toUpperCase()}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+              </ContextMenu>
             );
           })
         ) : (

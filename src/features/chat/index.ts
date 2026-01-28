@@ -25,6 +25,17 @@ export type Chat = {
   users: User[];
 };
 
+export type ServerChat = {
+  id: string;
+  name?: string | null;
+  image?: string | null;
+  serverId: number;
+  displayName?: string | null;
+  displayImage?: string | null;
+  isDraft?: boolean;
+  users: User[];
+};
+
 export type ChatMessage = {
   id: number;
   senderId: string;

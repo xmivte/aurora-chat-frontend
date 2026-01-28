@@ -59,6 +59,7 @@ async function fetchPinnedMessages(groupId: string): Promise<ApiPinnedMessage[]>
 const ChatWindow = ({
   currentUserId,
   chatRoom,
+  users,
   isSidebarOpen,
   onOpenSidebar,
   onCloseSidebar,
@@ -96,12 +97,14 @@ const ChatWindow = ({
   } = useFileUpload();
 
   useEffect(() => {
+    const sourceUsers = chatRoom.users?.length ? chatRoom.users : users;
+
     setTypingUsernames(
       typingUsers
-        .map(id => chatRoom.users?.find(u => u.id === id)?.username)
+        .map(id => sourceUsers?.find(u => u.id === id)?.username)
         .filter((name): name is string => !!name)
     );
-  }, [typingUsers, chatRoom.users]);
+  }, [typingUsers, chatRoom.users, users]);
 
   const [uid, setUid] = useState<string | null>(auth.currentUser?.uid ?? null);
   useEffect(() => {

@@ -1,14 +1,17 @@
+import InfoIcon from '@mui/icons-material/Info';
+import { IconButton } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuth } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { Chat, User } from '@/features/chat';
+import type { Chat, ServerChat, User } from '@/features/chat';
 
 import { loadingUserStyles } from './App.styles';
 import './App.css';
 import { api } from './auth/utils/api';
 import { WebSocketProvider } from './contexts/WebSocketContext';
+import { chatInfoBtnSx } from './features/chat/ChatHeader.ts';
 import ChatList from './features/chat/ChatList.tsx';
 import ChatWindow from './features/chat/ChatWindow.tsx';
 import {
@@ -19,22 +22,26 @@ import { handleUserSelect, handleChatCreated } from './features/chat/logic/chatA
 import { NotificationsProvider } from './features/notifications/NotificationsProvider';
 import { useNotifications } from './features/notifications/useNotifications';
 import NewChatDialog from './features/search/NewChatDialog.tsx';
-import SideBar, { type Server } from './features/server/SideBar';
-
-const mockServers: Server[] = [
-  { id: 'personal', label: 'Personal', glyph: 'P', bg: '#5553eb' },
-  { id: 'a', label: 'Server A', glyph: 'A', bg: '#5553eb' },
-  { id: 'b', label: 'Server B', glyph: 'B', bg: '#f5b400' },
-  { id: 'c', label: 'DB Primary', glyph: 'DB', bg: '#0f766e' },
-  { id: 'd', label: 'DB Replica', glyph: 'R', bg: '#1e293b' },
-  { id: 'e', label: 'Cache', glyph: 'C', bg: '#2563eb' },
-  { id: 'f', label: 'Worker 1', glyph: 'W1', bg: '#9333ea' },
-];
+import NewServerDialog from './features/server/NewServerDialog.tsx';
+import ServerDeleteDialog from './features/server/ServerDeleteDialog.tsx';
+import { Server } from './features/server/ServerTypes.ts';
+import SideBar from './features/server/SideBar';
+import ChatServerSideBar from './features/sidebar/ChatServerSideBar.tsx';
 
 const TEMP_CHAT_ID = '__temp_new_chat__';
 
+export function serverChatToChat(serverChat: ServerChat): Chat {
+  const { serverId: _serverId, ...chat } = serverChat;
+  return chat;
+}
+
 const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
   const res = await api.get<Chat[]>(`/group/${userId}`);
+  return res.data;
+};
+
+const fetchServerChatRooms = async (userId: string): Promise<ServerChat[]> => {
+  const res = await api.get<ServerChat[]>(`/group/server/${userId}`);
   return res.data;
 };
 
@@ -49,15 +56,28 @@ const fetchAllUsers = async (): Promise<User[]> => {
 };
 
 function AppInner({ userId }: { userId: string }) {
-  const [activeId, setActiveId] = useState<string>('personal');
+  const [activeId, setActiveId] = useState<number>(-1);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+
+  const [selectedServerChatId, setSelectedServerChatId] = useState<string | null>(null);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isServerSidebarOpen, setIsServerSidebarOpen] = useState(false);
 
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
+  const [openNewServerDialog, setOpenNewServerDialog] = useState(false);
+  const [openServerDeleteDialog, setOpenServerDeleteDialog] = useState(false);
+  const [serverDeleteId, setServerDeleteId] = useState<number>(-1);
+
   const [tempChat, setTempChat] = useState<Chat | null>(null);
 
   const queryClient = useQueryClient();
   const { unreadByGroup } = useNotifications();
+
+  function serverDeleteCallback(serverDeleteId: number) {
+    setServerDeleteId(serverDeleteId);
+    setOpenServerDeleteDialog(true);
+  }
 
   const { data: chatRooms } = useQuery<Chat[]>({
     queryKey: ['chatRooms', userId],
@@ -72,10 +92,28 @@ function AppInner({ userId }: { userId: string }) {
     enabled: !!userId,
   });
 
+  const { data: serverChatRooms } = useQuery<ServerChat[]>({
+    queryKey: ['serverChatRooms', userId],
+    queryFn: async () => {
+      const rooms = await fetchServerChatRooms(userId);
+      return rooms.map(room => ({
+        ...room,
+        displayName: getChatDisplayName(room, userId),
+        displayImage: getChatDisplayImage(room, userId),
+      }));
+    },
+    enabled: !!userId,
+  });
+
   const selectedChat = useMemo(() => {
     if (!chatRooms || !selectedChatId) return null;
     return chatRooms.find(chat => String(chat.id) === String(selectedChatId)) || null;
   }, [chatRooms, selectedChatId]);
+
+  const selectedServerChat = useMemo(() => {
+    if (!serverChatRooms || !selectedServerChatId) return null;
+    return serverChatRooms.find(chat => String(chat.id) === String(selectedServerChatId)) || null;
+  }, [serverChatRooms, selectedServerChatId]);
 
   const { data: users } = useQuery<User[]>({
     queryKey: ['users', selectedChatId],
@@ -98,6 +136,15 @@ function AppInner({ userId }: { userId: string }) {
     });
   }, [users, selectedChatId, userId, queryClient]);
 
+  const { data: fetchedServers } = useQuery<Server[]>({
+    queryKey: ['servers', userId],
+    queryFn: async () => {
+      const res = await api.get<Server[]>(`/server/${userId}`);
+      return res.data;
+    },
+    enabled: !!userId,
+  });
+
   useEffect(() => {
     if (chatRooms && chatRooms.length > 0 && selectedChatId === null && !tempChat) {
       setSelectedChatId(chatRooms[0].id);
@@ -105,16 +152,17 @@ function AppInner({ userId }: { userId: string }) {
   }, [chatRooms, selectedChatId, tempChat]);
 
   const activeChat = tempChat && selectedChatId === tempChat.id ? tempChat : selectedChat;
-
   return (
     <WebSocketProvider>
       <div className="app-layout">
         <div className="sidebar">
           <SideBar
-            servers={mockServers}
+            servers={fetchedServers || []}
             activeId={activeId}
+            userId={userId}
             onServerChange={id => setActiveId(id)}
-            onAddServer={() => {}}
+            onAddServer={() => setOpenNewServerDialog(true)}
+            onServerDelete={serverDeleteCallback}
           />
         </div>
         <main className="main">
@@ -126,7 +174,7 @@ function AppInner({ userId }: { userId: string }) {
                 </div>
 
                 <div className="panels">
-                  {activeId === 'personal' && (
+                  {activeId === -1 && (
                     <>
                       <aside className="chat-list-panel">
                         <div className="chat-list-header">
@@ -162,6 +210,69 @@ function AppInner({ userId }: { userId: string }) {
                           <ChatWindow
                             currentUserId={userId}
                             chatRoom={activeChat}
+                            users={activeChat.users}
+                            isSidebarOpen={isSidebarOpen}
+                            onOpenSidebar={() => setIsSidebarOpen(true)}
+                            onCloseSidebar={() => setIsSidebarOpen(false)}
+                            onChatCreated={newId =>
+                              handleChatCreated({
+                                newId,
+                                userId,
+                                tempChat,
+                                queryClient,
+                                setTempChat,
+                                setSelectedChatId,
+                              })
+                            }
+                          />
+                        )}
+                      </section>
+                    </>
+                  )}
+                  {activeId !== -1 && (
+                    <>
+                      <aside className="chat-list-panel">
+                        <div className="chat-list-header">
+                          <div>
+                            <div className="chat-title">Topics</div>
+                            <IconButton
+                              onClick={() => setIsServerSidebarOpen(true)}
+                              sx={{ ...chatInfoBtnSx, marginLeft: 'auto' }}
+                              aria-label="Open chat sidebar"
+                            >
+                              <InfoIcon />
+                            </IconButton>
+                          </div>
+                        </div>
+                        <ChatList
+                          chats={
+                            serverChatRooms
+                              ?.filter(chat => chat.serverId === activeId)
+                              .map(({ serverId: _serverId, ...chat }) => chat) ?? []
+                          }
+                          onSelectChat={id => {
+                            setSelectedServerChatId(id);
+                            setIsSidebarOpen(false);
+                            if (id != tempChat?.id) {
+                              setTempChat(null);
+                            }
+                          }}
+                          selectedChatId={selectedChatId}
+                          unreadByGroup={unreadByGroup}
+                        />
+                      </aside>
+                      {isServerSidebarOpen && (
+                        <ChatServerSideBar
+                          serverId={activeId}
+                          onClose={() => setIsServerSidebarOpen(false)}
+                        />
+                      )}
+                      <section className="chat-window-panel">
+                        {selectedServerChat && userId && (
+                          <ChatWindow
+                            currentUserId={userId}
+                            chatRoom={serverChatToChat(selectedServerChat)}
+                            users={serverChatToChat(selectedServerChat).users}
                             isSidebarOpen={isSidebarOpen}
                             onOpenSidebar={() => setIsSidebarOpen(true)}
                             onCloseSidebar={() => setIsSidebarOpen(false)}
@@ -185,7 +296,20 @@ function AppInner({ userId }: { userId: string }) {
             </div>
           </div>
         </main>
-
+        <ServerDeleteDialog
+          open={openServerDeleteDialog}
+          onClose={() => {
+            setOpenServerDeleteDialog(false);
+            setActiveId(-1);
+          }}
+          userId={userId}
+          serverId={serverDeleteId}
+        />
+        <NewServerDialog
+          open={openNewServerDialog}
+          onClose={() => setOpenNewServerDialog(false)}
+          userId={userId}
+        />
         <NewChatDialog
           open={openNewChatDialog}
           onClose={() => setOpenNewChatDialog(false)}
