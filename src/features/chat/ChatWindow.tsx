@@ -504,6 +504,7 @@ const ChatWindow = ({
               messages={messages}
               onPinMessage={pinMessage}
               canPin={canPinMore}
+              imageUrls={members.map(obj => ({ username: obj.username, image: obj.url }))}
             />
             <div ref={messagesEndRef} />
           </Box>
