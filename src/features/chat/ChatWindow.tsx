@@ -7,10 +7,23 @@ import TextField from '@mui/material/TextField';
 import { type IMessage } from '@stomp/stompjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
 import { api } from '@/auth/utils/api';
 import { BACKEND_URL } from '@/config/env';
+import { getSenderKey } from '@/features/encryption/indexedDb';
+import { storeDeviceIdentityKeyPair } from '@/features/encryption/keyPairs';
+import { encryptMessage, decryptMessage } from '@/features/encryption/messageActions';
+import { createGeneralSharedSecretForMessages } from '@/features/encryption/sharedSecretCreation';
+import {
+  tryFetchAndDecryptSenderKey,
+  requestSenderKey,
+} from '@/features/encryption/sharedSecretReceive';
+import { useSenderKeySync } from '@/features/encryption/useSenderKeySync';
+import { FilePreview } from '@/features/files';
+import { FileUploadButton } from '@/features/files';
+import { useFileUpload } from '@/features/files';
+import { type FileMetadataDTO } from '@/features/files';
 import ChatSideBar from '@/features/sidebar/ChatSideBar.tsx';
 import { auth } from '@/firebase';
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -62,11 +75,26 @@ const ChatWindow = ({
   const queryClient = useQueryClient();
   const { client, isConnected, onlineUserIds } = useWebSocket();
 
+  useSenderKeySync(groupId, currentUserId, () => {
+    void queryClient.invalidateQueries({ queryKey: ['messages', chatRoom.id] });
+  });
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [limitWarning, setLimitWarning] = useState(false);
+
+  const {
+    selectedFiles,
+    isUploading,
+    error: fileError,
+    addFiles,
+    uploadFiles,
+    removeFile,
+    clearFiles,
+    MAX_FILES,
+  } = useFileUpload();
 
   useEffect(() => {
     const sourceUsers = chatRoom.users?.length ? chatRoom.users : users;
@@ -141,21 +169,76 @@ const ChatWindow = ({
     setLimitWarning(value.length > CHARACTER_LIMIT);
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      void sendMessage();
+    }
+  };
+
   const { data: fetchedMessages } = useQuery({
     queryKey: ['messages', chatRoom.id],
+    enabled: !!chatRoom.id && !!currentUserId,
+    staleTime: 0,
+    retry: false,
     queryFn: async () => {
-      const res = await api.get(`/messages/${chatRoom.id}`);
+      const chatId = String(chatRoom.id);
+
+      const res = await api.get(`/messages/${encodeURIComponent(chatId)}`);
       const data = res.data as ChatMessage[];
-      return data.map((received: ChatMessage) => ({
-        id: received.id,
-        user: { id: received.senderId, username: received.username },
-        content: received.content,
-        date: new Date(received.createdAt),
-        fk_chatId: received.groupId,
-      }));
+
+      const hasKey = await tryFetchAndDecryptSenderKey(chatId, currentUserId);
+
+      if (!hasKey && client?.connected) {
+        try {
+          await requestSenderKey(chatId, currentUserId, client);
+        } catch (e) {
+          console.error('Failed to request sender key', e);
+        }
+      }
+
+      const mapped = await Promise.all(
+        data.map(async (received: ChatMessage) => {
+          let content = '(Unable to decrypt yet)';
+          try {
+            content = await decryptMessage(chatId, received.content);
+          } catch (e) {
+            console.error('Failed to decrypt message', e);
+          }
+
+          return {
+            id: received.id,
+            user: { id: received.senderId, username: received.username },
+            content,
+            date: new Date(received.createdAt),
+            fk_chatId: received.groupId,
+            fileAttachments: received.fileAttachments,
+          };
+        })
+      );
+
+      return mapped;
     },
-    enabled: !!chatRoom.id,
   });
+
+  useEffect(() => {
+    if (!groupId) return;
+    if (!currentUserId) return;
+
+    void (async () => {
+      try {
+        await storeDeviceIdentityKeyPair(currentUserId);
+        const hasKey = await tryFetchAndDecryptSenderKey(groupId, currentUserId);
+        if (hasKey) return;
+
+        if (client?.connected) {
+          await requestSenderKey(groupId, currentUserId, client);
+        }
+      } catch (e) {
+        console.error('E2EE init failed', e);
+      }
+    })();
+  }, [groupId, currentUserId, client]);
 
   useEffect(() => {
     if (fetchedMessages) {
@@ -185,22 +268,39 @@ const ChatWindow = ({
   useEffect(() => {
     if (client && isConnected) {
       const chatSub = client.subscribe(`/topic/chat.${chatRoom.id}`, (message: IMessage) => {
-        const received = JSON.parse(message.body) as ChatMessage;
-        const converted: Message = {
-          id: received.id,
-          user: { id: received.senderId, username: received.username },
-          content: received.content,
-          date: new Date(received.createdAt),
-          fk_chatId: received.groupId,
-        };
-        setMessages(prev => {
-          if (prev.some(m => m.id === converted.id)) return prev;
-          return [...prev, converted];
-        });
+        void (async () => {
+          const received = JSON.parse(message.body) as ChatMessage;
+          let decryptedContent = received.content;
 
-        if (document.visibilityState === 'visible') {
-          void markGroupRead(groupId);
-        }
+          try {
+            const hasKey = await tryFetchAndDecryptSenderKey(groupId, currentUserId);
+            if (!hasKey && client?.connected) {
+              await requestSenderKey(groupId, currentUserId, client);
+            }
+
+            decryptedContent = await decryptMessage(groupId, received.content);
+          } catch (e) {
+            console.error('Failed to decrypt message', e);
+            decryptedContent = '(Unable to decrypt yet)';
+          }
+
+          const converted: Message = {
+            id: received.id,
+            user: { id: received.senderId, username: received.username },
+            content: decryptedContent,
+            date: new Date(received.createdAt),
+            fk_chatId: received.groupId,
+            fileAttachments: received.fileAttachments,
+          };
+          setMessages(prev => {
+            if (prev.some(m => m.id === converted.id)) return prev;
+            return [...prev, converted];
+          });
+
+          if (document.visibilityState === 'visible') {
+            void markGroupRead(groupId);
+          }
+        })();
       });
 
       const typingSub = client.subscribe(
@@ -288,7 +388,12 @@ const ChatWindow = ({
 
   //send message
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    const trimmedInput = input.trim();
+    const hasContent = trimmedInput.length > 0;
+    const hasFiles = selectedFiles.length > 0;
+
+    // must have either text or files
+    if (!hasContent && !hasFiles) return;
 
     let groupId = chatRoom.id;
 
@@ -303,6 +408,8 @@ const ChatWindow = ({
       const newGroup = await createGroup(currentUserId, otherUserId);
       groupId = newGroup.id;
       onChatCreated(newGroup.id);
+      await storeDeviceIdentityKeyPair(currentUserId);
+      await createGeneralSharedSecretForMessages(groupId, currentUserId);
 
       //Subscribe to new topic
       if (client && client.connected) {
@@ -314,6 +421,7 @@ const ChatWindow = ({
             content: received.content,
             date: new Date(received.createdAt),
             fk_chatId: received.groupId,
+            fileAttachments: received.fileAttachments,
           };
 
           setMessages(prev => {
@@ -328,31 +436,52 @@ const ChatWindow = ({
     if (!client?.connected) return;
     if (!groupId) return;
 
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    if (trimmed.length > CHARACTER_LIMIT) return;
+    if (hasContent && trimmedInput.length > CHARACTER_LIMIT) return;
 
-    const payload = {
-      groupId,
-      content: trimmed,
-      senderId: currentUserId,
-    };
+    try {
+      let fileMetadata: FileMetadataDTO[] = [];
+      if (hasFiles) {
+        fileMetadata = await uploadFiles();
+      }
 
-    client.publish({
-      destination: '/app/send.message',
-      body: JSON.stringify(payload),
-    });
+      await storeDeviceIdentityKeyPair(currentUserId);
 
-    if (client?.connected && isTyping) {
-      setIsTyping(false);
+      const existingKey = await getSenderKey(groupId);
+      if (!existingKey) {
+        const fetched = await tryFetchAndDecryptSenderKey(groupId, currentUserId);
+        if (!fetched) {
+          await createGeneralSharedSecretForMessages(groupId, currentUserId);
+        }
+      }
+
+      const cypherText = hasContent ? await encryptMessage(groupId, trimmedInput) : '';
+
+      const payload = {
+        groupId,
+        content: cypherText,
+        senderId: currentUserId,
+        fileMetadata: fileMetadata,
+      };
+
       client.publish({
-        destination: `/app/user.typing/stop/${chatRoom.id}`,
+        destination: '/app/send.message',
+        body: JSON.stringify(payload),
       });
-    }
 
-    playSendSound();
-    setInput('');
-    setLimitWarning(false);
+      if (client?.connected && isTyping) {
+        setIsTyping(false);
+        client.publish({
+          destination: `/app/user.typing/stop/${chatRoom.id}`,
+        });
+      }
+
+      playSendSound();
+      setInput('');
+      setLimitWarning(false);
+      clearFiles();
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   useEffect(() => {
@@ -378,11 +507,20 @@ const ChatWindow = ({
               messages={messages}
               onPinMessage={pinMessage}
               canPin={canPinMore}
+              imageUrls={members.map(obj => ({ username: obj.username, image: obj.url }))}
             />
             <div ref={messagesEndRef} />
           </Box>
 
           <Box id="chat-composer">
+            {selectedFiles.length > 0 && (
+              <FilePreview files={selectedFiles} onRemove={removeFile} />
+            )}
+            {fileError && (
+              <Box sx={{ color: 'error.main', fontSize: '0.875rem', padding: '4px 8px' }}>
+                {fileError}
+              </Box>
+            )}
             <TextField
               multiline
               fullWidth
@@ -393,15 +531,30 @@ const ChatWindow = ({
               helperText={limitWarning ? 'Reaching character limit' : ''}
               sx={inputSx}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               value={input}
+              disabled={isUploading}
               slotProps={{
                 htmlInput: {
                   maxLength: CHARACTER_LIMIT,
                 },
                 input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FileUploadButton
+                        onFilesSelected={addFiles}
+                        disabled={isUploading}
+                        maxFiles={MAX_FILES}
+                      />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton sx={sendButtonSx} onClick={() => void sendMessage()}>
+                      <IconButton
+                        sx={sendButtonSx}
+                        onClick={() => void sendMessage()}
+                        disabled={isUploading}
+                      >
                         <SendIcon />
                       </IconButton>
                     </InputAdornment>

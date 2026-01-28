@@ -2,12 +2,12 @@ import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState, useContext } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 
+import { storeDeviceIdentityKeyPair } from '@/features/encryption/keyPairs';
+import { type UserDataDto } from '@/features/settings/types';
+import { createUser, fetchUser } from '@/features/settings/userApi';
 import { UserCxt } from '@/main';
 
 const LAST_SIGN_IN_LIMIT = 30 * 24 * 60 * 60 * 1000; // a month in milliseconds
-
-import { createUser, fetchUser } from '@/features/settings/userApi';
-import { type UserDataDto } from '@/features/settings/types';
 
 export const useAuth = (navigate: NavigateFunction) => {
   const auth = getAuth();
@@ -24,7 +24,6 @@ export const useAuth = (navigate: NavigateFunction) => {
         }
 
         const lastSignInTime = user.metadata.lastSignInTime;
-        // checks if last sign in time exists
         if (!lastSignInTime) {
           await signOut(auth);
           void navigate('/login');
@@ -33,8 +32,6 @@ export const useAuth = (navigate: NavigateFunction) => {
         }
 
         const lastSignIn = new Date(lastSignInTime).getTime();
-
-        //checks if last sign in time is not older than the limit
         if (Date.now() - lastSignIn > LAST_SIGN_IN_LIMIT) {
           await signOut(auth);
           void navigate('/login');
@@ -56,6 +53,12 @@ export const useAuth = (navigate: NavigateFunction) => {
           }
 
           setUser(data);
+
+          try {
+            await storeDeviceIdentityKeyPair(user.uid);
+          } catch (e) {
+            console.error('Failed to initialize/publish device identity keys', e);
+          }
         } catch (err) {
           console.error('Failed to fetch or create user:', err);
         } finally {

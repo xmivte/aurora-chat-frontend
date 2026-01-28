@@ -31,9 +31,15 @@ export type HeaderProps = {
   onOpenPinnedMenu?: () => void;
 };
 
+export type UsernameImageMap = {
+  username: string;
+  image: string;
+};
+
 export type MessageProps = {
   currentUserId: string;
   messages: Message[];
   onPinMessage?: (message: Message) => void;
   canPin?: boolean;
+  imageUrls: UsernameImageMap[];
 };

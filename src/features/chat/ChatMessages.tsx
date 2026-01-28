@@ -9,6 +9,7 @@ import { MouseEvent, useState } from 'react';
 
 import avatar from '../../assets/firstUser.svg';
 import theme from '../../theme/theme';
+import { FileAttachment } from '../files/components/FileAttachment/FileAttachment.tsx';
 
 import {
   outerBoxSx,
@@ -28,7 +29,13 @@ import {
 } from './ChatMessages';
 import { MessageProps } from './ChatWindowTypes';
 
-const ChatMessages = ({ currentUserId, messages, onPinMessage, canPin = true }: MessageProps) => {
+const ChatMessages = ({
+  currentUserId,
+  messages,
+  onPinMessage,
+  canPin = true,
+  imageUrls,
+}: MessageProps) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -61,26 +68,39 @@ const ChatMessages = ({ currentUserId, messages, onPinMessage, canPin = true }: 
     <Box sx={outerBoxSx}>
       {messages.map(message => {
         const isCurrentUser = currentUserId === message.user.id;
+        const imageUrl = imageUrls.find(obj => obj.username === message.user.username)?.image;
 
         return (
           <Box key={message.id} sx={isCurrentUser ? messageReverseSx : messageRowSx}>
             <Box sx={isCurrentUser ? contentEndSx : contentStartSx}>
-              {message.user.image ? (
-                <Box component="img" src={message.user.image} alt="user" sx={avatarSx} />
-              ) : (
-                <Avatar sx={avatarSx} src={avatar} />
-              )}
+              {
+                /*message.user.image*/ imageUrl ? (
+                  <Box component="img" src={imageUrl} alt="user" sx={avatarSx} />
+                ) : (
+                  <Avatar sx={avatarSx} src={avatar} />
+                )
+              }
               <Typography sx={dateNameSx}>
-                {message.user.username}{' '}
+                {message.user.username.substring(0, message.user.username.indexOf('#'))}{' '}
                 {message.date < yesterday
                   ? message.date.toLocaleDateString()
                   : message.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Typography>
 
               <Box sx={isCurrentUser ? textBoxMeSx : textBoxOtherSx}>
-                <Typography gutterBottom sx={textSx}>
-                  {message.content}
-                </Typography>
+                {message.fileAttachments && message.fileAttachments.length > 0 && (
+                  <Box sx={{ marginBottom: message.content ? 1 : 0 }}>
+                    {message.fileAttachments.map(file => (
+                      <FileAttachment key={file.id} file={file} />
+                    ))}
+                  </Box>
+                )}
+
+                {message.content && (
+                  <Typography gutterBottom sx={textSx}>
+                    {message.content}
+                  </Typography>
+                )}
 
                 <Box
                   className="message-actions"

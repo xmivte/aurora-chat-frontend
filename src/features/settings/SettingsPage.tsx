@@ -90,8 +90,10 @@ const SettingsPage = () => {
             <UpdateButton updateUsername={updateUsername} />
           </Box>
         </Box>
-        <LogoutButton />
-        <DeleteButton />
+        <Box sx={{ display: 'flex', gap: 15, mt: 2 }}>
+          <LogoutButton />
+          <DeleteButton />
+        </Box>
         <Snackbar open={infoMessage != ''} message={infoMessage} />
       </Paper>
     </Box>
