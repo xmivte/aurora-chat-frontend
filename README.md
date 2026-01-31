@@ -1,60 +1,127 @@
-# React + TypeScript + Vite
+# Aurora Chat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, secure real-time messaging application built with React, TypeScript, and Material UI. Aurora Chat features end-to-end encryption, file sharing, server-based group conversations, and a sleek dark-themed UI.
 
-Currently, two official plugins are available:
+> Built during the **Sourcery Academy 2025 Fall** internship program.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **End-to-End Encryption** — AES-GCM 256-bit client-side encryption with sender key exchange protocol
+- **Real-Time Messaging** — WebSocket (STOMP) powered instant messaging with typing indicators and presence tracking
+- **File Sharing** — Secure file uploads with 8 layers of validation, proxied downloads, and automatic 7-day cleanup
+- **Servers & Topics** — Create servers with topic-based channels for organized group conversations
+- **Pinned Messages** — Pin important messages and file attachments for easy reference
+- **User Search** — Find and start conversations with other users
+- **Profile Management** — Update your profile picture, display name, and account settings
+- **Firebase Authentication** — Secure JWT-based authentication with Google sign-in support
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Screenshots
 
-### Styling Guidelines
+### Login
+<!-- SCREENSHOT 1: LOGIN PAGE -->
+<!-- To add: Open a new GitHub issue > drag your login screenshot into the comment box > -->
+<!-- copy the generated URL (https://github.com/user-attachments/assets/...) > paste below -->
+![Login](PASTE_LOGIN_IMAGE_URL_HERE)
 
-- HTML elements: Styles for plain HTML tags (e.g. `<div>`, `<p>`) are written in `.css` files.  
-- MUI components: Styles for Material‑UI components are defined in `.ts` files using the `sx` prop or theme overrides.  
-- Theme values: Core styling values such as colors and border radius are centralized in `theme.ts` inside the `theme` folder.This file acts as the single source of truth for design tokens across the application.
+### Main Chat View
+<!-- SCREENSHOT 2: MAIN CHAT VIEW (conversations list + active chat window) -->
+![Chat View](PASTE_CHAT_VIEW_IMAGE_URL_HERE)
 
+### User Search
+<!-- SCREENSHOT 3: NEW CHAT / USER SEARCH DIALOG -->
+![User Search](PASTE_USER_SEARCH_IMAGE_URL_HERE)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Servers & Topics
+<!-- SCREENSHOT 4: SERVER VIEW WITH TOPIC CHANNELS -->
+![Servers & Topics](PASTE_SERVER_TOPICS_IMAGE_URL_HERE)
+
+### Typing Indicator
+<!-- SCREENSHOT 5: TYPING INDICATOR IN ACTION -->
+![Typing Indicator](PASTE_TYPING_INDICATOR_IMAGE_URL_HERE)
+
+### Pinned Messages & File Sharing
+<!-- SCREENSHOT 6: PINNED MESSAGES PANEL WITH FILE ATTACHMENTS -->
+![Pinned Messages & File Sharing](PASTE_PINNED_MESSAGES_IMAGE_URL_HERE)
+
+### User Settings
+<!-- SCREENSHOT 7: USER SETTINGS PANEL (profile update/delete) -->
+![User Settings](PASTE_USER_SETTINGS_IMAGE_URL_HERE)
+
+## Tech Stack
+
+| Technology | Version | Purpose |
+|---|---|---|
+| React | 19 | UI framework |
+| TypeScript | 5.7 | Type-safe JavaScript |
+| Vite | 6 | Build tool & dev server |
+| Material UI (MUI) | 7 | Component library |
+| SockJS + STOMP | — | WebSocket real-time communication |
+| Firebase Auth | — | Authentication |
+| Axios | — | HTTP client |
+| Web Crypto API | — | Client-side E2E encryption |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/xmivte/aurora-chat-frontend.git
+cd aurora-chat-frontend
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Firebase and API configuration
+
+# Start the development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be running at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Environment Variables
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Backend API URL |
+| `VITE_WS_URL` | WebSocket endpoint URL |
+| `VITE_FIREBASE_*` | Firebase project configuration |
+
+## Architecture Highlights
+
+### End-to-End Encryption
+Messages are encrypted client-side using the **Web Crypto API** with AES-GCM 256-bit keys. The server never has access to plaintext message content. A sender key exchange protocol ensures only group members can decrypt messages.
+
+### Secure File Sharing
+Files are uploaded through the backend with multi-layer validation (size, type, extension, magic bytes via Apache Tika). Downloads are **fully proxied** through the backend — Cloudinary storage URLs are never exposed to the client. The frontend receives raw bytes and creates temporary blob URLs that are immediately revoked after download.
+
+### Real-Time Communication
+WebSocket connections via SockJS/STOMP provide instant message delivery, typing indicators, and online presence tracking without polling.
+
+## Team
+
+**Students:**
+- Egle Mickeviciute
+- Lukas Kasparavicius
+- Matas Brazauskas
+- Povilas Sakalauskas
+- Ruta Gaizutyte
+- Viktoras Timofejevas
+
+**Mentor:** Edvinas Jaskovikas
+
+## Related
+
+- [Aurora Chat Backend](https://github.com/xmivte/aurora-chat-backend) — Java Spring Boot backend API
+
+---
+
+*Built at Sourcery Academy 2025*
