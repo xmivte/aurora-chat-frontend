@@ -24,28 +24,38 @@ A modern, secure real-time messaging application built with React, TypeScript, a
 
 
 ### Main Chat View
-<!-- SCREENSHOT 2: MAIN CHAT VIEW (conversations list + active chat window) -->
-![Chat View](PASTE_CHAT_VIEW_IMAGE_URL_HERE)
+
+
 
 ### User Search
-<!-- SCREENSHOT 3: NEW CHAT / USER SEARCH DIALOG -->
-![User Search](PASTE_USER_SEARCH_IMAGE_URL_HERE)
+
+
+<img width="2559" height="1321" alt="image" src="https://github.com/user-attachments/assets/7442d2ff-9bd4-4a0b-8dd1-e6c31779d1b8" />
+
 
 ### Servers & Topics
-<!-- SCREENSHOT 4: SERVER VIEW WITH TOPIC CHANNELS -->
-![Servers & Topics](PASTE_SERVER_TOPICS_IMAGE_URL_HERE)
+
+
+<img width="2546" height="1321" alt="image" src="https://github.com/user-attachments/assets/4a83d57b-f32f-43a4-bd96-9f471873c458" />
+
 
 ### Typing Indicator
-<!-- SCREENSHOT 5: TYPING INDICATOR IN ACTION -->
-![Typing Indicator](PASTE_TYPING_INDICATOR_IMAGE_URL_HERE)
+
+
+<img width="301" height="116" alt="image" src="https://github.com/user-attachments/assets/5fc4147f-82da-42f9-9111-f8c7dadb5a27" />
+
 
 ### Pinned Messages & File Sharing
-<!-- SCREENSHOT 6: PINNED MESSAGES PANEL WITH FILE ATTACHMENTS -->
-![Pinned Messages & File Sharing](PASTE_PINNED_MESSAGES_IMAGE_URL_HERE)
+
+
+<img width="803" height="353" alt="image" src="https://github.com/user-attachments/assets/73a4cc37-4228-4c0b-b6e4-70e458a3810c" />
+
 
 ### User Settings
-<!-- SCREENSHOT 7: USER SETTINGS PANEL (profile update/delete) -->
-![User Settings](PASTE_USER_SETTINGS_IMAGE_URL_HERE)
+
+
+<img width="566" height="372" alt="image" src="https://github.com/user-attachments/assets/9fe9757f-475d-49e2-bfc5-6062159c4a01" />
+
 
 ## Tech Stack
 
