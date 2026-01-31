@@ -18,10 +18,10 @@ A modern, secure real-time messaging application built with React, TypeScript, a
 ## Screenshots
 
 ### Login
-<!-- SCREENSHOT 1: LOGIN PAGE -->
-<!-- To add: Open a new GitHub issue > drag your login screenshot into the comment box > -->
-<!-- copy the generated URL (https://github.com/user-attachments/assets/...) > paste below -->
-![Login](PASTE_LOGIN_IMAGE_URL_HERE)
+
+
+<img width="501" height="340" alt="image" src="https://github.com/user-attachments/assets/6ad4f513-baac-4289-b190-cf942c67ed27" />
+
 
 ### Main Chat View
 <!-- SCREENSHOT 2: MAIN CHAT VIEW (conversations list + active chat window) -->
