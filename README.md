@@ -25,6 +25,7 @@ A modern, secure real-time messaging application built with React, TypeScript, a
 
 ### Main Chat View
 
+<img width="2559" height="1320" alt="image" src="https://github.com/user-attachments/assets/f00346f8-2a55-4858-afbb-7af82db916bc" />
 
 
 ### User Search
